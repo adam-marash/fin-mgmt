@@ -66,12 +66,21 @@ The system should be able to produce jurisdiction-specific views from the same u
 
 ## Transaction Model
 
+### Bank transactions are facts
+
+- A bank credit or debit is a self-contained fact. It is booked immediately upon ingestion, without waiting for a matching announcement or notice.
+- If the counterparty is recognized (via `knowledge.json`), the offsetting leg goes to `Assets:Receivable:<Investment>` (for credits) or `Liabilities:Payable:<Investment>` (for debits).
+- If the counterparty is unknown, the offsetting leg goes to `Assets:Suspense` (a general holding account).
+- Receivable balances can be positive or negative. Both are signals, not errors:
+  - **Positive receivable**: an announcement was booked but the bank credit hasn't arrived yet ("where's my money?").
+  - **Negative receivable**: a bank credit arrived but no announcement has been processed yet ("what is this payment for?").
+  - **Zero**: fully reconciled.
+- The receivable balance report is the primary anomaly detection tool. Any non-zero balance demands investigation or patience.
+
 ### Distributions (money in)
 
-- A distribution announcement creates a receivable per investment (debit `Assets:Receivable:<Investment>`).
+- When a distribution announcement arrives (from Tzur, email, etc.), it creates a receivable and records income classification. If the bank credit already arrived (negative receivable), the announcement moves the balance toward zero.
 - Tax withholding clears part of the receivable and creates a tax credit per jurisdiction.
-- The bank credit clears the remainder (minus wire fees).
-- When the receivable zeros out, the transaction is fully reconciled. A non-zero balance is the red flag.
 - Classification of income (yield vs capital return vs capital gain) may be provisional at distribution time. Unclassified amounts sit in `Income:Unclassified:<Investment>` per payee and are reclassified when the annual tax certificate arrives. This ambiguity is expected, not an error. The unclassified-per-payee pattern allows a debtors report (who owes us) and an open questions report (what needs classifying at tax time).
 
 ### Commitments and capital calls (money out)
@@ -199,14 +208,11 @@ The folder name is a "birth certificate" - it records what was known when the do
 
 When data arrives, the system must match it against existing ledger state. There are three distinct matching problems:
 
-**1. Entry matching** - a new primary-source transaction finds its counterpart.
-- A bank credit arrives: query open receivables (`Assets:Receivable:*`) for candidate matches by investment, amount, and timing. Counterparty routing from `knowledge.json` narrows candidates.
-- A bank debit arrives: query open payables (`Liabilities:Payable:*`) similarly.
-- A distribution notice arrives first (no bank leg yet): creates the receivable with a new `^link-tag`. The bank credit matches it later.
-- A bank credit arrives first (no notice yet): books provisionally. When the notice arrives, it enriches the existing entry.
-- Match found: reuse the existing `^link-tag`, clear the receivable/payable.
-- No match: new `^link-tag`, book provisionally.
-- Ambiguous: ask Adam.
+**1. Entry matching** - a new transaction finds its counterpart in the ledger.
+- A bank credit arrives: book immediately against `Assets:Receivable:<Investment>` if counterparty is recognized, or `Assets:Suspense` if unknown. If a matching receivable already exists (positive balance from a prior announcement), reuse its `^link-tag`. If no prior receivable exists, the receivable goes negative - that's the signal that the announcement side is pending.
+- A bank debit arrives: same logic against `Liabilities:Payable:<Investment>` or `Assets:Suspense`.
+- A distribution notice arrives: creates/increases the receivable and records income. If the bank credit already arrived (negative receivable), the balance moves toward zero.
+- Ambiguous counterparty: ask Adam.
 
 `^link-tag` values follow a convention: `^<investment>-<type>-<seq>` (e.g., `^electra-dist-36`). The sequence number is determined by counting existing tags for that investment+type.
 
@@ -229,11 +235,17 @@ Some sources (FO, bank exports) produce cumulative data spanning previously repo
 - Only new rows (beyond the high-water mark) are processed. Previously matched rows are skipped.
 - The high-water mark is stored in `knowledge.json` under the source entry.
 
-### Gap detection
+### Gap detection and reports
 
-The system produces two types of alerts:
-- **"Where's my money?"** - a secondary source (FO, investee) reports a payment that has no matching bank credit in the ledger.
-- **"What is this?"** - a bank credit/debit exists with no matching announcement, no FO record, and no counterparty match in `knowledge.json`.
+The receivable/payable balance report is the primary anomaly detection tool:
+- **Positive receivable** = announcement booked, bank credit pending ("where's my money?")
+- **Negative receivable** = bank credit received, announcement pending ("what is this for?")
+- **Non-zero suspense** = unidentified bank transactions needing counterparty resolution
+- **Non-zero payable** = capital call due, payment pending
+
+The FO layer adds a second dimension: FO data is compared against ledger entries to surface discrepancies. FO knows about a payment with no ledger match = alert. Ledger has an entry with no FO match = flag for investigation.
+
+These reports should run after every ingestion batch and be reviewed by Adam.
 
 ## Documents & Formats
 

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Ingest transactions into the beancount ledger.
+"""Ingest bank transactions into the beancount ledger.
 
-This script handles the three matching problems from ASSUMPTIONS.md:
-1. Entry matching - new transaction finds open receivable/payable
-2. Evidence matching - secondary source confirms/contradicts ledger
-3. Enrichment matching - additional detail for existing entries
+Bank transactions are facts - book them immediately. The offsetting leg
+goes to Assets:Receivable:<Investment> (known counterparty) or
+Assets:Suspense (unknown). Negative receivable balances signal that an
+announcement is pending. See ASSUMPTIONS.md for the full model.
 
 Usage:
-    python scripts/ingest.py hsbc-credit <csv_path>   # process HSBC credits
-    python scripts/ingest.py scan <csv_path>           # dry-run: show what would be created
+    python scripts/ingest.py scan <csv_path>                # dry-run
+    python scripts/ingest.py hsbc-credit <csv_path>         # dry-run (same)
+    python scripts/ingest.py hsbc-credit <csv_path> --commit  # write entries
+    python scripts/ingest.py report                         # receivable balances
 """
 
 import argparse
@@ -18,7 +20,7 @@ import json
 import re
 import subprocess
 import sys
-from datetime import date, datetime, timedelta
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,12 +32,7 @@ def load_knowledge() -> dict:
     return json.load(open(KNOWLEDGE_FILE))
 
 
-def save_knowledge(k: dict):
-    json.dump(k, open(KNOWLEDGE_FILE, "w"), indent=2, ensure_ascii=False)
-
-
 def bean_check() -> bool:
-    """Run bean-check and return True if ledger validates."""
     result = subprocess.run(
         [str(ROOT / ".venv/bin/bean-check"), str(LEDGER_DIR / "main.beancount")],
         capture_output=True, text=True
@@ -46,114 +43,93 @@ def bean_check() -> bool:
     return True
 
 
-def fetch_fx_for_date(dt: str):
-    """Ensure prices.beancount has rates for this date."""
+def fetch_fx_for_dates(dates: set[str]):
+    """Batch-fetch FX rates for all transaction dates."""
+    if not dates:
+        return
     subprocess.run(
-        [str(ROOT / ".venv/bin/python"), str(ROOT / "scripts/fetch_fx.py"), dt],
+        [str(ROOT / ".venv/bin/python"), str(ROOT / "scripts/fetch_fx.py")] + sorted(dates),
         capture_output=True, text=True
     )
 
 
-def get_existing_link_tags() -> dict[str, list[str]]:
-    """Scan ledger for existing ^link-tags. Returns {tag: [files]}."""
-    tags = {}
+def get_existing_entries() -> list[dict]:
+    """Parse all ledger entries. Returns list of {date, amount, account, narration, link_tags, file}."""
+    entries = []
     for bc_file in LEDGER_DIR.rglob("entries.beancount"):
         content = bc_file.read_text()
-        for m in re.finditer(r"\^([\w-]+)", content):
-            tag = m.group(1)
-            tags.setdefault(tag, []).append(str(bc_file))
+        # Simple regex parse - find transaction headers and their postings
+        for block in re.split(r'\n(?=\d{4}-\d{2}-\d{2}\s)', content):
+            header = re.match(r'(\d{4}-\d{2}-\d{2})\s+\*\s+"([^"]*)"(.*)', block)
+            if not header:
+                continue
+            txn_date = header.group(1)
+            narration = header.group(2)
+            tag_str = header.group(3)
+            link_tags = re.findall(r'\^([\w-]+)', tag_str)
+
+            # Extract postings with amounts
+            for posting in re.finditer(
+                r'^\s+([\w:.-]+)\s+(-?[\d,.]+)\s+(\w+)', block, re.MULTILINE
+            ):
+                account = posting.group(1)
+                amount = float(posting.group(2).replace(",", ""))
+                currency = posting.group(3)
+                entries.append({
+                    "date": txn_date,
+                    "amount": amount,
+                    "account": account,
+                    "currency": currency,
+                    "narration": narration,
+                    "link_tags": link_tags,
+                    "file": str(bc_file),
+                })
+    return entries
+
+
+def is_duplicate(txn_date: str, amount: float, account: str, existing: list[dict]) -> bool:
+    """Check if a transaction already exists in the ledger."""
+    for e in existing:
+        if (e["date"] == txn_date and
+            e["account"] == account and
+            abs(e["amount"] - amount) < 0.01):
+            return True
+    return False
+
+
+def get_existing_link_tags(existing: list[dict]) -> set[str]:
+    """Extract all link tags from existing entries."""
+    tags = set()
+    for e in existing:
+        tags.update(e["link_tags"])
     return tags
 
 
-def get_open_receivables() -> dict[str, list[dict]]:
-    """Parse ledger to find open receivables with non-zero balances.
+def find_matching_receivable(
+    investment_name: str, existing: list[dict]
+) -> dict | None:
+    """Find the most recent positive receivable entry for this investment.
 
-    Returns {investment_name: [{date, amount, currency, link_tag, file}]}
+    If found, returns its link_tag so the bank credit can join the same event.
     """
-    # Use beancount API to find open receivable balances
-    try:
-        sys.path.insert(0, str(ROOT / ".venv/lib/python3.12/site-packages"))
-        import beancount.loader
-        import beancount.core.data as data
+    recv_account = f"Assets:Receivable:{investment_name}"
+    # Compute running balance for this receivable
+    balance = 0
+    last_positive_tag = None
+    for e in sorted(existing, key=lambda x: x["date"]):
+        if e["account"] == recv_account:
+            balance += e["amount"]
+            if balance > 0.01 and e["link_tags"]:
+                last_positive_tag = e["link_tags"][0]
 
-        entries, errors, options = beancount.loader.load_file(
-            str(LEDGER_DIR / "main.beancount")
-        )
-
-        # Find all receivable postings and compute balances
-        receivables = {}
-        for entry in entries:
-            if not isinstance(entry, data.Transaction):
-                continue
-            for posting in entry.postings:
-                if posting.account.startswith("Assets:Receivable:"):
-                    inv = posting.account.split(":")[-1]
-                    if inv not in receivables:
-                        receivables[inv] = {"balance": 0, "currency": None, "entries": []}
-                    amt = float(posting.units.number)
-                    receivables[inv]["balance"] += amt
-                    receivables[inv]["currency"] = posting.units.currency
-                    # Extract link tag
-                    link_tag = None
-                    if entry.links:
-                        link_tag = list(entry.links)[0]
-                    receivables[inv]["entries"].append({
-                        "date": str(entry.date),
-                        "amount": amt,
-                        "narration": entry.narration,
-                        "link_tag": link_tag,
-                    })
-
-        # Filter to non-zero balances
-        open_receivables = {}
-        for inv, data_dict in receivables.items():
-            if abs(data_dict["balance"]) > 0.01:
-                open_receivables[inv] = data_dict
-
-        return open_receivables
-
-    except Exception as e:
-        print(f"Warning: could not parse ledger for receivables: {e}", file=sys.stderr)
-        return {}
+    if balance > 0.01 and last_positive_tag:
+        return {"balance": balance, "link_tag": last_positive_tag}
+    return None
 
 
-def get_open_payables() -> dict:
-    """Similar to get_open_receivables but for Liabilities:Payable:*"""
-    # TODO: implement when we have capital calls
-    return {}
-
-
-def match_counterparty(counterparty: str, knowledge: dict) -> list[dict]:
-    """Match a bank counterparty name to investment(s) via knowledge.json.
-
-    Returns list of candidate investments with match confidence.
-    """
-    if not counterparty:
-        return []
-
-    cp_upper = counterparty.upper()
-    candidates = []
-
-    for inv_id, inv in knowledge.get("investments", {}).items():
-        for name in inv.get("counterparty_names", []):
-            if name.upper() in cp_upper or cp_upper in name.upper():
-                candidates.append({
-                    "investment_id": inv_id,
-                    "beancount_name": inv.get("beancount_name", inv_id),
-                    "confidence": "high",
-                    "matched_name": name,
-                })
-                break
-
-    return candidates
-
-
-def next_link_tag(investment_beancount_name: str, tag_type: str, existing_tags: dict) -> str:
-    """Generate next sequential ^link-tag for an investment.
-
-    E.g., if ^electra-mif-ii-dist-36 exists, returns ^electra-mif-ii-dist-37
-    """
-    prefix = f"{investment_beancount_name.lower()}-{tag_type}-"
+def next_link_tag(bc_name: str, tag_type: str, existing_tags: set[str]) -> str:
+    """Generate next sequential ^link-tag."""
+    prefix = f"{bc_name.lower()}-{tag_type}-"
     max_seq = 0
     for tag in existing_tags:
         if tag.startswith(prefix):
@@ -165,67 +141,39 @@ def next_link_tag(investment_beancount_name: str, tag_type: str, existing_tags: 
     return f"{prefix}{max_seq + 1}"
 
 
-def find_matching_receivable(
-    investment_name: str,
-    amount: float,
-    txn_date: str,
-    open_receivables: dict,
-    tolerance_pct: float = 0.05,
-) -> dict | None:
-    """Find an open receivable that matches this bank credit.
-
-    Matches by investment name. Amount tolerance handles wire fees.
-    Returns the matching receivable entry or None.
-    """
-    if investment_name not in open_receivables:
-        return None
-
-    recv = open_receivables[investment_name]
-    balance = recv["balance"]
-
-    # Check if the bank credit amount is close to the receivable balance
-    # (within tolerance, accounting for wire fees which reduce the credit)
-    if balance > 0 and amount > 0:
-        # Bank credit should be <= receivable (fees reduce it)
-        if amount <= balance and (balance - amount) / balance < tolerance_pct:
-            return {
-                "balance": balance,
-                "currency": recv["currency"],
-                "fee": round(balance - amount, 2),
-                "entries": recv["entries"],
-                "link_tag": recv["entries"][-1].get("link_tag"),
-            }
-
+def resolve_investment(name: str, knowledge: dict) -> dict | None:
+    """Resolve a CSV investment name to knowledge.json entry."""
+    for inv_id, inv in knowledge.get("investments", {}).items():
+        csv_aliases = [a.lower() for a in inv.get("csv_aliases", [])]
+        bc_name = inv.get("beancount_name", "")
+        if (name.lower() in csv_aliases or
+            name.lower().replace(" ", "-") in inv_id.lower() or
+            name.lower() in inv.get("name", "").lower() or
+            name.lower().replace(" ", "-") == bc_name.lower()):
+            return inv
     return None
 
 
-def make_folder_name(filing_date: str, source: str, desc: str, content_hash: str) -> str:
-    """Generate ledger folder name: <date>-<source>-<desc>-<hash>"""
-    return f"{filing_date}-{source}-{desc}-{content_hash[:8]}"
-
-
-def generate_bank_credit_entry(
+def format_entry(
     txn_date: str,
     amount: float,
     currency: str,
     bank_account: str,
-    counterparty: str,
-    investment_name: str | None,
-    link_tag: str | None,
+    narration: str,
+    offset_account: str,
+    link_tag: str | None = None,
+    hash_tags: list[str] | None = None,
     fee: float = 0,
     source_ref: str = "",
-    tags: list[str] | None = None,
 ) -> str:
-    """Generate beancount entry for a bank credit (wire received)."""
+    """Format a beancount transaction entry."""
     tag_str = ""
     if link_tag:
         tag_str += f" ^{link_tag}"
-    if tags:
-        tag_str += " " + " ".join(f"#{t}" for t in tags)
+    if hash_tags:
+        tag_str += " " + " ".join(f"#{t}" for t in hash_tags)
 
-    narration = f'"{counterparty or "Unknown"} - wire received"'
-
-    lines = [f'{txn_date} * {narration}{tag_str}']
+    lines = [f'{txn_date} * "{narration}"{tag_str}']
     if source_ref:
         lines.append(f'  source: "{source_ref}"')
 
@@ -233,152 +181,195 @@ def generate_bank_credit_entry(
 
     if fee > 0:
         lines.append(f"  Expenses:Wire-Fees  {fee:,.2f} {currency}")
-
-    if investment_name:
-        total = amount + fee
-        lines.append(f"  Assets:Receivable:{investment_name}  -{total:,.2f} {currency}")
+        lines.append(f"  {offset_account}  -{amount + fee:,.2f} {currency}")
     else:
-        lines.append(f"  Income:Unidentified  -{amount + fee:,.2f} {currency}")
+        # No fee or negative fee (bank received more than expected) -
+        # receivable absorbs the full bank amount
+        lines.append(f"  {offset_account}  -{amount:,.2f} {currency}")
 
     return "\n".join(lines)
 
 
-def process_hsbc_credit_assignment(csv_path: str, dry_run: bool = True):
-    """Process the HSBC credit assignment CSV into ledger entries.
-
-    Each row is a matched bank credit with investment assignment.
-    """
+def process_hsbc_credits(csv_path: str, dry_run: bool = True):
+    """Process HSBC credit assignment CSV into ledger entries."""
     knowledge = load_knowledge()
-    existing_tags = get_existing_link_tags()
-    open_receivables = get_open_receivables()
+    existing = get_existing_entries()
+    existing_tags = get_existing_link_tags(existing)
     filing_date = date.today().isoformat()
-
-    # Bank account mapping for HSBC GU
     bank_account = "Assets:Banks:HSBC-GU:Tamar-Direct:USD-Income-7003"
+    source_ref = "data/2026-03-05-hsbc-gu-credit-assignment/hsbc-gu-credit-assignment.csv"
 
     with open(csv_path) as f:
         reader = csv.DictReader(f)
         rows = [r for r in reader if not r.get("date", "").startswith("#")]
 
     created = 0
-    skipped = 0
+    skipped_status = 0
+    skipped_dup = 0
+    skipped_unknown = 0
     needs_review = []
+    fx_dates = set()
+    entries_to_write = []
 
     for row in rows:
         txn_date = row["date"]
         amount = float(row["amount"].replace(",", ""))
         status = row["status"]
-        investment = row.get("investment", "")
+        investment_csv = row.get("investment", "")
         fee = float(row.get("fee", 0) or 0)
-        notes = row.get("notes", "")
 
-        # Skip non-matched or special types
+        # Skip non-investment statuses
         if status not in ("matched", "probable"):
-            skipped += 1
+            skipped_status += 1
             continue
 
-        # Find investment in knowledge.json
-        inv_match = None
-        for inv_id, inv in knowledge.get("investments", {}).items():
-            bc_name = inv.get("beancount_name", "")
-            csv_aliases = [a.lower() for a in inv.get("csv_aliases", [])]
-            if (investment.lower() in csv_aliases or
-                investment.lower().replace(" ", "-") in inv_id.lower() or
-                investment.lower() in inv.get("name", "").lower() or
-                investment.lower().replace(" ", "-") == bc_name.lower()):
-                inv_match = inv
-                break
-
-        if not inv_match:
-            needs_review.append(f"  {txn_date} ${amount:,.2f} - no investment match for '{investment}'")
+        # Resolve investment
+        inv = resolve_investment(investment_csv, knowledge)
+        if not inv:
+            needs_review.append(f"  {txn_date} ${amount:,.2f} - unknown: '{investment_csv}'")
+            skipped_unknown += 1
             continue
 
-        bc_name = inv_match.get("beancount_name", investment)
+        bc_name = inv.get("beancount_name", investment_csv)
 
-        # Check if this transaction already exists in the ledger
-        # (simple check: look for same date + similar amount in existing entries)
-        already_exists = False
-        for recv_inv, recv_data in (open_receivables | {}).items():
-            for entry in recv_data.get("entries", []):
-                # A wire-received entry clearing this exact amount on this date
-                if entry["date"] == txn_date and abs(entry["amount"] + amount) < 0.01:
-                    already_exists = True
-                    break
+        # Dedup check
+        if is_duplicate(txn_date, amount, bank_account, existing):
+            skipped_dup += 1
+            continue
 
-        # Check for matching receivable
-        match = find_matching_receivable(bc_name, amount, txn_date, open_receivables)
+        # Determine offset account and link tag
+        offset_account = f"Assets:Receivable:{bc_name}"
 
+        # Check for matching positive receivable (announcement arrived first)
+        match = find_matching_receivable(bc_name, existing)
         if match:
             link_tag = match["link_tag"]
-            computed_fee = match["fee"]
         else:
-            # No open receivable - this is a standalone bank credit
-            # Generate a new link tag
+            # No prior announcement - generate new link tag
             link_tag = next_link_tag(bc_name, "dist", existing_tags)
-            existing_tags[link_tag] = []  # register it
-            computed_fee = fee
+            existing_tags.add(link_tag)
 
-        entry = generate_bank_credit_entry(
+        hash_tags = ["provisional"] if status == "probable" else None
+        narration = f"{investment_csv} - wire received"
+
+        entry_text = format_entry(
             txn_date=txn_date,
             amount=amount,
             currency="USD",
             bank_account=bank_account,
-            counterparty=investment,
-            investment_name=bc_name,
+            narration=narration,
+            offset_account=offset_account,
             link_tag=link_tag,
-            fee=computed_fee,
-            tags=["provisional"] if status == "probable" else None,
+            hash_tags=hash_tags,
+            fee=fee,
+            source_ref=source_ref,
         )
 
         if dry_run:
             print(f"\n--- {txn_date} ${amount:,.2f} -> {bc_name} (^{link_tag}) ---")
-            print(entry)
+            print(entry_text)
         else:
-            # Create folder and write entry
-            content_hash = hashlib.sha256(entry.encode()).hexdigest()[:8]
-            desc = f"credit-{bc_name.lower()}"
-            folder_name = make_folder_name(filing_date, "hsbc", desc, content_hash)
-            year = txn_date[:4]
+            entries_to_write.append({
+                "txn_date": txn_date,
+                "entry_text": entry_text,
+                "investment_csv": investment_csv,
+                "amount": amount,
+                "bc_name": bc_name,
+            })
+            fx_dates.add(txn_date)
 
-            folder_path = LEDGER_DIR / year / folder_name
-            folder_path.mkdir(parents=True, exist_ok=True)
-
-            entry_file = folder_path / "entries.beancount"
-            entry_file.write_text(f"; Bank credit: {investment}\n; Amount: ${amount:,.2f} on {txn_date}\n\n{entry}\n")
-
-            # Fetch FX rates for this date
-            fetch_fx_for_date(txn_date)
-
-            created += 1
-
+        # Register in existing to prevent self-duplication within batch
+        existing.append({
+            "date": txn_date,
+            "amount": amount,
+            "account": bank_account,
+            "currency": "USD",
+            "narration": narration,
+            "link_tags": [link_tag],
+            "file": "pending",
+        })
         created += 1
 
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Summary:")
-    print(f"  Created: {created}")
-    print(f"  Skipped (non-matched): {skipped}")
+    print(f"  Would create: {created}")
+    print(f"  Skipped (non-investment status): {skipped_status}")
+    print(f"  Skipped (already in ledger): {skipped_dup}")
     if needs_review:
         print(f"  Needs review ({len(needs_review)}):")
         for item in needs_review:
             print(item)
 
-    if not dry_run:
+    if not dry_run and entries_to_write:
+        # Fetch FX rates for all new dates
+        print(f"\nFetching FX rates for {len(fx_dates)} dates...")
+        fetch_fx_for_dates(fx_dates)
+
+        # Write entries
+        for item in entries_to_write:
+            content_hash = hashlib.sha256(item["entry_text"].encode()).hexdigest()[:8]
+            desc = f"credit-{item['bc_name'].lower()}"
+            folder_name = f"{filing_date}-hsbc-{desc}-{content_hash}"
+            year = item["txn_date"][:4]
+
+            folder_path = LEDGER_DIR / year / folder_name
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            header = f"; Bank credit: {item['investment_csv']}\n"
+            header += f"; Amount: ${item['amount']:,.2f} on {item['txn_date']}\n\n"
+            (folder_path / "entries.beancount").write_text(header + item["entry_text"] + "\n")
+
+        # Validate
         if bean_check():
-            print("  Ledger validates OK")
+            print(f"  Wrote {len(entries_to_write)} entries. Ledger validates OK.")
         else:
-            print("  WARNING: Ledger validation failed!")
+            print("  WARNING: Ledger validation failed after writing entries!")
+
+
+def report_balances():
+    """Print receivable and suspense balances - the anomaly detection report."""
+    existing = get_existing_entries()
+
+    # Compute balances per receivable account
+    balances = {}
+    for e in existing:
+        acct = e["account"]
+        if acct.startswith("Assets:Receivable:") or acct == "Assets:Suspense":
+            balances.setdefault(acct, {"amount": 0, "currency": e["currency"]})
+            balances[acct]["amount"] += e["amount"]
+
+    if not balances:
+        print("No receivable or suspense entries found.")
+        return
+
+    print("Receivable & Suspense Balances:")
+    print("-" * 60)
+    for acct in sorted(balances):
+        b = balances[acct]
+        if abs(b["amount"]) < 0.01:
+            status = "RECONCILED"
+        elif b["amount"] > 0:
+            status = "PENDING RECEIPT"
+        else:
+            status = "PENDING ANNOUNCEMENT"
+        print(f"  {acct:<45} {b['amount']:>12,.2f} {b['currency']}  [{status}]")
+
+    non_zero = {a: b for a, b in balances.items() if abs(b["amount"]) > 0.01}
+    print(f"\n  {len(non_zero)} non-zero / {len(balances)} total")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Ingest transactions into beancount ledger")
-    parser.add_argument("command", choices=["hsbc-credit", "scan"])
-    parser.add_argument("csv_path", help="Path to CSV file")
+    parser.add_argument("command", choices=["hsbc-credit", "scan", "report"])
+    parser.add_argument("csv_path", nargs="?", help="Path to CSV file")
     parser.add_argument("--commit", action="store_true", help="Actually write entries (default: dry run)")
     args = parser.parse_args()
 
-    dry_run = not args.commit
-
-    if args.command in ("hsbc-credit", "scan"):
-        process_hsbc_credit_assignment(args.csv_path, dry_run=dry_run)
+    if args.command == "report":
+        report_balances()
+    elif args.command in ("hsbc-credit", "scan"):
+        if not args.csv_path:
+            parser.error("csv_path required for hsbc-credit/scan")
+        process_hsbc_credits(args.csv_path, dry_run=not args.commit)
 
 
 if __name__ == "__main__":
