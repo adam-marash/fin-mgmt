@@ -335,6 +335,38 @@ LEUMI_ILS_COUNTERPARTY_MAP = {
     "10-978-033450094": ("Carmel-Credit", "Carmel Credit (A.B.G Planning) - distribution received"),
 }
 
+# IBI pipe to Leumi ILS: each transfer maps 1:1 to a single investment.
+# Matched against FO data. Format: (date, amount) -> beancount_name
+IBI_ILS_DECOMPOSITION = {
+    ("2023-02-27", 30637.0): "Reality-Germany",
+    ("2023-03-09", 9835.0): "Boligo-2",
+    ("2023-05-15", 11431.0): "Reality-Germany",
+    ("2023-05-24", 3137.0): "Netz",
+    ("2023-07-23", 14219.0): "Reality-Germany",
+    ("2023-09-05", 5361.0): "Netz",
+    ("2023-11-16", 12999.0): "Reality-Germany",
+    ("2023-12-20", 7716.0): "Netz",
+    ("2024-04-10", 2915.0): "Reality-Germany",
+    ("2024-04-16", 7133.0): "Netz",
+    ("2024-05-28", 9060.0): "Boligo-2",
+    ("2024-06-20", 7122.0): "Reality-Germany",
+    ("2024-08-14", 6418.0): "Boligo-2",
+    ("2024-08-19", 7298.0): "Reality-Germany",
+    ("2024-08-29", 4441.0): "Netz",
+    ("2024-11-13", 6535.0): "Boligo-2",
+    ("2024-12-03", 6919.0): "Reality-Germany",
+    ("2025-02-19", 9987.0): "Boligo-2",
+    ("2025-02-20", 6722.0): "Reality-Germany",
+    ("2025-08-25", 4082.0): "Boligo-2",
+    ("2025-09-09", 7084.0): "Reality-Germany",
+    ("2025-09-17", 9608.0): "Netz",
+    ("2025-11-18", 8318.0): "Boligo-2",
+    # Beyond FO data coverage - probable matches based on quarterly patterns
+    ("2025-12-24", 11214.0): "Reality-Germany",  # probable
+    ("2025-12-30", 14322.0): "Netz",  # probable
+    ("2026-02-19", 9139.0): "Boligo-2",  # probable
+}
+
 
 def process_leumi_ils(csv_path: str, dry_run: bool = True):
     """Process Leumi ILS translated CSV into ledger entries.
@@ -376,18 +408,26 @@ def process_leumi_ils(csv_path: str, dry_run: bool = True):
             skipped_cat += 1
             continue
 
-        # IBI pipe - skip for now (needs decomposition)
+        # IBI pipe - decompose using FO-matched lookup
         if counterparty_account == "12-600-000399420":
-            skipped_ibi += 1
-            continue
-
-        # Look up counterparty
-        mapping = LEUMI_ILS_COUNTERPARTY_MAP.get(counterparty_account)
-        if not mapping:
-            print(f"  UNKNOWN counterparty: {txn_date} {amount:,.2f} ILS from {counterparty} ({counterparty_account})")
-            continue
-
-        bc_name, narration = mapping
+            ibi_key = (txn_date, amount)
+            bc_name = IBI_ILS_DECOMPOSITION.get(ibi_key)
+            if not bc_name:
+                print(f"  UNMATCHED IBI pipe: {txn_date} {amount:,.2f} ILS - not in decomposition table")
+                skipped_ibi += 1
+                continue
+            # Check if this is a probable match (last 3 entries)
+            is_probable = txn_date >= "2025-12-01"
+            narration = f"{bc_name} (via IBI pipe) - distribution received"
+            # Fall through to normal processing below
+        else:
+            # Look up counterparty
+            mapping = LEUMI_ILS_COUNTERPARTY_MAP.get(counterparty_account)
+            if not mapping:
+                print(f"  UNKNOWN counterparty: {txn_date} {amount:,.2f} ILS from {counterparty} ({counterparty_account})")
+                continue
+            bc_name, narration = mapping
+            is_probable = False
 
         # Dedup
         if is_duplicate(txn_date, amount, bank_account, existing):
@@ -403,6 +443,8 @@ def process_leumi_ils(csv_path: str, dry_run: bool = True):
             link_tag = next_link_tag(bc_name, "dist", existing_tags)
             existing_tags.add(link_tag)
 
+        hash_tags = ["provisional"] if is_probable else None
+
         entry_text = format_entry(
             txn_date=txn_date,
             amount=amount,
@@ -411,6 +453,7 @@ def process_leumi_ils(csv_path: str, dry_run: bool = True):
             narration=narration,
             offset_account=offset_account,
             link_tag=link_tag,
+            hash_tags=hash_tags,
             source_ref=source_ref,
         )
 
@@ -441,7 +484,7 @@ def process_leumi_ils(csv_path: str, dry_run: bool = True):
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Leumi ILS Summary:")
     print(f"  Would create: {created}")
     print(f"  Skipped (non-investment): {skipped_cat}")
-    print(f"  Skipped (IBI pipe - needs decomposition): {skipped_ibi}")
+    print(f"  Skipped (IBI pipe - unmatched): {skipped_ibi}")
     print(f"  Skipped (already in ledger): {skipped_dup}")
 
     if not dry_run and entries_to_write:
@@ -594,32 +637,35 @@ def report_balances():
     """Print receivable and suspense balances - the anomaly detection report."""
     existing = get_existing_entries()
 
-    # Compute balances per receivable account
+    # Compute balances per (account, currency)
     balances = {}
     for e in existing:
         acct = e["account"]
         if acct.startswith("Assets:Receivable:") or acct == "Assets:Suspense":
-            balances.setdefault(acct, {"amount": 0, "currency": e["currency"]})
-            balances[acct]["amount"] += e["amount"]
+            key = (acct, e["currency"])
+            balances.setdefault(key, 0)
+            balances[key] += e["amount"]
 
     if not balances:
         print("No receivable or suspense entries found.")
         return
 
     print("Receivable & Suspense Balances:")
-    print("-" * 60)
-    for acct in sorted(balances):
-        b = balances[acct]
-        if abs(b["amount"]) < 0.01:
+    print("-" * 65)
+    non_zero = 0
+    for (acct, ccy) in sorted(balances):
+        amt = balances[(acct, ccy)]
+        if abs(amt) < 0.01:
             status = "RECONCILED"
-        elif b["amount"] > 0:
+        elif amt > 0:
             status = "PENDING RECEIPT"
+            non_zero += 1
         else:
             status = "PENDING ANNOUNCEMENT"
-        print(f"  {acct:<45} {b['amount']:>12,.2f} {b['currency']}  [{status}]")
+            non_zero += 1
+        print(f"  {acct:<45} {amt:>12,.2f} {ccy:<4} [{status}]")
 
-    non_zero = {a: b for a, b in balances.items() if abs(b["amount"]) > 0.01}
-    print(f"\n  {len(non_zero)} non-zero / {len(balances)} total")
+    print(f"\n  {non_zero} non-zero / {len(balances)} total")
 
 
 def main():
