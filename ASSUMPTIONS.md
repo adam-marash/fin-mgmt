@@ -1,0 +1,255 @@
+# Assumptions
+
+Carried forward from the accounting project (~/life/accounting, adam-marash/aviv). These are problem-space truths, not solution choices.
+
+## People & Structure
+
+- Two people: Adam and Tamar. Tamar holds most assets in her name.
+- Multiple accounts across both people, mixed formats (CSV, PDF, email), some in Hebrew.
+- Ediblesites Ltd is out of scope.
+- Secondary goal: preserve all data in calendar-year / USD views for personal use.
+
+## Data Sources
+
+- Bank accounts (Barclays, Leumi, etc.) in GBP/USD/EUR/ILS.
+- Investment funds managed via family offices, with trustees as intermediaries.
+- Tax documents (P60, P11D, 1042-S, SA302).
+- Emails from trustees, family offices, fund administrators.
+- The same economic event can appear in up to 4 sources (investee, trustee, bank, family office) in different currencies and on different dates.
+
+## Document Types
+
+- **Transactional** - contains extractable transaction rows (invoices, trustee reports with disbursements, FO summaries with line items).
+- **Reference** - legitimate document with no transaction rows (tax forms, NAV statements, unit confirmations). Needs to be classified, linked, and indexed but has no data to import.
+- **Noise** - no accounting value (delivery notifications, marketing).
+
+## Financial
+
+- No "primary" currency. Source data is stored in its native currency.
+- Reports can be generated in any currency using FX rates.
+- Investments and accounts each have a definitive settlement currency.
+- Original currency always preserved alongside any conversion.
+- Direct cross-rates needed (USD/ILS, USD/EUR, GBP/USD etc.) for accurate reconciliation.
+- HMRC accepts transaction-date rates for SA.
+- Historical FX rates must be stored and reusable.
+- Flag any conversion where implied rate deviates >3% from market rate.
+
+## Objectives (equal priority)
+
+1. **Management information system** - Adam's personal view of all finances, denominated in USD. The primary internal tool.
+2. **UK Self Assessment** - output materials for accountant/bookkeeper. Tax year: 6 Apr - 5 Apr (2025/26 is the current year). Adam and Tamar file separately.
+3. **US tax reporting** - produce reports a bookkeeper can use to verify alignment with the accountant filing US returns.
+4. **Israel tax reporting** - joint filing. Withholding credits from Israeli-source investments.
+5. **Other jurisdictions** - extensible to additional tax regimes as needed.
+
+The system should be able to produce jurisdiction-specific views from the same underlying data. A bookkeeper or accountant should be able to take the output and verify or file without needing to understand the system. Accountants receive reports (PDF/spreadsheet), not access to the ledger.
+
+## UK Self Assessment (SA pages)
+
+- SA100: UK dividends, interest, pension, state benefits
+- SA102: Employment
+- SA103: Self-employment
+- SA104: UK property
+- SA105: Partnerships
+- SA106: Foreign dividends/interest/employment/rental/pension/other
+- SA108: Capital gains
+- Non-SA categories also needed: own-account transfers, personal expenses, investment fees, bank fees.
+
+## Ledger Format
+
+- Beancount (plaintext double-entry accounting). Chosen for: Python-native, strict validation, multi-currency, metadata/links, plugin API, established tooling.
+- Every ledger entry carries a source reference (document path + page/field where applicable).
+- Related entries are linked via `^link-tags` (e.g., all parts of a distribution share `^electra-dist-36`).
+- Reporting dimensions use `#hash-tags` (e.g., `#uk-reportable`, `#us-reportable`, `#il-withholding`, `#provisional`, `#sa106`).
+- Single ledger for both Adam and Tamar. Ownership is expressed through the account hierarchy, not separate ledgers. Jurisdiction-specific and per-person reporting is achieved through queries and tags.
+- Account hierarchy uses colon-separated segments for natural grouping (e.g., `Assets:Banks:HSBC-GU:Tamar-Direct:USD-Income-7003`). No spaces in account names.
+
+## Transaction Model
+
+### Distributions (money in)
+
+- A distribution announcement creates a receivable per investment (debit `Assets:Receivable:<Investment>`).
+- Tax withholding clears part of the receivable and creates a tax credit per jurisdiction.
+- The bank credit clears the remainder (minus wire fees).
+- When the receivable zeros out, the transaction is fully reconciled. A non-zero balance is the red flag.
+- Classification of income (yield vs capital return vs capital gain) may be provisional at distribution time. Unclassified amounts sit in `Income:Unclassified:<Investment>` per payee and are reclassified when the annual tax certificate arrives. This ambiguity is expected, not an error. The unclassified-per-payee pattern allows a debtors report (who owes us) and an open questions report (what needs classifying at tax time).
+
+### Commitments and capital calls (money out)
+
+- Signing an investment agreement creates a commitment (liability) for the full amount: `Liabilities:Commitments:<Investment>`. This is the total unfunded obligation. It is not due immediately.
+- A capital call notice draws down part of the commitment: reduces the commitment and creates an immediate payable (`Liabilities:Payable:<Investment>`). The total obligation does not change - it shifts from unfunded to funded.
+- The bank debit clears the payable.
+- The unfunded commitment balance shows how much more could be called. The payable balance shows what is due now.
+
+## Foreign Currency & Tax
+
+- Entries are recorded in their native currency. Beancount never converts at entry time.
+- GBP/USD/ILS equivalents for tax reporting are stored as metadata on entries (e.g., `rate-gbp`, `amount-gbp`), not as converted amounts. This avoids Xero-style phantom FX imbalances.
+- Foreign currency receipts carry a GBP cost basis (`{rate GBP}`) for HMRC section 252 TCGA 1992. Disposal of foreign currency triggers a chargeable FX gain/loss.
+- Multiple `operating_currency` directives enable USD management reports and GBP/ILS tax reports from the same ledger.
+- FX rates stored in a `prices.beancount` file, used at report time only.
+
+## Reconciliation
+
+- **Mutual corroboration principle**: for family-office-managed investments, multiple independent sources must support each other like a Leonardo stick bridge - bank movements, trustee statements, family office transaction reports, and investee reports each confirm the others. No single source is trusted alone. Any material discrepancy between sources (beyond small differences from FX spreads or bank fees) is a red flag requiring human attention.
+- Reconciliation is structural, not procedural: the double-entry ledger *is* the reconciliation. Receivable balances show what's outstanding. Unclassified income shows what needs tax categorization.
+- The FO (family office) is a secondary source. Its assertions are recorded as notes/metadata alongside ledger entries. FO data validates but does not create entries. Mismatches between FO assertions and ledger actuals are flagged automatically.
+- A single trustee report line item can decompose into multiple components (gross dividend, withholding tax, carried interest, transfer fee, net transfer) each with different reconciliation paths.
+- Expected source coverage varies by event type:
+  - Disbursement: investee + trustee + family office + bank
+  - Management fee: trustee + bank
+  - Capital call: investee + trustee + bank
+  - Salary: employer + bank
+  - Own-account transfer: source bank + destination bank
+  - FO fee: family office + bank
+  - Dividend: investee + bank
+
+## Entity Resolution
+
+- Counterparties appear under different names across sources (e.g., "ABC TRUSTEES", "A.B.C. TRUST LTD").
+- Aliases can be source-specific (a bank may show a different name than a trustee report).
+- Entity-to-investment links are what connect a bank transaction showing a trustee name to the underlying investment.
+
+## Document Triage
+
+Three categories at ingestion:
+1. **Duplicate** (same SHA-256 hash as an already-filed document) - discard.
+2. **Primary source** (creates or clears ledger entries) - bank statements, distribution announcements, capital call notices, investment agreements. Parsed into the ledger; original filed as backing.
+3. **Secondary source** (validates but doesn't create entries) - FO summaries, quarterly reports, email confirmations. Filed and linked to relevant entries as corroboration. Mismatches trigger alerts.
+
+Overlapping bank statements don't add value if the transactions are already in the ledger. A trustee distribution breakdown is irreplaceable - it's the only source of gross/tax/carry decomposition.
+
+## Deduplication
+
+- Document-level: SHA-256 hash checked against existing hashes under `ledger/` before filing. Duplicate documents discarded at ingestion.
+- Transaction-level: beancount's own validation catches double-booked entries. Balance assertions extracted from bank statement closing balances are the ultimate guard - a duplicated entry will cause `bean-check` to fail.
+- Overlapping rows from consecutive bank statements are expected. The ingestion process checks whether entries already exist in the ledger before creating new ones.
+
+## Ledger Storage
+
+- `ledger/` is the book of record, git-tracked for audit trail and backup.
+- Each filed document lives in its own folder under `ledger/YYYY/` alongside its `entries.beancount` interpretation. Provenance is physical - the source document and its parsed entries sit together.
+- The master `main.beancount` includes all entries via glob: `include "2025/*/entries.beancount"`.
+- Secondary sources (FO summaries) produce `assertions.beancount` (notes/balance checks) rather than entries.
+- Git diffs show exactly what changed and when. Reclassifications at tax time are visible as clean diffs with explanatory commit messages.
+
+## Repository Structure
+
+Everything is git-tracked. The only gitignored items are `.venv/` and `__pycache__/`.
+
+```
+fin-mgmt/
+  ledger/                     # Book of record
+    main.beancount            # Entry point (includes everything)
+    accounts.beancount        # Chart of accounts
+    prices.beancount          # FX rates
+    2024/                     # Folders by year
+    2025/
+      2025-12-22-electra-a3f2c1/
+        dist-notice.pdf       # Source document
+        entries.beancount     # Parsed interpretation
+      ...
+  inbox/                      # Landing zone (aim: zero)
+    <documents awaiting triage>
+  dups/                       # Discarded duplicates (kept for auditability)
+  data/                       # Date-prefixed folders: raw exports + cleaned CSVs
+    2026-03-05-hsbc-gu-transactions/
+      raw.xlsx                # Original export
+      all-transactions.csv    # Normalized
+    ...
+  scripts/                    # Python scripts (normalizers, parsers, email fetcher)
+  tmp/                        # Source files awaiting filing into ledger/
+  config/                     # Credentials (gitignored separately if needed)
+```
+
+### Triage workflow
+
+```
+Document arrives -> inbox/
+  |
+  +-- Duplicate (SHA-256 match)? -> dups/
+  +-- Primary source? -> ledger/YYYY/<date>-<source>-<hash>/ (with entries.beancount)
+  +-- Secondary source (FO, investment stmt)? -> data/<date>-<source>-<desc>/
+  |     (cleaned CSV + assertions.beancount linked to ledger entries)
+  +-- Noise? -> delete
+```
+
+Target: inbox at zero. Triage promptly - inbox is git-tracked because triage lag is real and documents must not be lost in the gap between arrival and filing.
+
+### What lives where
+
+- **ledger/**: beancount files + filed source documents. The book of record.
+- **inbox/**: documents awaiting triage. Transient but backed up.
+- **dups/**: hash-matched duplicates. Cheap insurance, never referenced.
+- **data/**: date-prefixed folders containing raw exports (XLSX, HTML-as-XLS) alongside their cleaned CSVs. Referenced by ledger entries as evidence. Hard to regenerate - always retained. Folders (not bare files) to allow multiple files, worksheets, notes.
+- **tmp/**: raw source files awaiting filing. Cleaned up once contents are filed to `ledger/`.
+- **scripts/**: Python scripts (normalizers, parsers, email fetcher).
+
+### Ledger folder naming
+
+Folders under `ledger/YYYY/` are named `<date>-<source>-<desc>-<hash>/` where:
+- `<date>` is the filing date (when the document was processed, not the transaction date).
+- `<source>` is a short identifier for the origin (e.g., `electra`, `hsbc`, `fo`, `leumi`).
+- `<desc>` is a short human-readable description (e.g., `dist-notice`, `credit-47k`, `q3-report`).
+- `<hash>` is a short hash (first 6-8 chars of SHA-256) for uniqueness and dedup.
+
+The folder name is a "birth certificate" - it records what was known when the document was filed. It does not attempt to describe the economic event. Semantic grouping is handled by `^link-tags` inside the beancount entries, not by folder names. Folders are never renamed after filing.
+
+### Reconciliation engine
+
+When data arrives, the system must match it against existing ledger state. There are three distinct matching problems:
+
+**1. Entry matching** - a new primary-source transaction finds its counterpart.
+- A bank credit arrives: query open receivables (`Assets:Receivable:*`) for candidate matches by investment, amount, and timing. Counterparty routing from `knowledge.json` narrows candidates.
+- A bank debit arrives: query open payables (`Liabilities:Payable:*`) similarly.
+- A distribution notice arrives first (no bank leg yet): creates the receivable with a new `^link-tag`. The bank credit matches it later.
+- A bank credit arrives first (no notice yet): books provisionally. When the notice arrives, it enriches the existing entry.
+- Match found: reuse the existing `^link-tag`, clear the receivable/payable.
+- No match: new `^link-tag`, book provisionally.
+- Ambiguous: ask Adam.
+
+`^link-tag` values follow a convention: `^<investment>-<type>-<seq>` (e.g., `^electra-dist-36`). The sequence number is determined by counting existing tags for that investment+type.
+
+**2. Evidence matching** - a secondary source (FO CSV, investment statement) confirms or contradicts existing ledger entries.
+- The FO/investment data goes to `data/` as a cleaned CSV, and produces `assertions.beancount` notes linked to existing entries.
+- Match by investment + date + amount against ledger entries.
+- FO confirms ledger entry: assertion recorded as corroboration.
+- FO shows a transaction with no matching ledger entry: alert Adam ("FO knows about a payment that didn't land in our account").
+- Ledger has an entry with no FO match: flag for investigation (may be expected if FO data lags).
+
+**3. Enrichment matching** - two views of the same transaction from the same source system.
+- HSBC transaction reports may show `***` for payees. HSBC individual detail statements for the same transaction show the actual counterparty name.
+- Match by bank + account + date + amount. The detail statement enriches the existing entry regardless of arrival order.
+- This also applies when overlapping bank statement periods re-report previously seen transactions.
+
+### Cumulative source handling
+
+Some sources (FO, bank exports) produce cumulative data spanning previously reported periods.
+- Track a high-water mark per source (last processed date or set of known transaction hashes) to identify the delta.
+- Only new rows (beyond the high-water mark) are processed. Previously matched rows are skipped.
+- The high-water mark is stored in `knowledge.json` under the source entry.
+
+### Gap detection
+
+The system produces two types of alerts:
+- **"Where's my money?"** - a secondary source (FO, investee) reports a payment that has no matching bank credit in the ledger.
+- **"What is this?"** - a bank credit/debit exists with no matching announcement, no FO record, and no counterparty match in `knowledge.json`.
+
+## Documents & Formats
+
+- Raw documents are never modified; all processing creates new files.
+- Lineage must be visible: raw -> translated -> normalized -> decomposition.
+- Hebrew documents need translation before processing.
+- Normalized CSVs serve as an auditable bridge between raw documents and imported data.
+
+## Human-in-the-Loop
+
+- Approval required for unstructured documents (PDFs, emails).
+- Human resolves: classification, extraction errors, ambiguous reconciliation matches, uncategorized transactions, unmatched counterparties, duplicate resolution.
+- Corrections should feed back into learned patterns.
+
+## Audit & Reversibility
+
+- Git provides the append-only audit trail. Every commit is a state change.
+- Imports are batch-reversible: `git revert` removes a batch of entries. Source documents remain for re-import.
+- The ledger can be fully validated at any time with `bean-check main.beancount`.
