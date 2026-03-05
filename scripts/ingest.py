@@ -10,6 +10,10 @@ Usage:
     python scripts/ingest.py scan <csv_path>                # dry-run
     python scripts/ingest.py hsbc-credit <csv_path>         # dry-run (same)
     python scripts/ingest.py hsbc-credit <csv_path> --commit  # write entries
+    python scripts/ingest.py leumi-ils <csv_path>           # dry-run
+    python scripts/ingest.py leumi-ils <csv_path> --commit  # write entries
+    python scripts/ingest.py leumi-usd <csv_path>           # dry-run
+    python scripts/ingest.py leumi-usd <csv_path> --commit  # write entries
     python scripts/ingest.py report                         # receivable balances
 """
 
@@ -325,6 +329,267 @@ def process_hsbc_credits(csv_path: str, dry_run: bool = True):
             print("  WARNING: Ledger validation failed after writing entries!")
 
 
+LEUMI_ILS_COUNTERPARTY_MAP = {
+    # counterparty_account -> (beancount_name, narration_prefix)
+    "10-978-019740061": ("Boligo-1", "Boligo (The Service) - distribution received"),
+    "10-978-033450094": ("Carmel-Credit", "Carmel Credit (A.B.G Planning) - distribution received"),
+}
+
+
+def process_leumi_ils(csv_path: str, dry_run: bool = True):
+    """Process Leumi ILS translated CSV into ledger entries.
+
+    Only processes investment_income category rows with known counterparties.
+    IBI pipe transfers are skipped (need decomposition by investment).
+    """
+    knowledge = load_knowledge()
+    existing = get_existing_entries()
+    existing_tags = get_existing_link_tags(existing)
+    filing_date = date.today().isoformat()
+    bank_account = "Assets:Banks:Leumi:ILS"
+    source_ref = "data/2026-03-05-leumi-transactions/ils-account-en.csv"
+
+    with open(csv_path) as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    created = 0
+    skipped_cat = 0
+    skipped_dup = 0
+    skipped_ibi = 0
+    entries_to_write = []
+    fx_dates = set()
+
+    for row in rows:
+        txn_date = row["date"]
+        amount_str = row.get("amount", "").strip()
+        if not amount_str:
+            skipped_cat += 1
+            continue
+        amount = float(amount_str)
+        category = row.get("category", "")
+        counterparty_account = row.get("counterparty_account", "")
+        counterparty = row.get("counterparty", "")
+
+        # Only process investment income credits
+        if category != "investment_income":
+            skipped_cat += 1
+            continue
+
+        # IBI pipe - skip for now (needs decomposition)
+        if counterparty_account == "12-600-000399420":
+            skipped_ibi += 1
+            continue
+
+        # Look up counterparty
+        mapping = LEUMI_ILS_COUNTERPARTY_MAP.get(counterparty_account)
+        if not mapping:
+            print(f"  UNKNOWN counterparty: {txn_date} {amount:,.2f} ILS from {counterparty} ({counterparty_account})")
+            continue
+
+        bc_name, narration = mapping
+
+        # Dedup
+        if is_duplicate(txn_date, amount, bank_account, existing):
+            skipped_dup += 1
+            continue
+
+        # Link tag
+        offset_account = f"Assets:Receivable:{bc_name}"
+        match = find_matching_receivable(bc_name, existing)
+        if match:
+            link_tag = match["link_tag"]
+        else:
+            link_tag = next_link_tag(bc_name, "dist", existing_tags)
+            existing_tags.add(link_tag)
+
+        entry_text = format_entry(
+            txn_date=txn_date,
+            amount=amount,
+            currency="ILS",
+            bank_account=bank_account,
+            narration=narration,
+            offset_account=offset_account,
+            link_tag=link_tag,
+            source_ref=source_ref,
+        )
+
+        if dry_run:
+            print(f"\n--- {txn_date} {amount:,.2f} ILS -> {bc_name} (^{link_tag}) ---")
+            print(entry_text)
+        else:
+            entries_to_write.append({
+                "txn_date": txn_date,
+                "entry_text": entry_text,
+                "counterparty": counterparty,
+                "amount": amount,
+                "bc_name": bc_name,
+            })
+            fx_dates.add(txn_date)
+
+        existing.append({
+            "date": txn_date,
+            "amount": amount,
+            "account": bank_account,
+            "currency": "ILS",
+            "narration": narration,
+            "link_tags": [link_tag],
+            "file": "pending",
+        })
+        created += 1
+
+    print(f"\n{'[DRY RUN] ' if dry_run else ''}Leumi ILS Summary:")
+    print(f"  Would create: {created}")
+    print(f"  Skipped (non-investment): {skipped_cat}")
+    print(f"  Skipped (IBI pipe - needs decomposition): {skipped_ibi}")
+    print(f"  Skipped (already in ledger): {skipped_dup}")
+
+    if not dry_run and entries_to_write:
+        print(f"\nFetching FX rates for {len(fx_dates)} dates...")
+        fetch_fx_for_dates(fx_dates)
+
+        for item in entries_to_write:
+            content_hash = hashlib.sha256(item["entry_text"].encode()).hexdigest()[:8]
+            desc = f"credit-{item['bc_name'].lower()}"
+            folder_name = f"{filing_date}-leumi-{desc}-{content_hash}"
+            year = item["txn_date"][:4]
+
+            folder_path = LEDGER_DIR / year / folder_name
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            header = f"; Leumi ILS credit: {item['counterparty']}\n"
+            header += f"; Amount: {item['amount']:,.2f} ILS on {item['txn_date']}\n\n"
+            (folder_path / "entries.beancount").write_text(header + item["entry_text"] + "\n")
+
+        if bean_check():
+            print(f"  Wrote {len(entries_to_write)} entries. Ledger validates OK.")
+        else:
+            print("  WARNING: Ledger validation failed after writing entries!")
+
+
+def process_leumi_usd(csv_path: str, dry_run: bool = True):
+    """Process Leumi USD translated CSV into ledger entries.
+
+    Handles Impact Debt distributions and IBI pipe transfers (Boligo 2).
+    """
+    knowledge = load_knowledge()
+    existing = get_existing_entries()
+    existing_tags = get_existing_link_tags(existing)
+    filing_date = date.today().isoformat()
+    bank_account = "Assets:Banks:Leumi:USD"
+    source_ref = "data/2026-03-05-leumi-transactions/usd-account-en.csv"
+
+    with open(csv_path) as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    created = 0
+    skipped_cat = 0
+    skipped_dup = 0
+    entries_to_write = []
+    fx_dates = set()
+
+    for row in rows:
+        txn_date = row["date"]
+        amount_str = row.get("amount", "").strip()
+        if not amount_str:
+            skipped_cat += 1
+            continue
+        amount = float(amount_str)
+        category = row.get("category", "")
+        counterparty = row.get("counterparty", "")
+
+        if category != "investment_income":
+            skipped_cat += 1
+            continue
+
+        # Determine investment
+        if counterparty == "Impact Debt FOF":
+            bc_name = "Impact-Debt"
+            narration = "Impact Debt FOF - distribution received"
+        elif counterparty == "IBI":
+            bc_name = "Boligo-2"
+            narration = "Boligo 2 (via IBI pipe to Leumi USD) - distribution received"
+        else:
+            print(f"  UNKNOWN counterparty: {txn_date} {amount:,.2f} USD from {counterparty}")
+            continue
+
+        # Dedup
+        if is_duplicate(txn_date, amount, bank_account, existing):
+            skipped_dup += 1
+            continue
+
+        offset_account = f"Assets:Receivable:{bc_name}"
+        match = find_matching_receivable(bc_name, existing)
+        if match:
+            link_tag = match["link_tag"]
+        else:
+            link_tag = next_link_tag(bc_name, "dist", existing_tags)
+            existing_tags.add(link_tag)
+
+        entry_text = format_entry(
+            txn_date=txn_date,
+            amount=amount,
+            currency="USD",
+            bank_account=bank_account,
+            narration=narration,
+            offset_account=offset_account,
+            link_tag=link_tag,
+            source_ref=source_ref,
+        )
+
+        if dry_run:
+            print(f"\n--- {txn_date} ${amount:,.2f} -> {bc_name} (^{link_tag}) ---")
+            print(entry_text)
+        else:
+            entries_to_write.append({
+                "txn_date": txn_date,
+                "entry_text": entry_text,
+                "counterparty": counterparty,
+                "amount": amount,
+                "bc_name": bc_name,
+            })
+            fx_dates.add(txn_date)
+
+        existing.append({
+            "date": txn_date,
+            "amount": amount,
+            "account": bank_account,
+            "currency": "USD",
+            "narration": narration,
+            "link_tags": [link_tag],
+            "file": "pending",
+        })
+        created += 1
+
+    print(f"\n{'[DRY RUN] ' if dry_run else ''}Leumi USD Summary:")
+    print(f"  Would create: {created}")
+    print(f"  Skipped (non-investment): {skipped_cat}")
+    print(f"  Skipped (already in ledger): {skipped_dup}")
+
+    if not dry_run and entries_to_write:
+        print(f"\nFetching FX rates for {len(fx_dates)} dates...")
+        fetch_fx_for_dates(fx_dates)
+
+        for item in entries_to_write:
+            content_hash = hashlib.sha256(item["entry_text"].encode()).hexdigest()[:8]
+            desc = f"credit-{item['bc_name'].lower()}"
+            folder_name = f"{filing_date}-leumi-{desc}-{content_hash}"
+            year = item["txn_date"][:4]
+
+            folder_path = LEDGER_DIR / year / folder_name
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            header = f"; Leumi USD credit: {item['counterparty']}\n"
+            header += f"; Amount: ${item['amount']:,.2f} on {item['txn_date']}\n\n"
+            (folder_path / "entries.beancount").write_text(header + item["entry_text"] + "\n")
+
+        if bean_check():
+            print(f"  Wrote {len(entries_to_write)} entries. Ledger validates OK.")
+        else:
+            print("  WARNING: Ledger validation failed after writing entries!")
+
+
 def report_balances():
     """Print receivable and suspense balances - the anomaly detection report."""
     existing = get_existing_entries()
@@ -359,7 +624,7 @@ def report_balances():
 
 def main():
     parser = argparse.ArgumentParser(description="Ingest transactions into beancount ledger")
-    parser.add_argument("command", choices=["hsbc-credit", "scan", "report"])
+    parser.add_argument("command", choices=["hsbc-credit", "scan", "leumi-ils", "leumi-usd", "report"])
     parser.add_argument("csv_path", nargs="?", help="Path to CSV file")
     parser.add_argument("--commit", action="store_true", help="Actually write entries (default: dry run)")
     args = parser.parse_args()
@@ -370,6 +635,14 @@ def main():
         if not args.csv_path:
             parser.error("csv_path required for hsbc-credit/scan")
         process_hsbc_credits(args.csv_path, dry_run=not args.commit)
+    elif args.command == "leumi-ils":
+        if not args.csv_path:
+            parser.error("csv_path required for leumi-ils")
+        process_leumi_ils(args.csv_path, dry_run=not args.commit)
+    elif args.command == "leumi-usd":
+        if not args.csv_path:
+            parser.error("csv_path required for leumi-usd")
+        process_leumi_usd(args.csv_path, dry_run=not args.commit)
 
 
 if __name__ == "__main__":
