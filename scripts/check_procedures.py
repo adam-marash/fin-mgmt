@@ -316,6 +316,32 @@ def check_source_metadata(files):
     return violations
 
 
+def collect_link_data(files):
+    """Collect all link tag data across ledger for link checks."""
+    link_entries = defaultdict(list)
+    tag_re = re.compile(r'\^([\w-]+)')
+    for fp in files:
+        for txn in parse_transactions(fp):
+            for link in txn["links"]:
+                # Extract investment from accounts
+                investments = set()
+                for p in txn["postings"]:
+                    for pattern in [r'Assets:Receivable:(\S+)',
+                                    r'Liabilities:Commitments:(\S+)',
+                                    r'Income:Distribution:(\S+?):']:
+                        m = re.search(pattern, p["text"])
+                        if m:
+                            investments.add(m.group(1))
+                link_entries[link].append({
+                    "file": fp,
+                    "line": txn["line"],
+                    "date": txn["date"],
+                    "narration": txn["narration"],
+                    "investments": investments,
+                })
+    return link_entries
+
+
 def check_link_tag_format(files):
     """Link tags should be lowercase-kebab-case."""
     violations = []
@@ -330,9 +356,66 @@ def check_link_tag_format(files):
     return violations
 
 
+def check_link_sequence_gaps(link_data):
+    """Sequenced link tags (^prefix-N) should have no gaps."""
+    violations = []
+    seq_re = re.compile(r'^(.+)-(\d+)$')
+    prefixes = defaultdict(list)
+    for tag in link_data:
+        m = seq_re.match(tag)
+        if m:
+            prefixes[m.group(1)].append(int(m.group(2)))
+
+    for prefix in sorted(prefixes):
+        nums = sorted(prefixes[prefix])
+        if len(nums) < 2:
+            continue
+        expected = set(range(nums[0], nums[-1] + 1))
+        missing = sorted(expected - set(nums))
+        if missing:
+            violations.append(Violation(
+                "link-seq-gap", "ledger", None,
+                f"^{prefix}-N: missing {missing} (have {nums[0]}-{nums[-1]})"))
+    return violations
+
+
+def check_link_singletons(link_data):
+    """Link tags with only 1 entry may signal missing counterparts."""
+    violations = []
+    for tag in sorted(link_data):
+        entries = link_data[tag]
+        if len(entries) == 1:
+            e = entries[0]
+            violations.append(Violation(
+                "link-singleton", e["file"], e["line"],
+                f"^{tag} has only 1 entry (missing counterpart?)"))
+    return violations
+
+
+def check_link_cross_investment(link_data):
+    """All entries sharing a ^tag should reference the same investment."""
+    violations = []
+    for tag in sorted(link_data):
+        entries = link_data[tag]
+        if len(entries) < 2:
+            continue
+        all_investments = set()
+        for e in entries:
+            all_investments.update(e["investments"])
+        # Filter out empty (entries with no recognized investment account)
+        all_investments.discard("")
+        if len(all_investments) > 1:
+            violations.append(Violation(
+                "link-cross-inv", "ledger", None,
+                f"^{tag} groups entries across investments: {sorted(all_investments)}"))
+    return violations
+
+
 def main():
     files = find_entry_files()
     print(f"Scanning {len(files)} entry files...\n")
+
+    link_data = collect_link_data(files)
 
     checks = [
         ("FO-sourced metadata", check_fo_sourced_metadata, files),
@@ -346,6 +429,9 @@ def main():
         ("Total cost (@@) precision", check_total_cost_precision, files),
         ("Source metadata", check_source_metadata, files),
         ("Link tag format", check_link_tag_format, files),
+        ("Link sequence gaps", check_link_sequence_gaps, link_data),
+        ("Link singletons", check_link_singletons, link_data),
+        ("Link cross-investment", check_link_cross_investment, link_data),
     ]
 
     total_violations = 0
