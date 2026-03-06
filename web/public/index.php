@@ -306,7 +306,7 @@ tailwind.config = {
   <!-- Account detail modal -->
   <div x-show="acctModal" class="fixed inset-0 z-50 flex items-start justify-center pt-12" @keydown.escape.window="acctModal = false">
     <div class="absolute inset-0 bg-black/60" @click="acctModal = false"></div>
-    <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[90vw] max-w-5xl max-h-[80vh] flex flex-col">
+    <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[90vw] max-w-5xl h-[80vh] flex flex-col">
       <!-- Modal header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div>
