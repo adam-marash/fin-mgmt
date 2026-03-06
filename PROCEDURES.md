@@ -133,6 +133,8 @@ When the redemption amount exceeds the preceding placement amount, the differenc
   Income:Interest:Leumi          -14,372.93 USD  ; interest = redemption - placement
 ```
 
+The bank typically rolls over deposits: the full redemption amount (principal + interest) is re-placed as the new deposit. The new placement amount becomes the new principal. So the "preceding placement amount" for the next cycle's redemption is this rolled-over amount, not the original.
+
 When ingesting new Leumi deposit redemptions, always compare the redemption amount to the most recent placement to detect embedded interest.
 
 ## FX Patterns
