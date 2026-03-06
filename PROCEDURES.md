@@ -116,6 +116,25 @@ Would move from `Liabilities:Commitments` to `Liabilities:Payable`. Waiting on c
 - **Negative**: bank credit arrived, announcement pending ("what is this for?")
 - **Zero**: fully reconciled
 
+## Leumi Deposit Redemptions
+
+Leumi rolling USD deposits (Branch 671, acc 245100) mature quarterly. The bank inconsistently reports interest:
+
+- **Bundled**: redemption amount = principal + interest in a single line (פרעון פקדון). No separate interest line.
+- **Separated**: redemption amount = principal only, with a separate interest line (ריבית מט"ח).
+- **Corrected**: redemption includes interest, then bank issues a correction (תיקון ריבית) and re-credits interest separately.
+
+When the redemption amount exceeds the preceding placement amount, the difference is interest income. Always split the redemption entry:
+
+```beancount
+2024-12-06 * "Leumi USD deposit redemption (principal + interest)"
+  Assets:Banks:Leumi:USD      1,195,718.48 USD  ; bank credit (lump)
+  Assets:Deposits:Leumi:USD  -1,181,345.55 USD  ; principal = placement amount
+  Income:Interest:Leumi          -14,372.93 USD  ; interest = redemption - placement
+```
+
+When ingesting new Leumi deposit redemptions, always compare the redemption amount to the most recent placement to detect embedded interest.
+
 ## FX Patterns
 
 - Put `@ rate TARGET_CCY` on the asset/source-currency side, let beancount auto-balance the other side
