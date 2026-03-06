@@ -102,7 +102,12 @@ The system should be able to produce jurisdiction-specific views from the same u
 
 - **Mutual corroboration principle**: for family-office-managed investments, multiple independent sources must support each other like a Leonardo stick bridge - bank movements, trustee statements, family office transaction reports, and investee reports each confirm the others. No single source is trusted alone. Any material discrepancy between sources (beyond small differences from FX spreads or bank fees) is a red flag requiring human attention.
 - Reconciliation is structural, not procedural: the double-entry ledger *is* the reconciliation. Receivable balances show what's outstanding. Unclassified income shows what needs tax categorization.
-- The FO (family office) is a secondary source. Its assertions are recorded as notes/metadata alongside ledger entries. FO data validates but does not create entries. Mismatches between FO assertions and ledger actuals are flagged automatically.
+- The FO (family office) is a secondary source. Its primary role is to validate, not to create entries. However, FO data may serve as a **provisional primary source** when no counterparty-side document (distribution notice, trustee report) exists yet. In this case:
+  - FO-sourced entries are tagged `#fo-sourced` to record provenance.
+  - They book the net amount against the receivable (no decomposition into gross/tax/carry, since FO CSV carries only one line item per event). FO detail pages, if available, may provide decomposition.
+  - When a real counterparty document arrives, it replaces the FO-sourced entry: the `#fo-sourced` tag is removed, `source:` metadata is updated, and an `assertions.beancount` is created from the FO line as cross-check.
+  - `#fo-sourced` is a provenance marker, not an alert. It persists as long as the entry was created from FO data.
+- When FO data is used as corroboration (its normal role), it produces `assertions.beancount` files in the ledger folder. These contain balance assertions or note metadata that cross-reference the primary entry. Mismatches between FO assertions and ledger actuals are flagged automatically.
 - A single trustee report line item can decompose into multiple components (gross dividend, withholding tax, carried interest, transfer fee, net transfer) each with different reconciliation paths.
 - Expected source coverage varies by event type:
   - Disbursement: investee + trustee + family office + bank
