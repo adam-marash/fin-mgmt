@@ -283,6 +283,92 @@ def check_receivable_balances():
     return violations
 
 
+def check_fo_uncleared(files):
+    """FO-sourced distributions with no matching bank credit (any currency)."""
+    violations = []
+    txn_re = re.compile(r'^(\d{4}-\d{2}-\d{2})\s+[*!]\s+"([^"]*)"(.*)')
+    recv_re = re.compile(r'^\s+Assets:Receivable:(\S+)\s+(-?[\d,]+\.?\d*)\s+(\w+)')
+    from datetime import datetime as dt
+
+    # Collect all receivable postings
+    recv_pos = defaultdict(list)   # inv -> FO-sourced positive entries
+    recv_neg = defaultdict(list)   # inv -> all negative (clearing) entries
+
+    for fp in files:
+        with open(fp) as f:
+            lines = f.readlines()
+        current_tags = set()
+        current_date = current_narr = current_file = None
+        for line in lines:
+            m = txn_re.match(line)
+            if m:
+                current_date = m.group(1)
+                current_narr = m.group(2)
+                current_tags = set(re.findall(r'#([\w-]+)', m.group(3)))
+                current_file = fp
+            else:
+                rm = recv_re.match(line)
+                if rm and current_date:
+                    inv = rm.group(1)
+                    amt = float(rm.group(2).replace(',', ''))
+                    ccy = rm.group(3)
+                    entry = {"date": current_date, "amount": amt, "currency": ccy,
+                             "file": current_file, "narration": current_narr,
+                             "fo_sourced": "fo-sourced" in current_tags, "used": False}
+                    if entry["fo_sourced"] and amt > 0:
+                        recv_pos[inv].append(entry)
+                    elif not entry["fo_sourced"] and amt < 0:
+                        recv_neg[inv].append(entry)
+
+    WINDOW = 30
+
+    for inv in sorted(recv_pos):
+        for fo in sorted(recv_pos[inv], key=lambda x: x["date"]):
+            fo_d = dt.strptime(fo["date"], "%Y-%m-%d")
+
+            # Pass 1: same-currency match (amount within 10%)
+            best = None
+            best_days = WINDOW + 1
+            for cl in recv_neg.get(inv, []):
+                if cl["used"] or cl["currency"] != fo["currency"]:
+                    continue
+                days = abs((fo_d - dt.strptime(cl["date"], "%Y-%m-%d")).days)
+                if days > WINDOW:
+                    continue
+                pct = abs(abs(cl["amount"]) - fo["amount"]) / max(fo["amount"], 0.01)
+                if pct < 0.10 and days < best_days:
+                    best_days = days
+                    best = cl
+
+            if best:
+                best["used"] = True
+                continue
+
+            # Pass 2: cross-currency match (any clearing on same inv within window)
+            best = None
+            best_days = WINDOW + 1
+            for cl in recv_neg.get(inv, []):
+                if cl["used"]:
+                    continue
+                days = abs((fo_d - dt.strptime(cl["date"], "%Y-%m-%d")).days)
+                if days > WINDOW and days < best_days:
+                    continue
+                if days <= WINDOW and days < best_days:
+                    best_days = days
+                    best = cl
+
+            if best:
+                best["used"] = True
+                continue
+
+            # Unmatched
+            violations.append(Violation(
+                "fo-uncleared", fo["file"], None,
+                f"{inv} {fo['date']} {fo['amount']:,.2f} {fo['currency']} - no bank credit found"))
+
+    return violations
+
+
 def check_total_cost_precision(files):
     """@@ (total cost) risks precision bug with non-terminating decimals."""
     violations = []
@@ -426,6 +512,7 @@ def main():
         ("Commitment balances", check_commitment_balances, None),
         ("Suspense balances", check_suspense_balances, None),
         ("Receivable balances", check_receivable_balances, None),
+        ("FO-reported uncleared", check_fo_uncleared, files),
         ("Total cost (@@) precision", check_total_cost_precision, files),
         ("Source metadata", check_source_metadata, files),
         ("Link tag format", check_link_tag_format, files),

@@ -208,6 +208,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 - `@@` total-cost usage (beancount v3 precision bug)
 - `source:` metadata on every transaction
 - Link tag format (lowercase-kebab-case)
+- FO-reported uncleared (FO says distribution paid, no bank credit found - any currency)
 - Link sequence gaps (`^prefix-1`, `^prefix-3` missing `^prefix-2`)
 - Link singletons (^tag with only 1 entry - missing counterpart?)
 - Link cross-investment (entries sharing a ^tag must reference the same investment)
