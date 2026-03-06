@@ -331,7 +331,7 @@ def process_hsbc_credits(csv_path: str, dry_run: bool = True):
 
 LEUMI_ILS_COUNTERPARTY_MAP = {
     # counterparty_account -> (beancount_name, narration_prefix)
-    "10-978-019740061": ("Boligo-1", "Boligo (The Service) - distribution received"),
+    "10-978-019740061": ("Boligo-1", "Boligo 1 distribution received"),
     "10-978-033450094": ("Carmel-Credit", "Carmel Credit (A.B.G Planning) - distribution received"),
 }
 

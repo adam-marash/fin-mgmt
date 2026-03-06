@@ -15,7 +15,7 @@ from slugify import slugify
 
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CREDENTIALS_PATH = PROJECT_ROOT / "config" / "google-service-account.json"
 IMPERSONATE_EMAIL = "adam@marash.net"
 GMAIL_LABEL = "Accounting Inbox"  # default, overridden by --label
