@@ -6,8 +6,8 @@ Usage:
     python scripts/fetch_fx.py 2025-12-22 2025-12-24  # multiple dates
     python scripts/fetch_fx.py --from 2025-01-01 --to 2025-12-31  # date range
 
-Fetches EUR, GBP, ILS rates against USD and appends new price directives
-to ledger/prices.beancount. Skips dates that already have entries.
+Fetches FX rates against USD and merges into ledger/prices.beancount,
+keeping all entries sorted by date. Skips dates that already have entries.
 """
 
 import argparse
@@ -122,13 +122,41 @@ def main():
         print("No new rates fetched.")
         return
 
-    # Append to prices.beancount
-    with open(PRICES_FILE, "a") as f:
-        f.write("\n")
-        f.write("\n".join(new_lines))
+    # Merge new entries into file, sorted by date then currency
+    header_lines = []
+    entry_lines = []
+    if PRICES_FILE.exists():
+        for line in PRICES_FILE.read_text().splitlines():
+            stripped = line.strip()
+            if stripped.startswith(";") or (not entry_lines and stripped == ""):
+                header_lines.append(line)
+            elif stripped:
+                entry_lines.append(stripped)
+
+    entry_lines.extend(new_lines)
+
+    # Deduplicate by (date, currency), keeping last
+    seen: dict[tuple[str, str], str] = {}
+    for entry in entry_lines:
+        m = re.match(r"(\d{4}-\d{2}-\d{2}) price (\w+) ", entry)
+        if m:
+            seen[(m.group(1), m.group(2))] = entry
+
+    sorted_entries = sorted(seen.values(), key=lambda e: e[:14])  # date + currency
+
+    # Write with blank lines between date groups
+    with open(PRICES_FILE, "w") as f:
+        f.write("\n".join(header_lines) + "\n")
+        prev_date = None
+        for entry in sorted_entries:
+            cur_date = entry[:10]
+            if prev_date and cur_date != prev_date:
+                f.write("\n")
+            f.write(entry + "\n")
+            prev_date = cur_date
         f.write("\n")
 
-    print(f"\nAppended {len(new_lines)} price directives to {PRICES_FILE.name}")
+    print(f"\nWrote {len(sorted_entries)} price directives to {PRICES_FILE.name} (sorted)")
 
 
 if __name__ == "__main__":

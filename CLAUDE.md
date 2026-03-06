@@ -9,6 +9,25 @@ AI-native financial management system with beancount double-entry ledger.
 - `ledger/` - the book of record (beancount files + source documents), git-tracked.
 - `inbox/` - landing zone for incoming documents. Not part of the ledger.
 
+## Scripts
+
+All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
+
+| Script | Purpose |
+|--------|---------|
+| `fetch_fx.py` | Fetch FX rates (Frankfurter API) into `ledger/prices.beancount`. Merges and sorts. |
+| `ingest.py` | Main ingestion pipeline. Modes: `hsbc-credit`, `scan`, `leumi-ils`, `leumi-usd`, `report`. |
+| `fetch_email.py` | Gmail fetcher. `scan`/`fetch` subcommands, `--label`, `--limit`. |
+| `parse_hsbc_stmts.py` | Parse HSBC GU individual PDF statements (pdfplumber). |
+| `normalize_hsbc.py` | Normalize HSBC GU XLSX export to clean CSV. |
+| `normalize_hsbc_all.py` | Normalize all HSBC accounts (multi-sheet). |
+| `normalize_fo.py` | Normalize The Service FO XLSX export to CSV. |
+| `normalize_leumi.py` | Normalize Leumi HTML-as-XLS export to CSV. |
+| `classify_emails.py` | AI-classify emails by type (distribution, capital call, report, etc.). |
+| `extract_distributions.py` | AI-extract distribution data from classified emails. |
+| `extract_capital_calls.py` | AI-extract capital call data from classified emails. |
+| `extract_reports_index.py` | AI-build report index from classified emails. |
+
 ## Knowledge Base
 
 `knowledge.json` is the persistent domain knowledge store. It contains entities, investments, people, aliases, categorization patterns, and relationships learned from processing real documents.
