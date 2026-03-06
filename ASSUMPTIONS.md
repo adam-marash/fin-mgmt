@@ -89,6 +89,7 @@ The system should be able to produce jurisdiction-specific views from the same u
 - A capital call notice draws down part of the commitment: reduces the commitment and creates an immediate payable (`Liabilities:Payable:<Investment>`). The total obligation does not change - it shifts from unfunded to funded.
 - The bank debit clears the payable.
 - The unfunded commitment balance shows how much more could be called. The payable balance shows what is due now.
+- Note: the FO CSV "deposit" records the actual bank movement (step 3), not the capital call notice (step 2). FO-sourced entries from deposits are labeled "investment payment", not "capital call". Commitments and capital call notices come from separate documents (investment agreements, call letters).
 
 ## Foreign Currency & Tax
 

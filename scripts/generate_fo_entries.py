@@ -156,9 +156,9 @@ def generate_entry(fo, bc_name):
     ccy = fo.currency
 
     if fo.tx_type == "deposit":
-        # Capital call: money goes to investment
+        # Investment payment: money sent to investment (FO records the bank movement)
         # Positive receivable = capital deployed, bank debit expected to clear it
-        narration = f"{bc_name} - capital call (FO-sourced)"
+        narration = f"{bc_name} - investment payment (FO-sourced)"
         lines = [
             f'{fo.date} * "{narration}" #fo-sourced #provisional',
             f'  source: "{FO_CSV.relative_to(ROOT)}"',
