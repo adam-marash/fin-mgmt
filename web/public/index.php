@@ -253,7 +253,7 @@ tailwind.config = {
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-full bg-gray-950 text-gray-200 font-mono text-sm dark">
+<body class="h-full bg-gray-950 text-gray-200 font-mono text-sm dark" style="font-size:15px">
 
 <div x-data="ledgerApp()" x-init="init()" class="flex flex-col h-full" x-cloak>
 
