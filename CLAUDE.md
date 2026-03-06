@@ -5,6 +5,7 @@ AI-native financial management system with beancount double-entry ledger.
 ## Key Files
 
 - `ASSUMPTIONS.md` - problem-space truths and design decisions. Read at session start.
+- `PROCEDURES.md` - implementation patterns, account routing, script usage, and operational how-tos.
 - `knowledge.json` - persistent domain knowledge (entities, investments, aliases, counterparty mappings).
 - `ledger/` - the book of record (beancount files + source documents), git-tracked.
 - `inbox/` - landing zone for incoming documents. Not part of the ledger.

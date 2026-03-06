@@ -69,7 +69,7 @@ The system should be able to produce jurisdiction-specific views from the same u
 ### Bank transactions are facts
 
 - A bank credit or debit is a self-contained fact. It is booked immediately upon ingestion, without waiting for a matching announcement or notice.
-- If the counterparty is recognized (via `knowledge.json`), the offsetting leg goes to `Assets:Receivable:<Investment>` (for credits) or `Liabilities:Payable:<Investment>` (for debits).
+- If the counterparty is recognized (via `knowledge.json`), the offsetting leg goes to `Assets:Receivable:<Investment>` (for credits) or the appropriate liability account (for debits) - see "Commitments and capital calls" below.
 - If the counterparty is unknown, the offsetting leg goes to `Assets:Suspense` (a general holding account).
 - Receivable balances can be positive or negative. Both are signals, not errors:
   - **Positive receivable**: an announcement was booked but the bank credit hasn't arrived yet ("where's my money?").
@@ -89,7 +89,7 @@ The system should be able to produce jurisdiction-specific views from the same u
 - A capital call notice draws down part of the commitment: reduces the commitment and creates an immediate payable (`Liabilities:Payable:<Investment>`). The total obligation does not change - it shifts from unfunded to funded.
 - The bank debit clears the payable.
 - The unfunded commitment balance shows how much more could be called. The payable balance shows what is due now.
-- Note: the FO CSV "deposit" records the actual bank movement (step 3), not the capital call notice (step 2). FO-sourced entries from deposits are labeled "investment payment", not "capital call". Commitments and capital call notices come from separate documents (investment agreements, call letters).
+- Note: the FO CSV "deposit" records the actual bank movement (step 3), not the capital call notice (step 2). Commitments and capital call notices come from separate documents (investment agreements, call letters). See `PROCEDURES.md` for implementation details.
 
 ## Foreign Currency & Tax
 
@@ -103,11 +103,7 @@ The system should be able to produce jurisdiction-specific views from the same u
 
 - **Mutual corroboration principle**: for family-office-managed investments, multiple independent sources must support each other like a Leonardo stick bridge - bank movements, trustee statements, family office transaction reports, and investee reports each confirm the others. No single source is trusted alone. Any material discrepancy between sources (beyond small differences from FX spreads or bank fees) is a red flag requiring human attention.
 - Reconciliation is structural, not procedural: the double-entry ledger *is* the reconciliation. Receivable balances show what's outstanding. Unclassified income shows what needs tax categorization.
-- The FO (family office) is a secondary source. Its primary role is to validate, not to create entries. However, FO data may serve as a **provisional primary source** when no counterparty-side document (distribution notice, trustee report) exists yet. In this case:
-  - FO-sourced entries are tagged `#fo-sourced` to record provenance.
-  - They book the net amount against the receivable (no decomposition into gross/tax/carry, since FO CSV carries only one line item per event). FO detail pages, if available, may provide decomposition.
-  - When a real counterparty document arrives, it replaces the FO-sourced entry: the `#fo-sourced` tag is removed, `source:` metadata is updated, and an `assertions.beancount` is created from the FO line as cross-check.
-  - `#fo-sourced` is a provenance marker, not an alert. It persists as long as the entry was created from FO data.
+- The FO (family office) is a secondary source. Its primary role is to validate, not to create entries. However, FO data may serve as a **provisional primary source** when no counterparty-side document (distribution notice, trustee report) exists yet. FO-sourced entries are tagged `#fo-sourced` to record provenance. When a primary source arrives, the FO entry is demoted to an assertion. See `PROCEDURES.md` for the tagging and demotion patterns.
 - When FO data is used as corroboration (its normal role), it produces `assertions.beancount` files in the ledger folder. These contain balance assertions or note metadata that cross-reference the primary entry. Mismatches between FO assertions and ledger actuals are flagged automatically.
 - A single trustee report line item can decompose into multiple components (gross dividend, withholding tax, carried interest, transfer fee, net transfer) each with different reconciliation paths.
 - Expected source coverage varies by event type:
@@ -202,56 +198,23 @@ Target: inbox at zero. Triage promptly - inbox is git-tracked because triage lag
 
 ### Ledger folder naming
 
-Folders under `ledger/YYYY/` are named `<date>-<source>-<desc>-<hash>/` where:
-- `<date>` is the filing date (when the document was processed, not the transaction date).
-- `<source>` is a short identifier for the origin (e.g., `electra`, `hsbc`, `fo`, `leumi`).
-- `<desc>` is a short human-readable description (e.g., `dist-notice`, `credit-47k`, `q3-report`).
-- `<hash>` is a short hash (first 6-8 chars of SHA-256) for uniqueness and dedup.
-
-The folder name is a "birth certificate" - it records what was known when the document was filed. It does not attempt to describe the economic event. Semantic grouping is handled by `^link-tags` inside the beancount entries, not by folder names. Folders are never renamed after filing.
+Folders under `ledger/YYYY/` are named `<date>-<source>-<desc>-<hash>/`. The folder name is a "birth certificate" - it records what was known when the document was filed. It does not attempt to describe the economic event. Semantic grouping is handled by `^link-tags` inside the beancount entries, not by folder names. Folders are never renamed after filing. See `PROCEDURES.md` for the naming convention details.
 
 ### Reconciliation engine
 
 When data arrives, the system must match it against existing ledger state. There are three distinct matching problems:
 
-**1. Entry matching** - a new transaction finds its counterpart in the ledger.
-- A bank credit arrives: book immediately against `Assets:Receivable:<Investment>` if counterparty is recognized, or `Assets:Suspense` if unknown. If a matching receivable already exists (positive balance from a prior announcement), reuse its `^link-tag`. If no prior receivable exists, the receivable goes negative - that's the signal that the announcement side is pending.
-- A bank debit arrives: same logic against `Liabilities:Payable:<Investment>` or `Assets:Suspense`.
-- A distribution notice arrives: creates/increases the receivable and records income. If the bank credit already arrived (negative receivable), the balance moves toward zero.
-- Ambiguous counterparty: ask Adam.
-
-`^link-tag` values follow a convention: `^<investment>-<type>-<seq>` (e.g., `^electra-dist-36`). The sequence number is determined by counting existing tags for that investment+type.
-
-**2. Evidence matching** - a secondary source (FO CSV, investment statement) confirms or contradicts existing ledger entries.
-- The FO/investment data goes to `data/` as a cleaned CSV, and produces `assertions.beancount` notes linked to existing entries.
-- Match by investment + date + amount against ledger entries.
-- FO confirms ledger entry: assertion recorded as corroboration.
-- FO shows a transaction with no matching ledger entry: alert Adam ("FO knows about a payment that didn't land in our account").
-- Ledger has an entry with no FO match: flag for investigation (may be expected if FO data lags).
-
-**3. Enrichment matching** - two views of the same transaction from the same source system.
-- HSBC transaction reports may show `***` for payees. HSBC individual detail statements for the same transaction show the actual counterparty name.
-- Match by bank + account + date + amount. The detail statement enriches the existing entry regardless of arrival order.
-- This also applies when overlapping bank statement periods re-report previously seen transactions.
+1. **Entry matching** - a new transaction finds its counterpart in the ledger. Bank credits/debits are booked immediately; if a matching receivable/payable already exists, reuse its `^link-tag`. Ambiguous counterparty: ask Adam.
+2. **Evidence matching** - a secondary source (FO CSV, investment statement) confirms or contradicts existing entries. Produces `assertions.beancount` notes. Mismatches alert Adam.
+3. **Enrichment matching** - two views of the same transaction from the same source system (e.g., HSBC `***` payee vs detail statement). Match by bank + account + date + amount. The detail enriches the existing entry regardless of arrival order.
 
 ### Cumulative source handling
 
-Some sources (FO, bank exports) produce cumulative data spanning previously reported periods.
-- Track a high-water mark per source (last processed date or set of known transaction hashes) to identify the delta.
-- Only new rows (beyond the high-water mark) are processed. Previously matched rows are skipped.
-- The high-water mark is stored in `knowledge.json` under the source entry.
+Some sources (FO, bank exports) produce cumulative data spanning previously reported periods. Track a high-water mark per source (in `knowledge.json`) to identify the delta. Only new rows are processed.
 
-### Gap detection and reports
+### Gap detection
 
-The receivable/payable balance report is the primary anomaly detection tool:
-- **Positive receivable** = announcement booked, bank credit pending ("where's my money?")
-- **Negative receivable** = bank credit received, announcement pending ("what is this for?")
-- **Non-zero suspense** = unidentified bank transactions needing counterparty resolution
-- **Non-zero payable** = capital call due, payment pending
-
-The FO layer adds a second dimension: FO data is compared against ledger entries to surface discrepancies. FO knows about a payment with no ledger match = alert. Ledger has an entry with no FO match = flag for investigation.
-
-These reports should run after every ingestion batch and be reviewed by Adam.
+Balance reports are the primary anomaly detection tool. Non-zero receivable, payable, or suspense balances are signals requiring investigation. The FO layer adds a second dimension by comparing FO data against ledger entries. Reports should run after every ingestion batch.
 
 ## Documents & Formats
 
