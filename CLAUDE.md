@@ -23,6 +23,9 @@ All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
 | `normalize_hsbc_all.py` | Normalize all HSBC accounts (multi-sheet). |
 | `normalize_fo.py` | Normalize The Service FO XLSX export to CSV. |
 | `normalize_leumi.py` | Normalize Leumi HTML-as-XLS export to CSV. |
+| `check_fx_deviations.py` | Compare FX conversions in ledger against market rates, flag >3% deviations. |
+| `check_fo_assertions.py` | Cross-check FO transactions against ledger entries. Reports matched/FO-only/ledger-only. |
+| `generate_fo_entries.py` | Create `#fo-sourced` ledger entries for unmatched FO transactions. Dry run by default. |
 | `classify_emails.py` | AI-classify emails by type (distribution, capital call, report, etc.). |
 | `extract_distributions.py` | AI-extract distribution data from classified emails. |
 | `extract_capital_calls.py` | AI-extract capital call data from classified emails. |
