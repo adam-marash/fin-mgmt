@@ -23,7 +23,7 @@ LEDGER_DIR = Path(__file__).resolve().parent.parent / "ledger"
 PRICES_FILE = LEDGER_DIR / "prices.beancount"
 
 # Frankfurter uses EUR as base. We want USD-denominated prices.
-PAIRS = ["EUR", "GBP", "ILS"]
+PAIRS = ["EUR", "GBP", "ILS", "JPY", "PLN", "CHF", "AUD"]
 BASE = "USD"
 
 
