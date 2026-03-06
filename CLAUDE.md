@@ -28,6 +28,8 @@ All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
 | `check_fx_deviations.py` | Compare FX conversions in ledger against market rates, flag >3% deviations. |
 | `check_fo_assertions.py` | Cross-check FO transactions against ledger entries. Reports matched/FO-only/ledger-only. |
 | `generate_fo_entries.py` | Create `#fo-sourced` ledger entries for unmatched FO transactions. Dry run by default. |
+| `classify_distributions.py` | Classify distribution entries as Yield vs Capital-Return from FO CSV. |
+| `check_procedures.py` | Sanity-check ledger against PROCEDURES.md conventions. Run with `--verbose` for full detail. |
 | `classify_emails.py` | AI-classify emails by type (distribution, capital call, report, etc.). |
 | `extract_distributions.py` | AI-extract distribution data from classified emails. |
 | `extract_capital_calls.py` | AI-extract capital call data from classified emails. |

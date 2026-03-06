@@ -189,6 +189,26 @@ python scripts/extract_reports_index.py                       # build report ind
 bean-check ledger/main.beancount
 ```
 
+### Procedures sanity check
+
+```bash
+python scripts/check_procedures.py            # summary
+python scripts/check_procedures.py --verbose   # full detail
+```
+
+Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
+- FO-sourced metadata (`source:`, `fo-line:`)
+- Classification metadata (`classification-source:` on Yield/Capital-Return entries)
+- `#provisional` not on classified entries
+- Account routing (distributions -> Receivable, payments -> Commitments)
+- Folder naming (`<date>-<desc>[-<hash>]`)
+- Over-drawn commitment balances (positive = investigate)
+- Suspense balances (non-zero = unresolved counterparty)
+- Non-zero receivable balances (pending reconciliation)
+- `@@` total-cost usage (beancount v3 precision bug)
+- `source:` metadata on every transaction
+- Link tag format (lowercase-kebab-case)
+
 ## Script Limitations (known)
 
 - `check_fo_assertions.py`: only matches against `Assets:Receivable:` accounts. Does not check `Liabilities:Commitments:` for investment payments. Needs updating.
