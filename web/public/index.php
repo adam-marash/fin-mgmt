@@ -108,6 +108,44 @@ if (isset($_GET['api']) && $_GET['api'] === 'pnl' && isset($_GET['year'])) {
     exit;
 }
 
+// API: Account journal - all postings for a given account with running balance
+if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
+    $account = $_GET['name'];
+    if (!preg_match('/^(Assets|Liabilities|Equity|Income|Expenses)(:[A-Za-z0-9_-]+)+$/', $account)) {
+        http_response_code(400);
+        exit(json_encode(['error' => 'Invalid account name']));
+    }
+    $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
+    $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
+    $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}' ORDER BY date";
+    $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
+    $lines = explode("\n", trim($csv));
+    $rows = [];
+    for ($i = 1; $i < count($lines); $i++) {
+        $parts = str_getcsv($lines[$i]);
+        if (count($parts) < 5) continue;
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($parts[0]))) continue;
+        // balance field is like "  6403.00 USD" or "  100.00 EUR, 200.00 USD"
+        $balStr = trim($parts[4]);
+        $balParts = [];
+        foreach (preg_split('/,\s*/', $balStr) as $bp) {
+            if (preg_match('/([-\d.,]+)\s+([A-Z]{3})/', $bp, $bm)) {
+                $balParts[] = ['amount' => floatval(str_replace(',', '', $bm[1])), 'currency' => $bm[2]];
+            }
+        }
+        $rows[] = [
+            'date' => trim($parts[0]),
+            'narration' => trim($parts[1]),
+            'amount' => floatval(trim($parts[2])),
+            'currency' => trim($parts[3]),
+            'balance' => $balParts,
+        ];
+    }
+    header('Content-Type: application/json');
+    echo json_encode($rows);
+    exit;
+}
+
 // API: Trial Balance - all accounts with non-zero balances
 if (isset($_GET['api']) && $_GET['api'] === 'trialbal') {
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
@@ -265,6 +303,55 @@ tailwind.config = {
     <span x-show="page === 'ledger'" class="text-gray-600 text-xs">j/k nav</span>
   </header>
 
+  <!-- Account detail modal -->
+  <div x-show="acctModal" class="fixed inset-0 z-50 flex items-start justify-center pt-12" @keydown.escape.window="acctModal = false">
+    <div class="absolute inset-0 bg-black/60" @click="acctModal = false"></div>
+    <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[90vw] max-w-5xl max-h-[80vh] flex flex-col">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        <div>
+          <h2 class="text-sm font-semibold text-purple-400" x-text="acctName"></h2>
+          <div class="text-[11px] text-gray-500 mt-0.5" x-text="acctJournal.length + ' postings'"></div>
+        </div>
+        <button @click="acctModal = false" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
+      </div>
+      <!-- Loading -->
+      <div x-show="acctLoading" class="flex-1 flex items-center justify-center py-12">
+        <div class="spinner"></div>
+      </div>
+      <!-- Journal table -->
+      <div x-show="!acctLoading" class="flex-1 overflow-auto">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 bg-gray-900 z-10">
+            <tr class="border-b border-border text-gray-500">
+              <th class="text-left py-2 px-3 font-normal w-24">Date</th>
+              <th class="text-left py-2 px-3 font-normal">Description</th>
+              <th class="text-right py-2 px-3 font-normal w-28">Debit</th>
+              <th class="text-right py-2 px-3 font-normal w-28">Credit</th>
+              <th class="text-right py-2 px-3 font-normal w-32">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(row, i) in acctJournal" :key="i">
+              <tr class="border-b border-border/50 hover:bg-gray-800/30">
+                <td class="py-1.5 px-3 text-green-400 whitespace-nowrap" x-text="row.date"></td>
+                <td class="py-1.5 px-3 text-gray-300 truncate max-w-md" :title="row.narration" x-text="row.narration"></td>
+                <td class="py-1.5 px-3 text-right whitespace-nowrap"
+                    :class="row.amount > 0 ? 'text-gray-300' : 'text-transparent'"
+                    x-text="row.amount > 0 ? fmtAmount(row.amount, row.currency) + ' ' + row.currency : ''"></td>
+                <td class="py-1.5 px-3 text-right whitespace-nowrap"
+                    :class="row.amount < 0 ? 'text-red-400' : 'text-transparent'"
+                    x-text="row.amount < 0 ? fmtAmount(-row.amount, row.currency) + ' ' + row.currency : ''"></td>
+                <td class="py-1.5 px-3 text-right whitespace-nowrap text-yellow-600"
+                    x-text="row.balance.map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Report pages: P&L and Balance Sheet -->
   <template x-if="page === 'pnl' || page === 'balsheet'">
     <div class="flex flex-col flex-1 overflow-hidden">
@@ -326,7 +413,9 @@ tailwind.config = {
                         <div>
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
-                              <div class="py-1 px-2 pl-10 text-gray-500 text-xs" x-text="leaf.name"></div>
+                              <div class="py-1 px-2 pl-10 text-xs">
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
+                              </div>
                               <template x-for="cur in reportCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
                                     :class="(leaf.amounts[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-400'"
@@ -417,7 +506,9 @@ tailwind.config = {
                         <div>
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
-                              <div class="py-1 px-2 pl-10 text-gray-500 text-xs" x-text="leaf.name"></div>
+                              <div class="py-1 px-2 pl-10 text-xs">
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
+                              </div>
                               <template x-for="cur in trialBalCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
                                     :class="(leaf.amounts[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-400'"
@@ -609,6 +700,12 @@ function ledgerApp() {
     reportCache: {},
     openReportGroups: {},
     fxRates: {},  // {year: {currency: rate_to_usd}}
+    // Account detail modal
+    acctModal: false,
+    acctName: '',
+    acctJournal: [],
+    acctLoading: false,
+    acctCache: {},
     // Trial balance state
     trialBalData: [],
     trialBalLoading: false,
@@ -641,6 +738,7 @@ function ledgerApp() {
       return Object.keys(yearMap).sort().reverse().map(y => ({ name: y, events: yearMap[y] }));
     },
     async init() {
+      window._openAccount = (name) => this.openAccount(name);
       try {
         const [evRes, fxRes] = await Promise.all([
           fetch('?api=events'),
@@ -829,6 +927,29 @@ function ledgerApp() {
     toggleReportGroup(key) {
       this.openReportGroups[key] = !this.openReportGroups[key];
     },
+    // Account detail
+    acctFullName(section, group, leaf) {
+      if (leaf === group) return section + ':' + group;
+      return section + ':' + group + ':' + leaf;
+    },
+    async openAccount(name) {
+      this.acctName = name;
+      this.acctModal = true;
+      if (this.acctCache[name]) {
+        this.acctJournal = this.acctCache[name];
+        return;
+      }
+      this.acctLoading = true;
+      this.acctJournal = [];
+      try {
+        const res = await fetch('?api=account&name=' + encodeURIComponent(name));
+        if (!res.ok) throw new Error('Failed');
+        const data = await res.json();
+        this.acctCache[name] = data;
+        this.acctJournal = data;
+      } catch { this.acctJournal = []; }
+      this.acctLoading = false;
+    },
     // Trial Balance
     async fetchTrialBal() {
       if (this.trialBalLoaded) return;
@@ -998,7 +1119,7 @@ function ledgerApp() {
         s = s.replace(/&quot;([^&]*?)&quot;/g, '<span class="text-sky-300">&quot;$1&quot;</span>');
         s = s.replace(/(\^[\w-]+)/g, '<span class="text-blue-400">$1</span>');
         s = s.replace(/(#[\w-]+)/g, '<span class="text-green-400">$1</span>');
-        s = s.replace(/((?:Assets|Liabilities|Income|Expenses|Equity)(?::[\w-]+)+)/g, '<span class="text-purple-400">$1</span>');
+        s = s.replace(/((?:Assets|Liabilities|Income|Expenses|Equity)(?::[\w-]+)+)/g, '<span class="text-purple-400 hover:underline cursor-pointer" onclick="window._openAccount(\'$1\')">$1</span>');
         s = s.replace(/([\d,]+\.\d{2})\s+(USD|GBP|EUR|ILS|PLN|CHF|JPY|AUD)/g, '<span class="text-orange-400">$1 $2</span>');
         s = s.replace(/^(\s+)([\w-]+)(:)/gm, '$1<span class="text-gray-500">$2$3</span>');
         return s;
