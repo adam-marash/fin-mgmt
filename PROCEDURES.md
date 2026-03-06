@@ -20,6 +20,10 @@ An FO "deposit" records the actual bank movement (step 3: investment payment), n
 
 Primary source (bank statement, investment agreement) supersedes secondary (FO).
 
+### FO as announcement substitute only
+
+FO-sourced entries stand in for the investment-side document only - either a distribution announcement (money in) or a capital call notice (money out). They never replace a bank leg. The balance sheet leg of an FO-sourced entry goes to `Assets:Receivable` (for distributions/capital returns) or `Liabilities:Commitments` (for investment payments), never to `Assets:Banks`.
+
 ### Creating FO-sourced entries
 
 When no primary source exists, FO data serves as a provisional primary source:
@@ -88,6 +92,20 @@ Would move from `Liabilities:Commitments` to `Liabilities:Payable`. Waiting on c
 - Bank statement amount includes wire fee
 - Draws down the commitment directly (steps 2+3 combined)
 
+### Capital returns do not affect commitments
+
+Capital returns are distributions (money coming back to us). They route through `Assets:Receivable` and `Income:Distribution:<Investment>:Capital-Return`, exactly like yield distributions. They never touch `Liabilities:Commitments`.
+
+The commitment tracks the contractual call schedule (money out) only. Capital returned does not re-open or reduce the commitment. The `Capital-Return` income classification captures the economic character of the return.
+
+When an investment concludes, any uncalled commitment is explicitly released:
+
+```beancount
+2026-06-30 * "Netz - commitment release on fund wind-down"
+  Liabilities:Commitments:Netz  100,000 USD
+  Equity:Commitments           -100,000 USD
+```
+
 ### Commitment balance signals
 
 | Balance | Meaning | Action |
@@ -104,7 +122,7 @@ Would move from `Liabilities:Commitments` to `Liabilities:Payable`. Waiting on c
 
 | Flow | Account pattern | Example |
 |------|----------------|---------|
-| Distribution (money in) | `Assets:Receivable:<Investment>` | `Assets:Receivable:Electra-MIF-II` |
+| Distribution (money in, all types: yield, capital return, capital gain) | `Assets:Receivable:<Investment>` | `Assets:Receivable:Electra-MIF-II` |
 | Investment payment (money out) | `Liabilities:Commitments:<Investment>` | `Liabilities:Commitments:Boligo-1` |
 | Unknown counterparty | `Assets:Suspense` | `Assets:Suspense` or `Assets:Suspense:Betegy` |
 | Personal expense | `Expenses:Personal:<Person>` | `Expenses:Personal:Tamar` |

@@ -89,6 +89,8 @@ The system should be able to produce jurisdiction-specific views from the same u
 - A capital call notice draws down part of the commitment: reduces the commitment and creates an immediate payable (`Liabilities:Payable:<Investment>`). The total obligation does not change - it shifts from unfunded to funded.
 - The bank debit clears the payable.
 - The unfunded commitment balance shows how much more could be called. The payable balance shows what is due now.
+- Capital returns (money coming back from the fund) are distributions, not commitment events. They route through `Assets:Receivable` and `Income:Distribution:<Investment>:Capital-Return`, same as yield. They do not reduce or re-open the commitment. When a fund concludes with uncalled commitment, the remainder is explicitly released.
+- FO-sourced entries stand in for the investment-side document (distribution announcement or capital call notice) only, never for the bank leg.
 - Note: the FO CSV "deposit" records the actual bank movement (step 3), not the capital call notice (step 2). Commitments and capital call notices come from separate documents (investment agreements, call letters). See `PROCEDURES.md` for implementation details.
 
 ## Foreign Currency & Tax
