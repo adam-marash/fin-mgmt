@@ -27,15 +27,15 @@ PAIRS = ["EUR", "GBP", "ILS", "JPY", "PLN", "CHF", "AUD"]
 BASE = "USD"
 
 
-def existing_dates(prices_path: Path) -> set[str]:
-    """Parse prices.beancount and return set of dates already present."""
-    dates = set()
+def existing_entries(prices_path: Path) -> set[tuple[str, str]]:
+    """Parse prices.beancount and return set of (date, currency) pairs already present."""
+    entries = set()
     if prices_path.exists():
         for line in prices_path.read_text().splitlines():
-            m = re.match(r"^(\d{4}-\d{2}-\d{2})\s+price\s+", line)
+            m = re.match(r"^(\d{4}-\d{2}-\d{2})\s+price\s+(\w+)\s+", line)
             if m:
-                dates.add(m.group(1))
-    return dates
+                entries.add((m.group(1), m.group(2)))
+    return entries
 
 
 def fetch_rates(dt: str) -> dict[str, float] | None:
@@ -101,22 +101,31 @@ def main():
     else:
         parser.error("Provide specific dates or --from/--to range")
 
-    already = existing_dates(PRICES_FILE)
-    to_fetch = [d for d in target_dates if d not in already]
+    already = existing_entries(PRICES_FILE)
+    # A date needs fetching if any of the target currencies are missing
+    already_dates = {d for d, _ in already}
+    dates_complete = {d for d in already_dates
+                      if all((d, ccy) in already for ccy in PAIRS)}
+    to_fetch = [d for d in target_dates if d not in dates_complete]
 
     if not to_fetch:
         print("All requested dates already in prices.beancount")
         return
 
-    print(f"Fetching {len(to_fetch)} dates ({len(target_dates) - len(to_fetch)} already present)...")
+    skipped = len(target_dates) - len(to_fetch)
+    print(f"Fetching {len(to_fetch)} dates ({skipped} already complete)...")
 
     new_lines = []
     for dt in sorted(to_fetch):
         rates = fetch_rates(dt)
         if rates:
-            lines = format_price_lines(dt, rates)
-            new_lines.extend(lines)
-            print(f"  {dt}: {', '.join(f'{c}={r:.4f}' for c, r in rates.items())}")
+            # Filter out currencies we already have for this date
+            new_rates = {c: r for c, r in rates.items()
+                         if (dt, c) not in already}
+            if new_rates:
+                lines = format_price_lines(dt, new_rates)
+                new_lines.extend(lines)
+                print(f"  {dt}: {', '.join(f'{c}={r:.4f}' for c, r in new_rates.items())}")
 
     if not new_lines:
         print("No new rates fetched.")
