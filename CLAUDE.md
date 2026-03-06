@@ -17,7 +17,8 @@ All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
 | Script | Purpose |
 |--------|---------|
 | `fetch_fx.py` | Fetch FX rates (Frankfurter API) into `ledger/prices.beancount`. Merges and sorts. |
-| `ingest.py` | Main ingestion pipeline. Modes: `hsbc-credit`, `scan`, `leumi-ils`, `leumi-usd`, `report`. |
+| `ingest.py` | Main ingestion pipeline. Modes: `hsbc-credit`, `scan`, `leumi-ils`, `leumi-usd`, `wise`, `report`. |
+| `normalize_wise.py` | Normalize Wise CSV statement exports to clean CSVs. |
 | `fetch_email.py` | Gmail fetcher. `scan`/`fetch` subcommands, `--label`, `--limit`. |
 | `parse_hsbc_stmts.py` | Parse HSBC GU individual PDF statements (pdfplumber). |
 | `normalize_hsbc.py` | Normalize HSBC GU XLSX export to clean CSV. |
@@ -48,6 +49,7 @@ All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
 - Primary sources create ledger entries. Secondary sources (FO) create assertions only.
 - `^link-tags` group entries into events (e.g., `^electra-dist-36`). `#hash-tags` mark reporting dimensions (e.g., `#uk-reportable`).
 - **After every change to ledger content**, run `bean-check ledger/main.beancount` to validate. Do not proceed if it fails.
+- **After completing a unit of work**, commit without asking. Do not ask "want me to commit?" - just do it.
 
 ## Conventions
 

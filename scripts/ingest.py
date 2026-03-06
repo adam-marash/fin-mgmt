@@ -668,9 +668,313 @@ def report_balances():
     print(f"\n  {non_zero} non-zero / {len(balances)} total")
 
 
+
+# === Wise ingestion ===
+
+# EUR counterparty -> account mapping
+WISE_EUR_ROUTING = {
+    # Rental income
+    "Booking.com B.V.": "Income:Rental:Cyprus:Villa-Tamara",
+    "AIRBNB PAYMENTS LUXEMBOURG S.A.": "Income:Rental:Cyprus:Villa-Tamara",
+    # Property management & maintenance
+    "Lazydaze Ltd": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Lazydaze Ltd - Pool": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Lazydaze Limited": "Expenses:Property:Cyprus:Villa-Tamara",
+    "blueworth LTD": "Expenses:Property:Cyprus:Villa-Tamara",
+    "DOUBLEX ELECTRICAL AND MAINTENANCE LTD": "Expenses:Property:Cyprus:Villa-Tamara",
+    "A & F STEPTOES LTD": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Andreas Christodoulou": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Christos Efstratiou": "Expenses:Property:Cyprus:Villa-Tamara",
+    "NEOCLEOUS CHRISTAKIS": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Vachkov Georgi Krumov": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Euroblinds": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Michael Fieldhouse": "Expenses:Property:Cyprus:Villa-Tamara",
+    "A.K.M Network LTD": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Leonidas & Anthoulis Ltd": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Utilities
+    "Eac (internet) HTTPS://WWW.J": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Eac (internet) Strovolos": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Eac (internet) NICOSIA": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Eoa Paphou FCHARALAMBOUS": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Payia Municipality - Water Bill": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Dimos Akama - Peyia Pegeia": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Insurance
+    "Genikes Insurance HTTPS://WWW.J": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Genikes Insurance Lefkosia": "Expenses:Property:Cyprus:Villa-Tamara",
+    "GENERAL INSUR.-PAPHOS": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Legal
+    "M. TIMOTHEOU AND CO LLC": "Expenses:Property:Cyprus:Villa-Tamara",
+    "M.TIMOTHEOU AND CO LLC CLIENTS AC": "Expenses:Property:Cyprus:Villa-Tamara",
+    "M. TIMOTHEOU & CO LLC (CLIENT AC MARASH": "Expenses:Property:Cyprus:Villa-Tamara",
+    "ASSERTUS LTD (POOL CLIENT A/C)": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Furnishing & household
+    "Ikea Nicosia": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Www.homemarket.com.cy Paphos": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Superhome Center (diy)ltd Strovolos": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Superhome Center (diy)ltd NICOSIA": "Expenses:Property:Cyprus:Villa-Tamara",
+    "Pasant Ltd PAPHOS": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Internet
+    "Paypal *Kmnetworklt 35314369001": "Expenses:Property:Cyprus:Villa-Tamara",
+    # Cyprus tax
+    "Tfa Portal-Tax Departmen WWW.MOF.GOV.C": "Expenses:Tax:Cyprus",
+    # Self-transfer (from Tamar's other accounts)
+    "TAMAR BAT SHEVA MARASH": "Equity:Opening-Balances",
+    # HSBC transfer in
+    "HSBC BANK PLC": "Equity:Opening-Balances",
+    # Villa sale deposit (new property)
+    "SHAVIV BERNARD DANIEL AND SHAVIV ADI": "Expenses:Property:Cyprus:Villa-YOLO",
+    # Personal purchases (not property)
+    "Next Directory INTERNET": "Expenses:Personal:Tamar",
+    "Etsy.com - Loveartposter London": "Expenses:Personal:Tamar",
+    "Dunelm Softfurnishings Leicester": "Expenses:Personal:Tamar",
+    "Bill.me Riga": "Expenses:Personal:Tamar",
+    "Airbnb * Inc 415-800-5959": "Expenses:Personal:Tamar",
+}
+
+WISE_GBP_ROUTING = {
+    # TamarCreative income
+    "SHEPSTONE BL": "Income:TamarCreative",
+    "Mango L Holdings Ltd": "Income:TamarCreative",
+    "MANGO L HOLDINGS L": "Income:TamarCreative",
+    "D Zorn": "Income:TamarCreative",
+    "GABAY M & Y": "Income:TamarCreative",
+    "Karina Kizhner": "Income:TamarCreative",
+    "TILE CENTRE LIMI": "Income:TamarCreative",
+    # TamarCreative expenses
+    "Barbara Shepstone": "Expenses:TamarCreative",
+    "Studio 136 Architects Ltd": "Expenses:TamarCreative",
+    "Fiverreu Limassol": "Expenses:TamarCreative",
+    "Fiverreu Nicosia": "Expenses:TamarCreative",
+    "Www.fiverr.com Limassol": "Expenses:TamarCreative",
+    "Victorian Plumbing Ltd LANCASHIRE": "Expenses:TamarCreative",
+    # Wix (website)
+    "Wix.com 1184552683 LONDON": "Expenses:TamarCreative",
+    "Wix.com 1122558177 London": "Expenses:TamarCreative",
+    "Wix.com 1064244675 London": "Expenses:TamarCreative",
+    # Google temp holds (test charges, net zero)
+    "Google *Temporary Hold g.co/payhelp#": "Expenses:TamarCreative",
+    # Personal (refunds etc.)
+    "Dunelm Softfurnishings Leicester": "Expenses:Personal:Tamar",
+}
+
+WISE_USD_ROUTING = {
+    # Tax
+    "NYS DTF BILL PYT": "Expenses:Tax:US:NYS",
+    "IRS  TREAS 310": "Income:Other",
+    # Wix
+    "Wix.com 1184552683 LONDON": "Expenses:TamarCreative",
+    "Wix.com 1122558177 London": "Expenses:TamarCreative",
+}
+
+WISE_ROUTING = {
+    "EUR": WISE_EUR_ROUTING,
+    "GBP": WISE_GBP_ROUTING,
+    "USD": WISE_USD_ROUTING,
+}
+
+WISE_BANK_ACCOUNTS = {
+    "EUR": "Assets:Banks:Wise:Tamar:EUR",
+    "GBP": "Assets:Banks:Wise:Tamar:GBP",
+    "USD": "Assets:Banks:Wise:Tamar:USD",
+}
+
+
+def process_wise(csv_path: str, dry_run: bool = True):
+    """Process normalized Wise CSV into ledger entries."""
+    existing = get_existing_entries()
+    filing_date = date.today().isoformat()
+
+    with open(csv_path) as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    if not rows:
+        print("No rows found.")
+        return
+
+    currency = rows[0]["currency"]
+    bank_account = WISE_BANK_ACCOUNTS.get(currency)
+    routing = WISE_ROUTING.get(currency, {})
+    source_ref = csv_path
+
+    if not bank_account:
+        print(f"ERROR: Unknown currency {currency}")
+        return
+
+    created = 0
+    skipped_dup = 0
+    skipped_minor = 0
+    unrouted = []
+    entries_to_write = []
+
+    for row in rows:
+        txn_date = row["date"]
+        amount = float(row["amount"])
+        description = row["description"]
+        counterparty = row["counterparty"]
+        detail_type = row["detail_type"]
+        wise_id = row["wise_id"]
+        fees = float(row["fees"] or 0)
+        fx_from = row["fx_from"]
+        fx_to = row["fx_to"]
+        fx_rate = row["fx_rate"]
+        fx_amount = row["fx_amount"]
+        reference = row["reference"]
+
+        # Skip cashback (tiny amounts, noise)
+        if detail_type == "CARD_CASHBACK":
+            skipped_minor += 1
+            continue
+
+        # Skip fee refunds
+        if detail_type == "UNKNOWN" and "Fee refund" in description:
+            skipped_minor += 1
+            continue
+
+        # Skip bank details purchase (one-time setup)
+        if "bank details acquisition" in description.lower():
+            skipped_minor += 1
+            continue
+
+        # Skip top-up (self-funding, no economic event)
+        if detail_type == "MONEY_ADDED":
+            skipped_minor += 1
+            continue
+
+        # FX conversions - special handling
+        if detail_type == "CONVERSION":
+            # Debit side (source currency leaves)
+            if amount < 0:
+                narration = f"Wise FX conversion {fx_from} to {fx_to} (rate {fx_rate})"
+                entry_lines = [f'{txn_date} * "{narration}"']
+                entry_lines.append(f'  source: "{source_ref}"')
+                entry_lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
+                entry_lines.append(f"  Equity:FX-Conversion  {-amount:,.2f} {currency}")
+                entry_text = "\n".join(entry_lines)
+
+                if not is_duplicate(txn_date, amount, bank_account, existing):
+                    if dry_run:
+                        print(f"\n--- {txn_date} FX {amount:,.2f} {currency} -> {fx_amount} {fx_to} ---")
+                        print(entry_text)
+                    else:
+                        entries_to_write.append({
+                            "txn_date": txn_date,
+                            "entry_text": entry_text,
+                            "desc": f"wise-fx-{currency.lower()}",
+                        })
+                    existing.append({"date": txn_date, "amount": amount, "account": bank_account,
+                                     "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
+                    created += 1
+                else:
+                    skipped_dup += 1
+            else:
+                # Credit side (target currency arrives) - separate entry
+                narration = f"Wise FX conversion {fx_from} to {fx_to} (rate {fx_rate})"
+                entry_lines = [f'{txn_date} * "{narration}"']
+                entry_lines.append(f'  source: "{source_ref}"')
+                entry_lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
+                entry_lines.append(f"  Equity:FX-Conversion  {-amount:,.2f} {currency}")
+                entry_text = "\n".join(entry_lines)
+
+                if not is_duplicate(txn_date, amount, bank_account, existing):
+                    if dry_run:
+                        print(f"\n--- {txn_date} FX {amount:,.2f} {currency} (credit side) ---")
+                        print(entry_text)
+                    else:
+                        entries_to_write.append({
+                            "txn_date": txn_date,
+                            "entry_text": entry_text,
+                            "desc": f"wise-fx-{currency.lower()}",
+                        })
+                    existing.append({"date": txn_date, "amount": amount, "account": bank_account,
+                                     "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
+                    created += 1
+                else:
+                    skipped_dup += 1
+            continue
+
+        # Route by counterparty
+        offset_account = routing.get(counterparty)
+        if not offset_account:
+            unrouted.append(f"  {txn_date} {amount:>10,.2f} {currency}  {counterparty!r}  ({description})")
+            continue
+
+        # Dedup
+        if is_duplicate(txn_date, amount, bank_account, existing):
+            skipped_dup += 1
+            continue
+
+        # Build narration
+        if counterparty:
+            # Avoid redundant "Foo - To: Foo" patterns
+            desc_clean = description
+            if desc_clean.startswith("To: ") or desc_clean.startswith("From: "):
+                desc_name = desc_clean.split(": ", 1)[1] if ": " in desc_clean else ""
+                if desc_name == counterparty:
+                    desc_clean = ""
+            narration = f"{counterparty} - {desc_clean}" if desc_clean and desc_clean != counterparty else counterparty
+        else:
+            narration = description
+
+        # Truncate narration if too long
+        if len(narration) > 120:
+            narration = narration[:117] + "..."
+
+        # Build entry
+        entry_lines = [f'{txn_date} * "{narration}"']
+        entry_lines.append(f'  source: "{source_ref}"')
+        entry_lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
+
+        if fees > 0 and abs(amount) > fees:
+            entry_lines.append(f"  Expenses:Bank-Fees  {fees:,.2f} {currency}")
+            entry_lines.append(f"  {offset_account}  {-(amount + fees):,.2f} {currency}")
+        else:
+            entry_lines.append(f"  {offset_account}  {-amount:,.2f} {currency}")
+
+        entry_text = "\n".join(entry_lines)
+
+        if dry_run:
+            print(f"\n--- {txn_date} {amount:>10,.2f} {currency} -> {offset_account} ---")
+            print(entry_text)
+        else:
+            entries_to_write.append({
+                "txn_date": txn_date,
+                "entry_text": entry_text,
+                "desc": f"wise-{currency.lower()}-{counterparty[:20].lower().replace(' ', '-')}",
+            })
+
+        existing.append({"date": txn_date, "amount": amount, "account": bank_account,
+                         "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
+        created += 1
+
+    print(f"\n{'[DRY RUN] ' if dry_run else ''}Wise {currency} Summary:")
+    print(f"  Would create: {created}")
+    print(f"  Skipped (already in ledger): {skipped_dup}")
+    print(f"  Skipped (cashback/minor): {skipped_minor}")
+    if unrouted:
+        print(f"  Unrouted ({len(unrouted)}):")
+        for item in unrouted:
+            print(item)
+
+    if not dry_run and entries_to_write:
+        for item in entries_to_write:
+            content_hash = hashlib.sha256(item["entry_text"].encode()).hexdigest()[:8]
+            folder_name = f"{filing_date}-{item['desc'][:40]}-{content_hash}"
+            year = item["txn_date"][:4]
+
+            folder_path = LEDGER_DIR / year / folder_name
+            folder_path.mkdir(parents=True, exist_ok=True)
+            (folder_path / "entries.beancount").write_text(item["entry_text"] + "\n")
+
+        if bean_check():
+            print(f"  Wrote {len(entries_to_write)} entries. Ledger validates OK.")
+        else:
+            print("  WARNING: Ledger validation failed after writing entries!")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Ingest transactions into beancount ledger")
-    parser.add_argument("command", choices=["hsbc-credit", "scan", "leumi-ils", "leumi-usd", "report"])
+    parser.add_argument("command", choices=["hsbc-credit", "scan", "leumi-ils", "leumi-usd", "wise", "report"])
     parser.add_argument("csv_path", nargs="?", help="Path to CSV file")
     parser.add_argument("--commit", action="store_true", help="Actually write entries (default: dry run)")
     args = parser.parse_args()
@@ -689,6 +993,10 @@ def main():
         if not args.csv_path:
             parser.error("csv_path required for leumi-usd")
         process_leumi_usd(args.csv_path, dry_run=not args.commit)
+    elif args.command == "wise":
+        if not args.csv_path:
+            parser.error("csv_path required for wise")
+        process_wise(args.csv_path, dry_run=not args.commit)
 
 
 if __name__ == "__main__":
