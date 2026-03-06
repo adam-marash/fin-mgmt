@@ -253,7 +253,7 @@ tailwind.config = {
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-full bg-gray-950 text-gray-200 font-mono text-base dark">
+<body class="h-full bg-gray-950 text-gray-200 font-mono text-sm dark">
 
 <div x-data="ledgerApp()" x-init="init()" class="flex flex-col h-full" x-cloak>
 
@@ -261,14 +261,14 @@ tailwind.config = {
   <template x-if="loading">
     <div class="flex items-center justify-center h-full gap-3">
       <div class="spinner"></div>
-      <span class="text-gray-500 text-base">Loading ledger...</span>
+      <span class="text-gray-500 text-sm">Loading ledger...</span>
     </div>
   </template>
 
   <!-- Error state -->
   <template x-if="error">
     <div class="flex items-center justify-center h-full">
-      <span class="text-red-400 text-base" x-text="error"></span>
+      <span class="text-red-400 text-sm" x-text="error"></span>
     </div>
   </template>
 
@@ -277,18 +277,18 @@ tailwind.config = {
 
   <!-- Header -->
   <header class="flex items-center gap-3 px-4 py-2.5 bg-surface border-b border-border shrink-0">
-    <h1 class="text-blue-400 font-semibold text-base">Ledger Review</h1>
+    <h1 class="text-blue-400 font-semibold text-sm">Ledger Review</h1>
     <div class="flex gap-1 ml-2">
       <template x-for="p in [{id:'ledger',label:'Ledger'},{id:'pnl',label:'P&L'},{id:'balsheet',label:'Balance Sheet'},{id:'trialbal',label:'Trial Balance'}]" :key="p.id">
         <button
           @click="switchPage(p.id)"
           :class="page === p.id ? 'bg-gray-700 text-gray-200' : 'text-gray-500 hover:text-gray-300'"
-          class="px-2.5 py-1 rounded text-base transition-colors"
+          class="px-2.5 py-1 rounded text-xs transition-colors"
           x-text="p.label"
         ></button>
       </template>
     </div>
-    <span x-show="page === 'ledger'" class="text-gray-500 text-base" x-text="filteredEvents.length + ' events'"></span>
+    <span x-show="page === 'ledger'" class="text-gray-500 text-xs" x-text="filteredEvents.length + ' events'"></span>
     <div class="flex-1"></div>
     <div x-show="page === 'ledger'" class="relative">
       <input
@@ -296,11 +296,11 @@ tailwind.config = {
         x-ref="searchInput"
         type="text"
         placeholder="Search... (/)"
-        class="bg-gray-800 border border-border rounded px-2.5 py-1 text-base text-gray-200 w-48 focus:w-64 transition-all focus:outline-none focus:border-blue-500 placeholder-gray-600"
+        class="bg-gray-800 border border-border rounded px-2.5 py-1 text-xs text-gray-200 w-48 focus:w-64 transition-all focus:outline-none focus:border-blue-500 placeholder-gray-600"
       >
-      <button x-show="search" @click="search = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-base">&times;</button>
+      <button x-show="search" @click="search = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs">&times;</button>
     </div>
-    <span x-show="page === 'ledger'" class="text-gray-600 text-base">j/k nav</span>
+    <span x-show="page === 'ledger'" class="text-gray-600 text-xs">j/k nav</span>
   </header>
 
   <!-- Account detail modal -->
@@ -310,8 +310,8 @@ tailwind.config = {
       <!-- Modal header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div>
-          <h2 class="text-base font-semibold text-purple-400" x-text="acctName"></h2>
-          <div class="text-base text-gray-500 mt-0.5" x-text="acctJournal.length + ' postings'"></div>
+          <h2 class="text-sm font-semibold text-purple-400" x-text="acctName"></h2>
+          <div class="text-[11px] text-gray-500 mt-0.5" x-text="acctJournal.length + ' postings'"></div>
         </div>
         <button @click="acctModal = false" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
       </div>
@@ -321,7 +321,7 @@ tailwind.config = {
       </div>
       <!-- Journal table -->
       <div x-show="!acctLoading" class="flex-1 overflow-auto">
-        <table class="w-full text-base">
+        <table class="w-full text-xs">
           <thead class="sticky top-0 bg-gray-900 z-10">
             <tr class="border-b border-border text-gray-500">
               <th class="text-left py-2 px-3 font-normal w-24">Date</th>
@@ -361,7 +361,7 @@ tailwind.config = {
           <button
             @click="selectReportYear(y)"
             :class="reportYear === y ? 'bg-gray-700 text-gray-200' : 'text-gray-500 hover:text-gray-300'"
-            class="px-2.5 py-1 rounded text-base transition-colors"
+            class="px-2.5 py-1 rounded text-xs transition-colors"
             x-text="y"
           ></button>
         </template>
@@ -379,32 +379,32 @@ tailwind.config = {
             <div class="report-grid" :style="'--cols:' + (reportCurrencies.length + 2)">
               <!-- Header -->
               <div class="report-row border-b border-border">
-                <div class="py-2 px-2 text-gray-500 text-base">Account</div>
+                <div class="py-2 px-2 text-gray-500 text-xs">Account</div>
                 <template x-for="cur in reportCurrencies" :key="'h-'+cur">
-                  <div class="text-right py-2 px-2 text-gray-500 text-base" x-text="cur"></div>
+                  <div class="text-right py-2 px-2 text-gray-500 text-xs" x-text="cur"></div>
                 </template>
-                <div class="text-right py-2 px-2 text-yellow-600 text-base">USD eq.</div>
+                <div class="text-right py-2 px-2 text-yellow-600 text-xs">USD eq.</div>
               </div>
               <!-- Sections -->
               <template x-for="section in reportTree" :key="section.name">
                 <div>
                   <!-- Section label -->
-                  <div class="border-t border-border py-2 px-2 text-blue-400 font-semibold text-base" x-text="section.name"></div>
+                  <div class="border-t border-border py-2 px-2 text-blue-400 font-semibold text-xs" x-text="section.name"></div>
                   <!-- Groups and their leaves interleaved -->
                   <template x-for="group in section.groups" :key="group.name">
                     <div>
                       <!-- Group header -->
                       <div class="report-row cursor-pointer hover:bg-gray-800/40" @click="toggleReportGroup(section.name + ':' + group.name)">
-                        <div class="py-1.5 px-2 pl-4 text-gray-300 text-base">
-                          <span class="text-base inline-block w-3 transition-transform" :class="openReportGroups[section.name + ':' + group.name] ? 'rotate-90' : ''">&#9654;</span>
+                        <div class="py-1.5 px-2 pl-4 text-gray-300 text-xs">
+                          <span class="text-[10px] inline-block w-3 transition-transform" :class="openReportGroups[section.name + ':' + group.name] ? 'rotate-90' : ''">&#9654;</span>
                           <span x-text="group.name"></span>
                         </div>
                         <template x-for="cur in reportCurrencies" :key="cur">
-                          <div class="text-right py-1.5 px-2 text-base"
+                          <div class="text-right py-1.5 px-2 text-xs"
                               :class="(group.totals[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-300'"
                               x-text="fmtAmount(group.totals[cur], cur)"></div>
                         </template>
-                        <div class="text-right py-1.5 px-2 text-base"
+                        <div class="text-right py-1.5 px-2 text-xs"
                             :class="sumUsd(group.totals) < 0 ? 'text-red-400' : 'text-yellow-600/70'"
                             x-text="fmtAmount(sumUsd(group.totals), 'USD')"></div>
                       </div>
@@ -413,15 +413,15 @@ tailwind.config = {
                         <div>
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
-                              <div class="py-1 px-2 pl-10 text-base">
+                              <div class="py-1 px-2 pl-10 text-xs">
                                 <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
                               </div>
                               <template x-for="cur in reportCurrencies" :key="cur">
-                                <div class="text-right py-1 px-2 text-base"
+                                <div class="text-right py-1 px-2 text-xs"
                                     :class="(leaf.amounts[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-400'"
                                     x-text="fmtAmount(leaf.amounts[cur], cur)"></div>
                               </template>
-                              <div class="text-right py-1 px-2 text-base"
+                              <div class="text-right py-1 px-2 text-xs"
                                   :class="sumUsd(leaf.amounts) < 0 ? 'text-red-400' : 'text-yellow-600/50'"
                                   x-text="fmtAmount(sumUsd(leaf.amounts), 'USD')"></div>
                             </div>
@@ -432,13 +432,13 @@ tailwind.config = {
                   </template>
                   <!-- Section total -->
                   <div class="report-row border-t border-border">
-                    <div class="py-2 px-2 text-base font-semibold" x-text="'Total ' + section.name"></div>
+                    <div class="py-2 px-2 text-xs font-semibold" x-text="'Total ' + section.name"></div>
                     <template x-for="cur in reportCurrencies" :key="cur">
-                      <div class="text-right py-2 px-2 text-base font-semibold"
+                      <div class="text-right py-2 px-2 text-xs font-semibold"
                           :class="(section.totals[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-200'"
                           x-text="fmtAmount(section.totals[cur], cur)"></div>
                     </template>
-                    <div class="text-right py-2 px-2 text-base font-semibold"
+                    <div class="text-right py-2 px-2 text-xs font-semibold"
                         :class="sumUsd(section.totals) < 0 ? 'text-red-400' : 'text-yellow-600'"
                         x-text="fmtAmount(sumUsd(section.totals), 'USD')"></div>
                   </div>
@@ -446,13 +446,13 @@ tailwind.config = {
               </template>
               <!-- Grand total -->
               <div class="report-row border-t-2 border-gray-600">
-                <div class="py-2 px-2 text-base font-semibold text-gray-100" x-text="page === 'pnl' ? 'Net Income' : 'Net Worth'"></div>
+                <div class="py-2 px-2 text-sm font-semibold text-gray-100" x-text="page === 'pnl' ? 'Net Income' : 'Net Worth'"></div>
                 <template x-for="cur in reportCurrencies" :key="cur">
-                  <div class="text-right py-2 px-2 text-base font-semibold"
+                  <div class="text-right py-2 px-2 text-sm font-semibold"
                       :class="(reportGrandTotal[cur] || 0) < 0 ? 'text-red-400' : 'text-green-400'"
                       x-text="fmtAmount(reportGrandTotal[cur], cur)"></div>
                 </template>
-                <div class="text-right py-2 px-2 text-base font-semibold"
+                <div class="text-right py-2 px-2 text-sm font-semibold"
                     :class="sumUsd(reportGrandTotal) < 0 ? 'text-red-400' : 'text-yellow-500'"
                     x-text="fmtAmount(sumUsd(reportGrandTotal), 'USD')"></div>
               </div>
@@ -476,29 +476,29 @@ tailwind.config = {
             <div class="report-grid" :style="'--cols:' + (trialBalCurrencies.length + 2)">
               <!-- Header -->
               <div class="report-row border-b border-border">
-                <div class="py-2 px-2 text-gray-500 text-base">Account</div>
+                <div class="py-2 px-2 text-gray-500 text-xs">Account</div>
                 <template x-for="cur in trialBalCurrencies" :key="'tbh-'+cur">
-                  <div class="text-right py-2 px-2 text-gray-500 text-base" x-text="cur"></div>
+                  <div class="text-right py-2 px-2 text-gray-500 text-xs" x-text="cur"></div>
                 </template>
-                <div class="text-right py-2 px-2 text-yellow-600 text-base">USD eq.</div>
+                <div class="text-right py-2 px-2 text-yellow-600 text-xs">USD eq.</div>
               </div>
               <!-- Sections -->
               <template x-for="section in trialBalTree" :key="section.name">
                 <div>
-                  <div class="border-t border-border py-2 px-2 text-blue-400 font-semibold text-base" x-text="section.name"></div>
+                  <div class="border-t border-border py-2 px-2 text-blue-400 font-semibold text-xs" x-text="section.name"></div>
                   <template x-for="group in section.groups" :key="group.name">
                     <div>
                       <div class="report-row cursor-pointer hover:bg-gray-800/40" @click="toggleReportGroup('tb:' + section.name + ':' + group.name)">
-                        <div class="py-1.5 px-2 pl-4 text-gray-300 text-base">
-                          <span class="text-base inline-block w-3 transition-transform" :class="openReportGroups['tb:' + section.name + ':' + group.name] ? 'rotate-90' : ''">&#9654;</span>
+                        <div class="py-1.5 px-2 pl-4 text-gray-300 text-xs">
+                          <span class="text-[10px] inline-block w-3 transition-transform" :class="openReportGroups['tb:' + section.name + ':' + group.name] ? 'rotate-90' : ''">&#9654;</span>
                           <span x-text="group.name"></span>
                         </div>
                         <template x-for="cur in trialBalCurrencies" :key="cur">
-                          <div class="text-right py-1.5 px-2 text-base"
+                          <div class="text-right py-1.5 px-2 text-xs"
                               :class="(group.totals[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-300'"
                               x-text="fmtAmount(group.totals[cur], cur)"></div>
                         </template>
-                        <div class="text-right py-1.5 px-2 text-base"
+                        <div class="text-right py-1.5 px-2 text-xs"
                             :class="sumUsdLatest(group.totals) < 0 ? 'text-red-400' : 'text-yellow-600/70'"
                             x-text="fmtAmount(sumUsdLatest(group.totals), 'USD')"></div>
                       </div>
@@ -506,15 +506,15 @@ tailwind.config = {
                         <div>
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
-                              <div class="py-1 px-2 pl-10 text-base">
+                              <div class="py-1 px-2 pl-10 text-xs">
                                 <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
                               </div>
                               <template x-for="cur in trialBalCurrencies" :key="cur">
-                                <div class="text-right py-1 px-2 text-base"
+                                <div class="text-right py-1 px-2 text-xs"
                                     :class="(leaf.amounts[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-400'"
                                     x-text="fmtAmount(leaf.amounts[cur], cur)"></div>
                               </template>
-                              <div class="text-right py-1 px-2 text-base"
+                              <div class="text-right py-1 px-2 text-xs"
                                   :class="sumUsdLatest(leaf.amounts) < 0 ? 'text-red-400' : 'text-yellow-600/50'"
                                   x-text="fmtAmount(sumUsdLatest(leaf.amounts), 'USD')"></div>
                             </div>
@@ -525,13 +525,13 @@ tailwind.config = {
                   </template>
                   <!-- Section total -->
                   <div class="report-row border-t border-border">
-                    <div class="py-2 px-2 text-base font-semibold" x-text="'Total ' + section.name"></div>
+                    <div class="py-2 px-2 text-xs font-semibold" x-text="'Total ' + section.name"></div>
                     <template x-for="cur in trialBalCurrencies" :key="cur">
-                      <div class="text-right py-2 px-2 text-base font-semibold"
+                      <div class="text-right py-2 px-2 text-xs font-semibold"
                           :class="(section.totals[cur] || 0) < 0 ? 'text-red-400' : 'text-gray-200'"
                           x-text="fmtAmount(section.totals[cur], cur)"></div>
                     </template>
-                    <div class="text-right py-2 px-2 text-base font-semibold"
+                    <div class="text-right py-2 px-2 text-xs font-semibold"
                         :class="sumUsdLatest(section.totals) < 0 ? 'text-red-400' : 'text-yellow-600'"
                         x-text="fmtAmount(sumUsdLatest(section.totals), 'USD')"></div>
                   </div>
@@ -539,13 +539,13 @@ tailwind.config = {
               </template>
               <!-- Grand total (should be zero) -->
               <div class="report-row border-t-2 border-gray-600">
-                <div class="py-2 px-2 text-base font-semibold text-gray-100">Total (should be zero)</div>
+                <div class="py-2 px-2 text-sm font-semibold text-gray-100">Total (should be zero)</div>
                 <template x-for="cur in trialBalCurrencies" :key="cur">
-                  <div class="text-right py-2 px-2 text-base font-semibold"
+                  <div class="text-right py-2 px-2 text-sm font-semibold"
                       :class="Math.abs(trialBalGrandTotal[cur] || 0) < 0.01 ? 'text-green-400' : 'text-red-400'"
                       x-text="fmtAmount(trialBalGrandTotal[cur], cur)"></div>
                 </template>
-                <div class="text-right py-2 px-2 text-base font-semibold"
+                <div class="text-right py-2 px-2 text-sm font-semibold"
                     :class="Math.abs(sumUsdLatest(trialBalGrandTotal)) < 1 ? 'text-green-400' : 'text-red-400'"
                     x-text="fmtAmount(sumUsdLatest(trialBalGrandTotal), 'USD')"></div>
               </div>
@@ -566,10 +566,10 @@ tailwind.config = {
           <button
             @click="toggleYear(year.name)" @keydown.prevent
             tabindex="-1"
-            class="flex items-center justify-between w-full px-3 py-2 text-base font-semibold text-gray-400 bg-gray-900/50 border-b border-border hover:bg-gray-800/50 sticky top-0 z-10"
+            class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 bg-gray-900/50 border-b border-border hover:bg-gray-800/50 sticky top-0 z-10"
           >
             <div class="flex items-center gap-2">
-              <span class="text-base transition-transform" :class="openYears[year.name] ? 'rotate-90' : ''">&#9654;</span>
+              <span class="text-[10px] transition-transform" :class="openYears[year.name] ? 'rotate-90' : ''">&#9654;</span>
               <span x-text="year.name"></span>
             </div>
             <span class="text-gray-600" x-text="year.events.length"></span>
@@ -584,17 +584,17 @@ tailwind.config = {
                 class="sidebar-item block w-full text-left px-3 py-2 border-b border-border hover:bg-gray-800/40"
               >
                 <div class="flex items-center gap-2">
-                  <span class="text-base text-gray-500" x-text="event.date"></span>
+                  <span class="text-[11px] text-gray-500" x-text="event.date"></span>
                   <span
                     :class="event.reconciled ? 'text-green-600' : 'text-yellow-600'"
-                    class="text-base"
+                    class="text-[10px]"
                     x-text="event.reconciled ? '\u2713' : '\u25cb'"
                   ></span>
                 </div>
-                <div class="text-base mt-0.5 leading-snug" x-text="event.title"></div>
+                <div class="text-sm mt-0.5 leading-snug" x-text="event.title"></div>
                 <div class="flex flex-wrap gap-1 mt-1">
                   <template x-for="link in event.links" :key="link">
-                    <span class="text-base px-1.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-900" x-text="link"></span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-900" x-text="link"></span>
                   </template>
                 </div>
               </button>
@@ -609,8 +609,8 @@ tailwind.config = {
 
       <!-- Detail header -->
       <div class="px-4 py-2.5 bg-surface border-b border-border shrink-0">
-        <h2 class="text-base font-semibold" x-text="selected?.title"></h2>
-        <div class="text-base text-gray-500 mt-0.5" x-text="selected?.relFolder"></div>
+        <h2 class="text-sm font-semibold" x-text="selected?.title"></h2>
+        <div class="text-[11px] text-gray-500 mt-0.5" x-text="selected?.relFolder"></div>
       </div>
 
       <!-- View tabs -->
@@ -618,18 +618,18 @@ tailwind.config = {
         <button
           @click="view = 'split'"
           :class="view === 'split' ? 'text-blue-400 border-blue-400' : 'text-gray-500 border-transparent'"
-          class="px-4 py-2 text-base border-b-2 hover:text-gray-300 transition-colors"
+          class="px-4 py-2 text-xs border-b-2 hover:text-gray-300 transition-colors"
         >Split</button>
         <button
           @click="view = 'entries'"
           :class="view === 'entries' ? 'text-blue-400 border-blue-400' : 'text-gray-500 border-transparent'"
-          class="px-4 py-2 text-base border-b-2 hover:text-gray-300 transition-colors"
+          class="px-4 py-2 text-xs border-b-2 hover:text-gray-300 transition-colors"
         >Entries</button>
         <template x-for="(pdf, j) in (selected?.pdfs || [])" :key="pdf">
           <button
             @click="view = 'pdf-' + j"
             :class="view === 'pdf-' + j ? 'text-blue-400 border-blue-400' : 'text-gray-500 border-transparent'"
-            class="px-4 py-2 text-base border-b-2 hover:text-gray-300 transition-colors"
+            class="px-4 py-2 text-xs border-b-2 hover:text-gray-300 transition-colors"
             x-text="pdf.split('/').pop()"
           ></button>
         </template>
@@ -646,7 +646,7 @@ tailwind.config = {
         <!-- Split view -->
         <div x-show="view === 'split'" class="flex-1 flex overflow-hidden">
           <div class="flex-1 overflow-auto p-4 border-r border-border">
-            <pre class="text-base leading-relaxed whitespace-pre-wrap" x-html="highlightBeancount(currentEntries)"></pre>
+            <pre class="text-sm leading-relaxed whitespace-pre-wrap" x-html="highlightBeancount(currentEntries)"></pre>
           </div>
           <div class="flex-1">
             <template x-if="selected?.pdfs?.length">
@@ -660,7 +660,7 @@ tailwind.config = {
 
         <!-- Entries only -->
         <div x-show="view === 'entries'" class="flex-1 overflow-auto p-4">
-          <pre class="text-base leading-relaxed whitespace-pre-wrap" x-html="highlightBeancount(currentEntries)"></pre>
+          <pre class="text-sm leading-relaxed whitespace-pre-wrap" x-html="highlightBeancount(currentEntries)"></pre>
         </div>
 
         <!-- PDF only tabs -->
