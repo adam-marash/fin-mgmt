@@ -11,7 +11,7 @@ All cash came from Tamar. Half of each investment payment and related fees are l
 ### Balances
 | Account | Balance | Notes |
 |---------|---------|-------|
-| Assets:Suspense:Betegy | 2,659,877.58 PLN | Investment capital - needs proper account |
+| Assets:Business:Betegy | 2,659,877.58 PLN | Equity investment (shares + premium + loan assignments) |
 | Assets:Loans:Betegy | 73,545.00 EUR | Tamar-only loan to Betegy (non-performing) |
 | Expenses:Professional:Prodigy-MT | 44,464.56 EUR + 3,629.70 CHF | Half is Z's loan |
 | Assets:Loans:Zilbershtein | -357,154.00 EUR | Z's repayments (no originating entry yet) |
@@ -119,7 +119,7 @@ The ~22,700 EUR overpayment likely represents **interest** on the loan. This wou
 - [ ] Split Z repayments into principal (~334K) and interest (~22K)
 - [ ] Create `Income:Interest:Zilbershtein` or similar for the interest component
 - [x] ~~Find Betegy loan relinquishment doc and write off Assets:Loans:Betegy~~ DONE
-- [ ] Reclassify Assets:Suspense:Betegy (2.66M PLN) to proper investment asset account
+- [x] ~~Reclassify Assets:Suspense:Betegy (2.66M PLN) to proper investment asset account~~ DONE - now Assets:Business:Betegy
 - [ ] Reclassify Expenses:Professional:Prodigy-MT - half is Z's loan, half is Tamar's cost
 - [ ] Confirm "business start up" €8K is a loan repayment
 - [ ] Confirm interest interpretation of ~€22,700 overpayment
