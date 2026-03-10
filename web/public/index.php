@@ -117,20 +117,16 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
     }
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
-    $query = "SELECT date, narration, number, currency, balance, filename WHERE account = '{$account}' ORDER BY date";
+    $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}' ORDER BY date";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     $lines = explode("\n", trim($csv));
     $rows = [];
     for ($i = 1; $i < count($lines); $i++) {
         $parts = str_getcsv($lines[$i]);
-        if (count($parts) < 6) continue;
+        if (count($parts) < 5) continue;
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($parts[0]))) continue;
         // balance field is like "  6403.00 USD" or "  100.00 EUR, 200.00 USD"
         $balStr = trim($parts[4]);
-        // filename - strip ledger base path to get relative folder
-        $fn = trim($parts[5]);
-        $source = str_replace($ledgerBase . '/', '', $fn);
-        $source = str_replace('/entries.beancount', '', $source);
         $balParts = [];
         foreach (preg_split('/,\s*/', $balStr) as $bp) {
             if (preg_match('/([-\d.,]+)\s+([A-Z]{3})/', $bp, $bm)) {
@@ -143,7 +139,6 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
             'amount' => floatval(trim($parts[2])),
             'currency' => trim($parts[3]),
             'balance' => $balParts,
-            'source' => $source,
         ];
     }
     header('Content-Type: application/json');
@@ -334,7 +329,6 @@ tailwind.config = {
               <th class="text-right py-2 px-3 font-normal w-28">Debit</th>
               <th class="text-right py-2 px-3 font-normal w-28">Credit</th>
               <th class="text-right py-2 px-3 font-normal w-32">Balance</th>
-              <th class="text-left py-2 px-3 font-normal">Source</th>
             </tr>
           </thead>
           <tbody>
@@ -350,7 +344,6 @@ tailwind.config = {
                     x-text="row.amount < 0 ? fmtAmount(-row.amount, row.currency) + ' ' + row.currency : ''"></td>
                 <td class="py-1.5 px-3 text-right whitespace-nowrap text-yellow-600"
                     x-text="row.balance.filter(b => b.currency === row.currency).map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
-                <td class="py-1.5 px-3 text-gray-500 truncate max-w-xs text-xs" :title="row.source" x-text="row.source"></td>
               </tr>
             </template>
           </tbody>
