@@ -167,13 +167,25 @@ def generate_entry(fo, bc_name):
             debit_account = f"Assets:Receivable:{bc_name}"
         else:
             debit_account = f"Liabilities:Commitments:{bc_name}"
-        lines = [
-            f'{fo.date} * "{narration}" #fo-sourced #provisional',
-            f'  source: "{FO_CSV.relative_to(ROOT)}"',
-            f'  fo-line: "{fo.line_num}"',
-            f'  {debit_account}  {amt} {ccy}',
-            f'  Assets:Suspense  -{amt} {ccy}',
-        ]
+        if bc_name in EXCLUDED_FROM_COMMITMENTS:
+            lines = [
+                f'{fo.date} * "{narration}" #fo-sourced #provisional',
+                f'  source: "{FO_CSV.relative_to(ROOT)}"',
+                f'  fo-line: "{fo.line_num}"',
+                f'  {debit_account}  {amt} {ccy}',
+                f'  Assets:Suspense  -{amt} {ccy}',
+            ]
+        else:
+            # 4-leg pattern per Investment Lifecycle step 3b
+            lines = [
+                f'{fo.date} * "{narration}" #fo-sourced #provisional',
+                f'  source: "{FO_CSV.relative_to(ROOT)}"',
+                f'  fo-line: "{fo.line_num}"',
+                f'  Assets:Investments:{bc_name}  {amt} {ccy}',
+                f'  {debit_account}  {amt} {ccy}',
+                f'  Equity:Commitments  -{amt} {ccy}',
+                f'  Assets:Suspense  -{amt} {ccy}',
+            ]
     elif fo.tx_type in ("yield_withdrawal", "withdrawal"):
         if fo.tx_type == "yield_withdrawal":
             narration = f"{bc_name} - distribution (FO-sourced)"

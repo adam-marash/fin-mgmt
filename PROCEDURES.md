@@ -426,7 +426,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 ## Script Behavior Notes
 
 - `check_fo_assertions.py`: matches against both `Assets:Receivable:` (withdrawals) and `Liabilities:Commitments:` (deposits). Allows $45 HSBC wire fee difference on deposit matches.
-- `generate_fo_entries.py`: **TODO (issue #31)**: currently routes deposits to `Liabilities:Commitments` + `Assets:Suspense`; needs updating to 4-legged pattern per Investment Lifecycle step 3b. IBI-Portfolio and Yalin-Portfolio are excluded (managed portfolios, use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
+- `generate_fo_entries.py`: generates 4-legged entries for deposits per Investment Lifecycle step 3b (`Assets:Investments` + `Liabilities:Commitments` + `Equity:Commitments` + `Assets:Suspense`). IBI-Portfolio and Yalin-Portfolio are excluded (managed portfolios, use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
 
 ## Link Tag Conventions
 
