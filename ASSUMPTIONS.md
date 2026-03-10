@@ -184,15 +184,34 @@ Document arrives -> inbox/
   +-- Primary source? -> ledger/YYYY/<date>-<source>-<hash>/ (with entries.beancount)
   +-- Secondary source (FO, investment stmt)? -> data/<date>-<source>-<desc>/
   |     (cleaned CSV + assertions.beancount linked to ledger entries)
-  +-- Noise? -> delete
+  +-- Reference/Noise? -> archive/<same-folder-name>/ (with triage.yaml)
 ```
 
 Target: inbox at zero. Triage promptly - inbox is git-tracked because triage lag is real and documents must not be lost in the gap between arrival and filing.
+
+### Archive triage metadata
+
+Documents that don't produce ledger entries (reference docs, noise, confirmations) move to `archive/` with a `triage.yaml` explaining the disposition:
+
+```yaml
+disposition: reference|noise|duplicate-of:<path>
+reason: "Quarterly NAV statement, no extractable transactions"
+triaged: 2026-03-10
+triaged-by: llm|human
+verified: null          # date when human confirmed the triage decision
+verified-by: null       # null until human review
+```
+
+- `triaged-by`: who made the initial triage decision (llm or human)
+- `verified-by`: who confirmed it (always human for final sign-off)
+- `verified: null` means the triage decision has not been human-reviewed yet
+- Verification sweeps can filter for `verified: null` to find unreviewed items
 
 ### What lives where
 
 - **ledger/**: beancount files + filed source documents. The book of record.
 - **inbox/**: documents awaiting triage. Transient but backed up.
+- **archive/**: triaged documents that don't produce ledger entries. Each folder retains the original inbox folder name and contains the source document plus `triage.yaml`. Serves as dedup target, audit trail, and verification corpus.
 - **dups/**: hash-matched duplicates. Cheap insurance, never referenced.
 - **data/**: date-prefixed folders containing raw exports (XLSX, HTML-as-XLS) alongside their cleaned CSVs. Referenced by ledger entries as evidence. Hard to regenerate - always retained. Folders (not bare files) to allow multiple files, worksheets, notes.
 - **tmp/**: raw source files awaiting filing. Cleaned up once contents are filed to `ledger/`.
