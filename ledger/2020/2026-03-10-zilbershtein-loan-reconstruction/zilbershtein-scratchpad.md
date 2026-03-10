@@ -11,7 +11,7 @@ All cash came from Tamar. Half of each investment payment and related fees are l
 ### Balances
 | Account | Balance | Notes |
 |---------|---------|-------|
-| Assets:Business:Betegy | 2,659,877.58 PLN | Equity investment (shares + premium + loan assignments) |
+| Assets:Business:Betegy | 0 PLN | Written off 2024-11-25 (was 2,659,877.58 PLN) |
 | Assets:Loans:Betegy | 73,545.00 EUR | Tamar-only loan to Betegy (non-performing) |
 | Expenses:Professional:Prodigy-MT | 44,464.56 EUR + 3,629.70 CHF | Half is Z's loan |
 | Assets:Loans:Zilbershtein | -357,154.00 EUR | Z's repayments (no originating entry yet) |
