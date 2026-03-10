@@ -343,7 +343,7 @@ tailwind.config = {
                     :class="row.amount < 0 ? 'text-red-400' : 'text-transparent'"
                     x-text="row.amount < 0 ? fmtAmount(-row.amount, row.currency) + ' ' + row.currency : ''"></td>
                 <td class="py-1.5 px-3 text-right whitespace-nowrap text-yellow-600"
-                    x-text="row.balance.map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
+                    x-text="row.balance.filter(b => b.currency === row.currency).map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
               </tr>
             </template>
           </tbody>

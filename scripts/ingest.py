@@ -184,7 +184,7 @@ def format_entry(
     lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
 
     if fee > 0:
-        lines.append(f"  Expenses:Wire-Fees  {fee:,.2f} {currency}")
+        lines.append(f"  Expenses:Bank-Fees  {fee:,.2f} {currency}")
         lines.append(f"  {offset_account}  -{amount + fee:,.2f} {currency}")
     else:
         # No fee or negative fee (bank received more than expected) -
