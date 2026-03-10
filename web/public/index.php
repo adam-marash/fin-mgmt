@@ -117,6 +117,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
     }
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
+    // Main journal query with running balance
     $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}' ORDER BY date";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     $lines = explode("\n", trim($csv));
@@ -139,8 +140,31 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
             'amount' => floatval(trim($parts[2])),
             'currency' => trim($parts[3]),
             'balance' => $balParts,
+            'contra' => [],
         ];
     }
+    // Contra accounts query - get all postings from transactions touching this account
+    $contraQuery = "SELECT date, narration, account, number, currency FROM HAS_ACCOUNT('{$account}') ORDER BY date";
+    $contraCsv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($contraQuery) . ' --format csv 2>&1');
+    $contraLines = explode("\n", trim($contraCsv));
+    // Build contra lookup keyed by date+narration
+    $contraMap = [];
+    for ($i = 1; $i < count($contraLines); $i++) {
+        $p = str_getcsv($contraLines[$i]);
+        if (count($p) < 5) continue;
+        $acct = trim($p[2]);
+        if ($acct === $account) continue; // skip self
+        $key = trim($p[0]) . '|' . trim($p[1]);
+        $contraMap[$key][] = $acct;
+    }
+    // Merge contra accounts into rows
+    foreach ($rows as &$row) {
+        $key = $row['date'] . '|' . $row['narration'];
+        if (isset($contraMap[$key])) {
+            $row['contra'] = array_values(array_unique($contraMap[$key]));
+        }
+    }
+    unset($row);
     header('Content-Type: application/json');
     echo json_encode($rows);
     exit;
@@ -306,7 +330,7 @@ tailwind.config = {
   <!-- Account detail modal -->
   <div x-show="acctModal" class="fixed inset-0 z-50 flex items-start justify-center pt-12" @keydown.escape.window="acctModal = false">
     <div class="absolute inset-0 bg-black/60" @click="acctModal = false"></div>
-    <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[90vw] max-w-5xl h-[80vh] flex flex-col">
+    <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[95vw] max-w-6xl h-[80vh] flex flex-col">
       <!-- Modal header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div>
@@ -329,6 +353,7 @@ tailwind.config = {
               <th class="text-right py-2 px-3 font-normal w-28">Debit</th>
               <th class="text-right py-2 px-3 font-normal w-28">Credit</th>
               <th class="text-right py-2 px-3 font-normal w-32">Balance</th>
+              <th class="text-left py-2 px-3 font-normal">Contra</th>
             </tr>
           </thead>
           <tbody>
@@ -344,6 +369,11 @@ tailwind.config = {
                     x-text="row.amount < 0 ? fmtAmount(-row.amount, row.currency) + ' ' + row.currency : ''"></td>
                 <td class="py-1.5 px-3 text-right whitespace-nowrap text-yellow-600"
                     x-text="row.balance.filter(b => b.currency === row.currency).map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
+                <td class="py-1.5 px-3 text-gray-500 text-xs truncate max-w-xs" :title="(row.contra||[]).join(', ')">
+                  <template x-for="(c, ci) in (row.contra||[])" :key="ci">
+                    <span class="cursor-pointer hover:text-purple-400" @click.stop="openAccount(c)" x-text="c.split(':').slice(-2).join(':')"></span>
+                  </template>
+                </td>
               </tr>
             </template>
           </tbody>
