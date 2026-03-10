@@ -245,7 +245,7 @@ When an investment concludes, any uncalled commitment is explicitly released:
 
 ### Investment metadata on cross-cutting accounts
 
-Some accounts are organized by jurisdiction or cost type rather than by investment (e.g., `Expenses:Tax:Israel`, `Expenses:FO-Fees`). Transactions on these accounts that relate to a specific investment carry `investment:` metadata so they appear in investment-level queries:
+Some accounts are organized by jurisdiction or cost type rather than by investment (e.g., `Expenses:Tax:Israel`, `Expenses:Professional:FO-Fees`). Transactions on these accounts that relate to a specific investment carry `investment:` metadata so they appear in investment-level queries:
 
 ```beancount
 2021-10-21 * "Data Center LA - US withholding" ^data-center-la-dist-2
@@ -256,7 +256,7 @@ Some accounts are organized by jurisdiction or cost type rather than by investme
 
 Accounts that need `investment:` metadata (the account name does not contain the investment):
 - `Expenses:Tax:<Jurisdiction>` - withholding tax
-- `Expenses:FO-Fees` - family office fees attributable to a specific investment
+- `Expenses:Professional:FO-Fees` - family office fees attributable to a specific investment
 - `Expenses:Tax-Advisory` - tax advisory fees for a specific investment
 
 Accounts that do NOT need it (the investment name is already in the account path):
