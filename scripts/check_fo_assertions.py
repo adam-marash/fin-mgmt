@@ -43,7 +43,11 @@ INVESTMENT_ACCOUNT_PREFIXES = (
 # We look for the posting to the receivable/investment account.
 MATCH_ACCOUNT_PREFIXES = (
     "Assets:Receivable:",
+    "Liabilities:Commitments:",
 )
+
+# HSBC outgoing wire fee applied to investment payments (FO deposits).
+WIRE_FEE = Decimal("45")
 
 # Bank account postings carry the settlement amount.
 BANK_ACCOUNT_PREFIXES = (
@@ -183,9 +187,13 @@ def load_ledger_txns() -> list[LedgerTxn]:
             amount = units.number
             currency = units.currency
 
-            # Determine direction: negative receivable = bank credit received
-            # positive receivable = announcement/distribution booked
-            is_inflow = amount > 0  # positive on receivable = distribution expected
+            # Determine direction based on account type:
+            # Receivable: positive = distribution expected (inflow)
+            # Commitments: positive = investment payment (outflow)
+            if account.startswith("Liabilities:Commitments:"):
+                is_inflow = False  # positive on commitments = payment out
+            else:
+                is_inflow = amount > 0  # positive on receivable = distribution expected
 
             meta = entry.meta or {}
             filename = meta.get("filename", "")
@@ -222,6 +230,12 @@ def _score_match(
     # Same-currency match: compare amounts directly
     if fo.currency == lt.currency:
         amount_diff = abs(fo.amount - lt.amount)
+        # For FO deposits (investment payments) matched to commitments,
+        # the ledger may include the $45 HSBC wire fee in the posting.
+        # Allow for this difference.
+        if fo.tx_type == "deposit" and not lt.is_inflow:
+            wire_diff = abs(fo.amount + WIRE_FEE - lt.amount)
+            amount_diff = min(amount_diff, wire_diff)
         amount_pct = float(amount_diff / fo.amount) * 100
         return (amount_pct, day_diff, False)
 
@@ -420,7 +434,7 @@ def main():
 
     print(f"Loading ledger from {LEDGER_FILE} ...")
     ledger_txns = load_ledger_txns()
-    print(f"  {len(ledger_txns)} ledger postings to receivable accounts loaded")
+    print(f"  {len(ledger_txns)} ledger postings to receivable/commitments accounts loaded")
     print()
 
     # Filter ledger to FO-managed investments only
@@ -586,7 +600,7 @@ def main():
     print()
     print("Notes:")
     print("  - Unmapped FO entries: investment names not found in knowledge.json")
-    print("  - FO-only mapped: FO has transaction but ledger has no receivable entry")
+    print("  - FO-only mapped: FO has transaction but ledger has no receivable/commitments entry")
     print("    (may not yet be booked, or booked under a different structure)")
     print("  - Ledger-only: often the paired side of a matched entry")
     print("    (ledger books both announcement and bank receipt)")
