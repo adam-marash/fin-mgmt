@@ -111,13 +111,14 @@ def load_fo_csv(path):
 
 
 def load_existing_receivable_entries(entries):
-    """Extract all receivable postings from ledger for matching."""
+    """Extract receivable and commitment postings from ledger for matching."""
     txns = []
     for entry in entries:
         if not isinstance(entry, bdata.Transaction):
             continue
         for posting in entry.postings:
-            if posting.account.startswith("Assets:Receivable:"):
+            if posting.account.startswith("Assets:Receivable:") or \
+               posting.account.startswith("Liabilities:Commitments:"):
                 bc_name = posting.account.split(":")[-1]
                 txns.append({
                     "date": entry.date,
@@ -150,20 +151,27 @@ def is_matched(fo, existing, tolerance_days=5):
     return False
 
 
+EXCLUDED_FROM_COMMITMENTS = {"IBI-Portfolio", "Yalin-Portfolio"}
+
+
 def generate_entry(fo, bc_name):
     """Generate a beancount entry for an FO transaction."""
     amt = fo.amount
     ccy = fo.currency
 
     if fo.tx_type == "deposit":
-        # Investment payment: money sent to investment (FO records the bank movement)
-        # Positive receivable = capital deployed, bank debit expected to clear it
+        # Investment payment: money sent to investment
         narration = f"{bc_name} - investment payment (FO-sourced)"
+        if bc_name in EXCLUDED_FROM_COMMITMENTS:
+            # Managed portfolios - no commitment tracking
+            debit_account = f"Assets:Receivable:{bc_name}"
+        else:
+            debit_account = f"Liabilities:Commitments:{bc_name}"
         lines = [
             f'{fo.date} * "{narration}" #fo-sourced #provisional',
             f'  source: "{FO_CSV.relative_to(ROOT)}"',
             f'  fo-line: "{fo.line_num}"',
-            f'  Assets:Receivable:{bc_name}  {amt} {ccy}',
+            f'  {debit_account}  {amt} {ccy}',
             f'  Assets:Suspense  -{amt} {ccy}',
         ]
     elif fo.tx_type in ("yield_withdrawal", "withdrawal"):

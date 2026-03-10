@@ -315,7 +315,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 ## Script Limitations (known)
 
 - `check_fo_assertions.py`: only matches against `Assets:Receivable:` accounts. Does not check `Liabilities:Commitments:` for investment payments. Needs updating.
-- `generate_fo_entries.py`: currently routes all deposits to `Assets:Receivable` + `Assets:Suspense` rather than `Liabilities:Commitments`. Needs updating to use commitment accounts for payments and receivable accounts for distributions.
+- `generate_fo_entries.py`: routes deposits to `Liabilities:Commitments` + `Assets:Suspense` (except IBI-Portfolio and Yalin-Portfolio which use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
 
 ## Link Tag Conventions
 
