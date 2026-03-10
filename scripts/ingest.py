@@ -841,56 +841,51 @@ def process_wise(csv_path: str, dry_run: bool = True):
             skipped_minor += 1
             continue
 
-        # FX conversions - special handling
+        # FX conversions - single multi-currency entry from debit side
         if detail_type == "CONVERSION":
-            # Debit side (source currency leaves)
-            if amount < 0:
+            if amount >= 0:
+                # Credit side - skip (handled when processing source currency CSV)
+                skipped_minor += 1
+                continue
+
+            # Debit side: emit full merged entry with @ rate
+            target_ccy = fx_to
+            target_account = WISE_BANK_ACCOUNTS.get(target_ccy)
+            target_amount = float(fx_amount) if fx_amount else 0
+
+            if not target_account or not target_amount:
+                # Fallback: emit half-entry with FX-Conversion
                 narration = f"Wise FX conversion {fx_from} to {fx_to} (rate {fx_rate})"
                 entry_lines = [f'{txn_date} * "{narration}"']
                 entry_lines.append(f'  source: "{source_ref}"')
                 entry_lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
                 entry_lines.append(f"  Equity:FX-Conversion  {-amount:,.2f} {currency}")
                 entry_text = "\n".join(entry_lines)
-
-                if not is_duplicate(txn_date, amount, bank_account, existing):
-                    if dry_run:
-                        print(f"\n--- {txn_date} FX {amount:,.2f} {currency} -> {fx_amount} {fx_to} ---")
-                        print(entry_text)
-                    else:
-                        entries_to_write.append({
-                            "txn_date": txn_date,
-                            "entry_text": entry_text,
-                            "desc": f"wise-fx-{currency.lower()}",
-                        })
-                    existing.append({"date": txn_date, "amount": amount, "account": bank_account,
-                                     "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
-                    created += 1
-                else:
-                    skipped_dup += 1
             else:
-                # Credit side (target currency arrives) - separate entry
+                # Compute per-unit rate: source_ccy per 1 unit of target_ccy
+                rate = abs(amount) / target_amount
                 narration = f"Wise FX conversion {fx_from} to {fx_to} (rate {fx_rate})"
                 entry_lines = [f'{txn_date} * "{narration}"']
                 entry_lines.append(f'  source: "{source_ref}"')
                 entry_lines.append(f"  {bank_account}  {amount:,.2f} {currency}")
-                entry_lines.append(f"  Equity:FX-Conversion  {-amount:,.2f} {currency}")
+                entry_lines.append(f"  {target_account}  {target_amount:,.2f} {target_ccy} @ {rate:.10g} {currency}")
                 entry_text = "\n".join(entry_lines)
 
-                if not is_duplicate(txn_date, amount, bank_account, existing):
-                    if dry_run:
-                        print(f"\n--- {txn_date} FX {amount:,.2f} {currency} (credit side) ---")
-                        print(entry_text)
-                    else:
-                        entries_to_write.append({
-                            "txn_date": txn_date,
-                            "entry_text": entry_text,
-                            "desc": f"wise-fx-{currency.lower()}",
-                        })
-                    existing.append({"date": txn_date, "amount": amount, "account": bank_account,
-                                     "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
-                    created += 1
+            if not is_duplicate(txn_date, amount, bank_account, existing):
+                if dry_run:
+                    print(f"\n--- {txn_date} FX {amount:,.2f} {currency} -> {fx_amount} {fx_to} ---")
+                    print(entry_text)
                 else:
-                    skipped_dup += 1
+                    entries_to_write.append({
+                        "txn_date": txn_date,
+                        "entry_text": entry_text,
+                        "desc": f"wise-fx-{currency.lower()}",
+                    })
+                existing.append({"date": txn_date, "amount": amount, "account": bank_account,
+                                 "currency": currency, "narration": narration, "link_tags": [], "file": "pending"})
+                created += 1
+            else:
+                skipped_dup += 1
             continue
 
         # Route by counterparty

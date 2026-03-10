@@ -330,8 +330,27 @@ When ingesting new Leumi deposit redemptions, always compare the redemption amou
 
 ## FX Patterns
 
-- Put `@ rate TARGET_CCY` on the asset/source-currency side, let beancount auto-balance the other side
-- Known beancount v3 bug: `@@` with non-terminating decimals causes precision errors. Use `@ rate` instead.
+FX conversions are single multi-currency entries using `@ rate` syntax. Put the `@ rate` on the target currency posting (the currency being received), denominated in the source currency:
+
+```beancount
+2024-05-09 * "FX conversion USD to ILS (rate 3.6871)"
+  source: "data/leumi-transactions/usd-account.csv"
+  source-2: "data/leumi-transactions/ils-account.csv"
+  Assets:Banks:Leumi:USD  -8,149.41 USD
+  Assets:Banks:Leumi:ILS  30,000.00 ILS @ 0.271647 USD
+```
+
+When both sides come from different bank statements, use `source:` and `source-2:` to record both.
+
+### Ingestion workflow for FX
+
+- **Wise**: The debit-side CSV row has all FX data (`fx_from`, `fx_to`, `fx_rate`, `fx_amount`). Ingest emits a single merged entry. The credit-side row is skipped.
+- **Leumi/HSBC**: Each side is ingested independently. The first leg goes to `Equity:FX-Conversion` as a temporary clearing account. Run `scripts/sweep_fx_conversion.py --commit` after ingesting both sides to merge paired entries.
+
+### Rate precision
+
+Use enough decimal places so that `target_amount * rate` is within 0.005 of `source_amount` (beancount's default tolerance). For large amounts, this may require 8-10 decimal places. Known beancount v3 bug: `@@` with non-terminating decimals causes precision errors - always use per-unit `@ rate` instead.
+
 - Frankfurter API uses `.app` domain (not `.dev`)
 
 ### FX deviation checking
@@ -370,6 +389,16 @@ python scripts/normalize_leumi.py <raw.html>
 # Then ingest
 python scripts/ingest.py <mode> <csv>
 bean-check ledger/main.beancount
+```
+
+### Sweeping FX conversions
+
+After ingesting both sides of FX conversions from separate bank statements:
+
+```bash
+python scripts/sweep_fx_conversion.py              # dry run - show proposed merges
+python scripts/sweep_fx_conversion.py --commit      # apply changes
+python scripts/sweep_fx_conversion.py --verbose      # show detail
 ```
 
 ### Checking FX rates
