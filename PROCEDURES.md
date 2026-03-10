@@ -312,9 +312,9 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 - Link singletons (^tag with only 1 entry - missing counterpart?)
 - Link cross-investment (entries sharing a ^tag must reference the same investment)
 
-## Script Limitations (known)
+## Script Behavior Notes
 
-- `check_fo_assertions.py`: matches against both `Assets:Receivable:` (withdrawals) and `Liabilities:Commitments:` (deposits) accounts. Allows $45 HSBC wire fee difference on deposit matches.
+- `check_fo_assertions.py`: matches against both `Assets:Receivable:` (withdrawals) and `Liabilities:Commitments:` (deposits). Allows $45 HSBC wire fee difference on deposit matches.
 - `generate_fo_entries.py`: routes deposits to `Liabilities:Commitments` + `Assets:Suspense` (except IBI-Portfolio and Yalin-Portfolio which use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
 
 ## Link Tag Conventions
