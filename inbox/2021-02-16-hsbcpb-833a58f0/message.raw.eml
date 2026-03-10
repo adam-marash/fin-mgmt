@@ -1,0 +1,605 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:6214:1194:0:0:0:0 with SMTP id t20csp5581445qvv;
+        Tue, 16 Feb 2021 09:07:17 -0800 (PST)
+X-Google-Smtp-Source: 
+ ABdhPJxRg3gpUShFkkZW6vbtjBJ+ruNEgwr3ZBqJJNEkYYTlghUB9zpCZ83H5KHn8iPkMcPrlhXB
+X-Received: by 2002:a50:d714:: with SMTP id t20mr21472364edi.65.1613495227662;
+        Tue, 16 Feb 2021 09:07:07 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1613495224; cv=none;
+        d=google.com; s=arc-20160816;
+        b=tt5XDY9JbvhgzQsMuf+Rz3YlpZW7WIedvQLCxB5ykxyfIhiPfNgyb5FbJmfoJOgY6V
+         TYM7bkj0UR1KTXOyxrwiE5233UT/cKpmg5zTSyStSjDfyrYs/1JmjSdr2i4yYqbOu+GM
+         x1XZ+hKfgsoOTsMwSgaOs+Ht2ZyBoJ8Wi5xt8Pat5NptdBQenA0EL2oMtqRZdV6wg0OR
+         GXeRCEjWsvY6wpS2p2GpMCOoaYG9iGBz++mKqK92sHM+d35VLwA7JOvyBtRdEoFfcQRZ
+         ZxZJddm3t8zKKJaCpovk7QJme604LUHsvcaGaOc26g40weCEgj4Jm6q9QRDNwE2zIWwS
+         F2zA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:classification:msip_labels:content-language
+         :accept-language:references:message-id:date:thread-index
+         :thread-topic:subject:cc:to:from:dkim-signature;
+        bh=vwpR7tSkwNrhhu6pnfGcEcvHoM8lnndeuT+P3LfmEH4=;
+        b=Y/DtQ2fZXqbR7vdH2gZwvg92UAERizHoO2jXDpfCoiMZUAqiwaYKL2S+3Ne52luQbk
+         dN0W5gNUnM8R/emtfBOszjwim38eRfYBH5SD9p7AgfqpPXAZrlbocPy3uwxKHQjhb421
+         0yHT4qTiNsmUFNd8tz8yuUGwhi/S/O/wd67wyEqFAAi20qNC3qw8E5uL4sIZva+Gdsao
+         kSEu1wlC94+DDYrvsd33Io6SwfsKZdT0blW9O1Irf6CMuQh3aKg/beNiagCKHlLs2Lat
+         TMLPKUZio8prOqA7/gNPo1B6G3aVKmONhJu0CIeU6Ja35yeQ0jEpOY3MvcyZ8YRAMnVm
+         8lnQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@hsbcpb.com header.s=ch1-03102021 header.b=gV2m8gD2;
+       spf=pass (google.com: domain of loicque.windey@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=loicque.windey@hsbcpb.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbcpb.com
+Return-Path: <loicque.windey@hsbcpb.com>
+Received: from mta30.mail.hsbc.co.uk (nwmailserver.hsbc.co.uk. [91.214.7.40])
+        by mx.google.com with ESMTPS id
+ b15si16026180edk.399.2021.02.16.09.07.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 16 Feb 2021 09:07:04 -0800 (PST)
+Received-SPF: pass (google.com: domain of loicque.windey@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) client-ip=91.214.7.40;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@hsbcpb.com header.s=ch1-03102021 header.b=gV2m8gD2;
+       spf=pass (google.com: domain of loicque.windey@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=loicque.windey@hsbcpb.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbcpb.com
+Received: from pps.filterd (gbv00847.hbeu.adroot.hsbc [127.0.0.1])
+	by gbv00847.hbeu.adroot.hsbc (8.16.0.42/8.16.0.42) with SMTP id
+ 11GGemmX062956;
+	Tue, 16 Feb 2021 17:07:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hsbcpb.com;
+ h=from : to : cc :
+ subject : date : message-id : references : content-type : mime-version;
+ s=ch1-03102021; bh=vwpR7tSkwNrhhu6pnfGcEcvHoM8lnndeuT+P3LfmEH4=;
+ b=gV2m8gD2OMCHr6XknW25hTvuWrkN1pn2ghvDGkmhtnipcWZIXtI0qU+HTs0QENiaOe6m
+ utwKmI+USDzIjQ3S/uEUfkchiXzYVTMMeVd/RuOc5/YehDpXlLM/hV778BEG18gPM0z9
+ DGgiSL6mMdk995gT4SIBhzIjgdRbkqR2po7sRcsSbLDFdyoUjovrCe8Nx9gJQzzpWEc1
+ TsiTk2l4WlQ8zgF2JMbspnsr7WZ7eo9+i23FeGf6oX1iMpxee5Yor0pyVI6Rdgqxbiaj
+ d/3TIecB+MoHn3FdY9wvVtsXB5aWiXXWqC0DBwls8HbunpxmphP7UhzW/15xs9E6jLzw qw==
+Received: from gbv00795-fe.systems.uk.hsbc
+ (GBWDC300AD402-403-v426-FIP.systems.uk.hsbc [10.203.133.132])
+	by gbv00847.hbeu.adroot.hsbc with ESMTP id 36p887ae0k-3;
+	Tue, 16 Feb 2021 17:07:03 +0000
+From: Loicque WINDEY <loicque.windey@hsbcpb.com>
+To: Adam Marash <adam@marash.net>
+CC: Tamar Marash <tamar@marash.net>, Eran Blatman <eran@theservice.co.il>
+Subject: RE: EXTERNAL: Re: Private Equity
+Thread-Topic: EXTERNAL: Re: Private Equity
+Thread-Index: AQHXAJ1BGlqcW66Zm0ikTSTVO5hnaqpUnDIwgAZjfkA=
+Date: Tue, 16 Feb 2021 17:07:02 +0000
+Message-ID: <b0dbd3d9163e4b5088eb332453844f93@GBW20053228.ADRES.HSBC>
+References: <7b14ac9f3a124abc9ae21651b95c360d@GBW20053228.ADRES.HSBC>
+ <CABgnYtLve6FjsRyOTi_PUn=2AmZESd1-eRuBNK=NHVhLiMPiXg@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Enabled=true;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_SetDate=2021-02-16T17:06:59Z;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Method=Privileged;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Name=CLAPUBLIC;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_SiteId=e0fd434d-ba64-497b-90d2-859c472e1a92;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_ActionId=7d10353e-8ae3-4860-9333-ae6980242f22;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_ContentBits=2
+classification: PUBLIC
+x-ms-exchange-transport-fromentityheader: Hosted
+Content-Type: multipart/alternative;
+	boundary="_000_b0dbd3d9163e4b5088eb332453844f93GBW20053228ADRESHSBC_"
+MIME-Version: 1.0
+X-CFilter-Loop: Forward
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 malwarescore=0
+ impostorscore=0 mlxscore=0 spamscore=0 adultscore=0 clxscore=1015
+ mlxlogscore=723 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102160147
+
+
+--_000_b0dbd3d9163e4b5088eb332453844f93GBW20053228ADRESHSBC_
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+
+Good afternoon Adam
+
+Apologies for the delay in getting back to you. I'm afraid we have quite a =
+bit of people out of office this week due to half term.
+When would be convenient for yourselves and Eran next week?
+If you could suggest a couple of dates and times that would be great, we wi=
+ll then revert with what works on our side.
+
+The idea is to have a general discussion of our investment capabilities in =
+the private bank, across asset classes, and where our PE opportunities fit =
+in that.
+
+Kind regards
+Loicque
+
+
+
+|PUBLIC|
+From: Loicque WINDEY
+Sent: 12 February 2021 14:54
+To: 'Adam Marash' <adam@marash.net>
+Cc: Tamar Marash <tamar@marash.net>; Eran Blatman <eran@theservice.co.il>
+Subject: RE: EXTERNAL: Re: Private Equity
+
+Hi Adam
+
+All good on my end thank you.
+
+I will discuss with one of our investment counsellors and will revert early=
+ next week.
+
+Wishing you a lovely weekend,
+Loicque
+
+
+From: Adam Marash <adam@marash.net<mailto:adam@marash.net>>
+Sent: 11 February 2021 17:42
+To: Loicque WINDEY <loicque.windey@hsbcpb.com<mailto:loicque.windey@hsbcpb.=
+com>>
+Cc: Tamar Marash <tamar@marash.net<mailto:tamar@marash.net>>; Richard <Rich=
+ard@theservice.co.il<mailto:Richard@theservice.co.il>>
+Subject: EXTERNAL: Re: Private Equity
+
+Loicque Hello,
+
+How are you?
+
+Yes, that is correct.
+
+We'll be happy to look at opportunities that you have. We will normally eva=
+luate these with Eran, so we have another professional set of eyes helping =
+us.
+
+All the best,
+
+Adam
+
+On Thu, 11 Feb 2021 at 17:38, Loicque WINDEY <loicque.windey@hsbcpb.com<mai=
+lto:loicque.windey@hsbcpb.com>> wrote:
+Dear Tamar and Adam
+
+I hope that you are both very well?
+
+I understand from the payments you sometimes make that you are also investi=
+ng in Private Equity.
+We regularly have opportunities to invest in this asset class, in various f=
+ormats, all backed by our global alternatives team.
+This team mostly manages institutional assets, however our private banking =
+clients also get access to their expertise and knowledge.
+
+Currently our clients have the chance to subscribe to a vehicle, which we h=
+ave each year in the first quarter, closing in a few weeks' time.
+In case you would like to learn more, we would be happy to discuss of cours=
+e with either yourselves, Richard or together.
+
+Kindest regards
+Loicque
+
+
+Lo=EFcque Windey
+Relationship Manager
+HSBC Private Banking | Private Banking, HSBC UK Bank plc
+8 Cork Street, London W1S 3LJ, United Kingdom
+
+T: +44 (0)20 7860 3308 | M: +44 (0)7408 830710
+E-mail:loicque.windey@hsbcpb.com<mailto:loicque.windey@hsbcpb.com>
+
+************************************************
+
+
+
+This message originated from the Internet. Its originator may or may not be=
+ who they claim to be and the information contained in the message and any =
+attachments may or may not be accurate.
+
+
+
+************************************************
+
+
+
+
+
+|PUBLIC|
+
+-----------------------------------------
+SAVE PAPER - THINK BEFORE YOU PRINT!
+
+This E-mail is confidential.=20
+
+It may also be legally privileged. If you are not the addressee you may not=
+ copy,
+forward, disclose or use any part of it. If you have received this message =
+in error,
+please delete it and all copies from your system and notify the sender imme=
+diately by
+return E-mail.
+
+Internet communications cannot be guaranteed to be timely secure, error or =
+virus-free.
+The sender does not accept liability for any errors or omissions.
+
+--_000_b0dbd3d9163e4b5088eb332453844f93GBW20053228ADRESHSBC_
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset="iso-8859-1"
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p
+	{mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+p.msipfooter9e0dc8cc, li.msipfooter9e0dc8cc, div.msipfooter9e0dc8cc
+	{mso-style-name:msipfooter9e0dc8cc;
+	mso-style-priority:99;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle20
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle21
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle22
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle23
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-GB" link=3D"blue" vlink=3D"purple">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Good after=
+noon Adam
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Apologies =
+for the delay in getting back to you. I&#8217;m afraid we have quite a bit =
+of people out of office this week due to half term.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">When would=
+ be convenient for yourselves and Eran next week?
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">If you cou=
+ld suggest a couple of dates and times that would be great, we will then re=
+vert with what works on our side.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">The idea i=
+s to have a general discussion of our investment capabilities in the privat=
+e bank, across asset classes, and where our PE
+ opportunities fit in that. <o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Kind regar=
+ds<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Loicque
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"msipfooter9e0dc8cc" align=3D"right" style=3D"margin:0cm;margin-=
+bottom:.0001pt;text-align:right">
+<span style=3D"font-size:10.0pt;font-family:&quot;Calibri&quot;,sans-serif;=
+color:red">|PUBLIC|</span><o:p></o:p></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm =
+0cm 0cm">
+<p class=3D"MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:11.0pt;fo=
+nt-family:&quot;Calibri&quot;,sans-serif">From:</span></b><span lang=3D"EN-=
+US" style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif"> =
+Loicque WINDEY
+<br>
+<b>Sent:</b> 12 February 2021 14:54<br>
+<b>To:</b> 'Adam Marash' &lt;<a href=3D"mailto:adam@marash.net">adam@marash=
+.net</a>&gt;<br>
+<b>Cc:</b> Tamar Marash &lt;<a href=3D"mailto:tamar@marash.net">tamar@maras=
+h.net</a>&gt;; Eran Blatman &lt;<a href=3D"mailto:eran@theservice.co.il">er=
+an@theservice.co.il</a>&gt;<br>
+<b>Subject:</b> RE: EXTERNAL: Re: Private Equity<o:p></o:p></span></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Hi Adam
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">All good o=
+n my end thank you.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">I will dis=
+cuss with one of our investment counsellors and will revert early next week.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Wishing yo=
+u a lovely weekend,
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Loicque<o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:11.0pt;fo=
+nt-family:&quot;Calibri&quot;,sans-serif">From:</span></b><span lang=3D"EN-=
+US" style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif"> =
+Adam Marash &lt;<a href=3D"mailto:adam@marash.net">adam@marash.net</a>&gt;
+<br>
+<b>Sent:</b> 11 February 2021 17:42<br>
+<b>To:</b> Loicque WINDEY &lt;<a href=3D"mailto:loicque.windey@hsbcpb.com">=
+loicque.windey@hsbcpb.com</a>&gt;<br>
+<b>Cc:</b> Tamar Marash &lt;<a href=3D"mailto:tamar@marash.net">tamar@maras=
+h.net</a>&gt;; Richard &lt;<a href=3D"mailto:Richard@theservice.co.il">Rich=
+ard@theservice.co.il</a>&gt;<br>
+<b>Subject:</b> EXTERNAL: Re: Private Equity<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<div>
+<div>
+<p class=3D"MsoNormal">Loicque Hello,<o:p></o:p></p>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">How are you?<o:p></o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">Yes, that is correct.<o:p></o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">We'll be happy to look at opportunities that you hav=
+e. We will normally evaluate these with Eran, so we have another profession=
+al set of eyes helping us.<o:p></o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">All the best,<o:p></o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">Adam<o:p></o:p></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<div>
+<div>
+<p class=3D"MsoNormal">On Thu, 11 Feb 2021 at 17:38, Loicque WINDEY &lt;<a =
+href=3D"mailto:loicque.windey@hsbcpb.com">loicque.windey@hsbcpb.com</a>&gt;=
+ wrote:<o:p></o:p></p>
+</div>
+<blockquote style=3D"border:none;border-left:solid #CCCCCC 1.0pt;padding:0c=
+m 0cm 0cm 6.0pt;margin-left:4.8pt;margin-top:5.0pt;margin-right:0cm;margin-=
+bottom:5.0pt">
+<div>
+<div>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">Dear Tamar and Adam
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">I hope that you are both very well?
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">I understand from the payments you sometimes make that you are als=
+o investing in Private Equity.
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">We regularly have opportunities to invest in this asset class, in =
+various formats, all backed by our global alternatives team.
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">This team mostly manages institutional assets, however our private=
+ banking clients also get access to their expertise and knowledge.
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">Currently our clients have the chance to subscribe to a vehicle, w=
+hich we have each year in the first quarter, closing in a few weeks&#8217; =
+time.
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">In case you would like to learn more, we would be happy to discuss=
+ of course with either yourselves, Richard or together.
+<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">Kindest regards<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">Loicque<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto"><b><span style=3D"font-size:9.0pt;color:red">Lo=EFcque Windey</spa=
+n></b><span style=3D"font-size:9.0pt;font-family:&quot;Arial&quot;,sans-ser=
+if;color:#555555"><br>
+</span><span style=3D"font-size:10.0pt;color:#555555">Relationship Manager<=
+/span><span style=3D"font-size:9.0pt;font-family:&quot;Arial&quot;,sans-ser=
+if;color:#555555"><br>
+</span><span style=3D"font-size:10.0pt;color:#555555">HSBC Private Banking =
+</span><span style=3D"font-size:10.0pt;color:red">|
+</span><span style=3D"font-size:10.0pt;color:#555555">Private Banking, HSBC=
+ UK Bank plc
+</span><o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto;line-height:12.0pt">
+<span style=3D"font-size:10.0pt;color:#555555">8 Cork Street, London W1S 3L=
+J, United Kingdom</span><o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-a=
+lt:auto;line-height:12.0pt">
+<span style=3D"font-size:9.0pt;font-family:&quot;Arial&quot;,sans-serif;col=
+or:#555555"><br>
+</span><span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:red">T:</span><=
+span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:#555555">&nbsp;&#43;44 =
+(0)20 7860 3308
+</span><span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:red">|</span><s=
+pan lang=3D"FR-BE" style=3D"font-size:10.0pt;color:#555555">
+</span><span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:red">M:</span><=
+span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:#555555">&nbsp;&#43;44 =
+(0)7408 830710<br>
+</span><span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:red">E-mail:</s=
+pan><u><span lang=3D"FR-BE" style=3D"font-size:10.0pt;color:blue"><a href=
+=3D"mailto:loicque.windey@hsbcpb.com" target=3D"_blank">loicque.windey@hsbc=
+pb.com</a></span></u><o:p></o:p></p>
+</div>
+</div>
+</blockquote>
+</div>
+</div>
+<div>
+<p class=3D"MsoNormal"><span style=3D"font-family:&quot;Calibri&quot;,sans-=
+serif;color:black"><br>
+************************************************<o:p></o:p></span></p>
+<p><strong><span style=3D"font-family:&quot;Calibri&quot;,sans-serif;color:=
+black">&nbsp;</span></strong><span style=3D"font-family:&quot;Calibri&quot;=
+,sans-serif;color:black"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-family:&quot;Calibri&quot;,sans-=
+serif;color:black"><br>
+This message originated from the Internet. Its originator may or may not be=
+ who they claim to be and the information contained in the message and any =
+attachments may or may not be accurate.<o:p></o:p></span></p>
+<p><strong><span style=3D"font-family:&quot;Calibri&quot;,sans-serif;color:=
+black">&nbsp;</span></strong><span style=3D"font-family:&quot;Calibri&quot;=
+,sans-serif;color:black"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-family:&quot;Calibri&quot;,sans-=
+serif;color:black"><br>
+************************************************<o:p></o:p></span></p>
+<p><strong><span style=3D"font-family:&quot;Calibri&quot;,sans-serif;color:=
+black">&nbsp;</span></strong><span style=3D"font-family:&quot;Calibri&quot;=
+,sans-serif;color:black"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"msipfooter9e0dc8cc" align=3D"right" style=3D"margin:0cm;margin-=
+bottom:.0001pt;text-align:right">
+<span style=3D"font-size:10.0pt;font-family:&quot;Calibri&quot;,sans-serif;=
+color:red">|PUBLIC|</span><o:p></o:p></p>
+</div>
+</div>
+
+<DIV>
+-----------------------------------------<BR>
+SAVE PAPER - THINK BEFORE YOU PRINT!<BR>
+<BR>
+This E-mail is confidential. <BR>
+<BR>
+It may also be legally privileged. If you are not the addressee you may not=
+ copy,<BR>
+forward, disclose or use any part of it. If you have received this message =
+in error,<BR>
+please delete it and all copies from your system and notify the sender imme=
+diately by<BR>
+return E-mail.<BR>
+<BR>
+Internet communications cannot be guaranteed to be timely secure, error or =
+virus-free.<BR>
+The sender does not accept liability for any errors or omissions.<BR>
+</DIV></body>
+</html>
+
+--_000_b0dbd3d9163e4b5088eb332453844f93GBW20053228ADRESHSBC_--

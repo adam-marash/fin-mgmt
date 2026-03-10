@@ -1,0 +1,670 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:6a20:ab86:b0:a3:cc5a:b397 with SMTP id da6csp272948pzb;
+        Fri, 18 Nov 2022 04:39:10 -0800 (PST)
+X-Google-Smtp-Source: 
+ AA0mqf6vh7+yco0hdUfspNC9fbMcyCPXZXBc9NJ377VuDvO9GIRuATqFZ97kaPzUf0/EVCXepuTy
+X-Received: by 2002:a05:6000:1b86:b0:241:9606:1123 with SMTP id
+ r6-20020a0560001b8600b0024196061123mr4254004wru.537.1668775149233;
+        Fri, 18 Nov 2022 04:39:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1668775149; cv=none;
+        d=google.com; s=arc-20160816;
+        b=EyHs7lUkQzP+jJpbiHoh3tInZELrIL5eJI0uXiIj60KzBTAfx/wVgvwTOxVRdZ8Kib
+         hUOd3EuiKQrVIkl6HiykDlWFCbxPC2mUqgkINqWjHZpwZzJJiL2rovoN9fb2s694kmmM
+         JyyqI3clcrreY8ihfubftgsCNYllenim+8tOvgfcR9cfToV+HQrlsQF/Hed3Q3aUiEm3
+         9TNqUzaUJSJqtROEehdhHM9fMcMnTx3J40CugnhKeqncq55Y5IkYaClmvyu8AKg87VWt
+         D8Vxf/jKGp8gswKUfAnJgpvdRSzbNzpOmWLLiOt4tbIuOSUXNrZxvZkT6kmQA3e6aTn/
+         5WVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:classification:msip_labels:content-language
+         :accept-language:in-reply-to:references:message-id:date:thread-index
+         :thread-topic:subject:cc:to:from:dkim-signature;
+        bh=m6e07OSwx0CSf6URXrWxiW5ZrX43O1p/6qodZT21BR8=;
+        b=fiTg6CM6QsfItL7b/r/AYe+im/SLD47midGtcy6kjqN2yTBqiUoPX176RGpk3mO4aY
+         T4mZdhTZQVzZBWc9soCnvP9v1ehFiBA8aoenpXjseg8jwUcpCJmCbMOfWkgLKL9wUTya
+         Fy+WBvFGeLjjm90sElRNmehSbLCvxJpyL5l5cmgIAAbSbbreKrk6hC0coisU362FzzXo
+         kf31WuWpbs+8RnZiPvQMqhPGgpvNXNkmH4pG43f8O6n+NSW5ud/neLkRv1/y3ZIoE23B
+         enZVdhBuB9/QEA4/VTjCbSLAqhCDYLHoenY0JVeaCAxURqK+RRkhYsBH9XCa3AbWaJ8O
+         8Jtw==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@hsbcpb.com header.s=ch1-03102021 header.b=dszz+XPk;
+       spf=pass (google.com: domain of max.powles@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=max.powles@hsbcpb.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbcpb.com
+Return-Path: <max.powles@hsbcpb.com>
+Received: from mta30.mail.hsbc.co.uk (nwmailserver.hsbc.co.uk. [91.214.7.40])
+        by mx.google.com with ESMTPS id
+ b3-20020a05600018a300b00238c1d53398si2214502wri.1018.2022.11.18.04.39.08
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES256-GCM-SHA384 bits=256/256);
+        Fri, 18 Nov 2022 04:39:09 -0800 (PST)
+Received-SPF: pass (google.com: domain of max.powles@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) client-ip=91.214.7.40;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@hsbcpb.com header.s=ch1-03102021 header.b=dszz+XPk;
+       spf=pass (google.com: domain of max.powles@hsbcpb.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=max.powles@hsbcpb.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbcpb.com
+Received: from pps.filterd (gbv00847.hbeu.adroot.hsbc [127.0.0.1])
+	by gbv00847.hbeu.adroot.hsbc (8.16.0.42/8.16.0.42) with SMTP id
+ 2AICZb0Q030964;
+	Fri, 18 Nov 2022 12:39:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hsbcpb.com;
+ h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ mime-version; s=ch1-03102021;
+ bh=m6e07OSwx0CSf6URXrWxiW5ZrX43O1p/6qodZT21BR8=;
+ b=dszz+XPk2yvL46KgKs9LsGQfg0C3DerO75+ithXLCU1XwgeYqApvB7s7sSQRx47YnTiy
+ 0AKjlDy4Ln9H5ougQ2RQNKyVrSKPiNg3lm533hFrUXoL1r83YyNrj5uTO2Xk3sJbR0Q7
+ PJOHMM/Yxzt53YSFhdGWdVUacjpt2C4prJzwBNE5LhQSF7FagyY7zQu2+4N6BOy+WYB0
+ 7L+c/bjbvn5oDeUOlRFueVnR34u9ss6PqSAIcihBb/3aJ3l9aE1pUzmyAdy1nCC4ljov
+ KEhG68Yqs3rYRZK9GpbocbXSxD4gp1nYiVDrXtyx/u5WjwkTehiv8xbwbZv17qGTgQUr fw==
+Received: from gbw25034568.adres.hsbc
+ (GBWDC300AD402-403-v426-FIP.systems.uk.hsbc [10.203.133.132])
+	by gbv00847.hbeu.adroot.hsbc with ESMTP id 3kwxa7ksvs-1;
+	Fri, 18 Nov 2022 12:39:07 +0000
+Received: from GBW25034568.ADRES.HSBC (128.176.5.24) by GBW25034568.ADRES.HSBC
+ (128.176.5.24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.22; Fri, 18 Nov
+ 2022 12:39:06 +0000
+Received: from GBW25034568.ADRES.HSBC ([fe80::48eb:44c:a270:5ba0]) by
+ GBW25034568.ADRES.HSBC ([fe80::48eb:44c:a270:5ba0%23]) with mapi id
+ 15.02.0986.022; Fri, 18 Nov 2022 12:39:06 +0000
+From: Max POWLES <max.powles@hsbcpb.com>
+To: Adam Marash <adam@marash.net>
+CC: Tammy Marash <tamar@marash.net>
+Subject: RE: EXTERNAL: Re: Establishing source of funds for Cyprus bank
+Thread-Topic: EXTERNAL: Re: Establishing source of funds for Cyprus bank
+Thread-Index: AQHY+zY5uFFB6AcugkaFwgXAT9Xk7K5Enshw
+Date: Fri, 18 Nov 2022 12:39:06 +0000
+Message-ID: <792bcb4bd8674632ad9ed16a4707ddec@hsbcpb.com>
+References: 
+ <CABgnYtLYaoh9WvQuToNcpYpmKHPDnR4TKu=8S3c8QkdoLRnoOQ@mail.gmail.com>
+ <CABgnYtKRgSVD6OLrx3_Nr7F78C4x7wOQq-KPYN6z+82eAf3-7w@mail.gmail.com>
+In-Reply-To: 
+ <CABgnYtKRgSVD6OLrx3_Nr7F78C4x7wOQq-KPYN6z+82eAf3-7w@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Enabled=true;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_SetDate=2022-11-18T12:39:02Z;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Method=Privileged;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_Name=CLAPUBLIC;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_SiteId=e0fd434d-ba64-497b-90d2-859c472e1a92;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_ActionId=6b5b733f-1d25-45a3-a0d9-d56969b4e089;
+ MSIP_Label_3486a02c-2dfb-4efe-823f-aa2d1f0e6ab7_ContentBits=2
+classification: PUBLIC
+Content-Type: multipart/mixed;
+	boundary="_006_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_"
+MIME-Version: 1.0
+X-CFilter-Loop: Forward
+X-Proofpoint-ORIG-GUID: wsayy9fZRMWM1aDned68dlpk8lT11tg5
+X-Proofpoint-GUID: wsayy9fZRMWM1aDned68dlpk8lT11tg5
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1011
+ bulkscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 suspectscore=0 phishscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2210170000
+ definitions=main-2211180075
+
+--_006_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: multipart/related;
+	boundary="_005_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_";
+	type="multipart/alternative"
+
+--_005_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: multipart/alternative;
+	boundary="_000_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_"
+
+--_000_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Hi Adam
+
+My apologies but for those full details they only come in the PDF which is =
+now attached.
+
+Best regards
+
+Max
+
+Max Powles
+Relationship Manager | UK HNW RND
+Private Banking, HSBC UK Bank plc
+8 Cork Street, London, W1S 3LJ
+M +44 (0) 740 881 4173
+E max.powles@hsbcpb.com<mailto:max.powles@hsbcpb.com>
+
+[cid:image002.png@01D3896C.9A5B3BE0]
+
+From: Adam Marash <adam@marash.net>
+Sent: 18 November 2022 10:12
+To: Max POWLES <max.powles@hsbcpb.com>
+Cc: Tammy Marash <tamar@marash.net>
+Subject: EXTERNAL: Re: Establishing source of funds for Cyprus bank
+
+Max Hi, Reviewing the export you sent me yesterday, I notice the following:=
+ Transactions go back to inception - good! Payee names are obfuscated with =
+asterisks. Can the export be issued unobfuscated (similarly to how they are=
+ in exports created
+ZjQcmQRYFpfptBannerStart
+This Message Is From an External Sender
+
+This message came from outside your organization.
+
+Its originator may or may not be who they claim to be. The information in t=
+he message and any attachments need to be treated with care and attention. =
+If you believe the message to be suspicious, please use the Report Phishing=
+ button.
+
+
+
+ZjQcmQRYFpfptBannerEnd
+Max Hi,
+
+Reviewing the export you sent me yesterday, I notice the following:
+
+  *   Transactions go back to inception - good!
+  *   Payee names are obfuscated with asterisks. Can the export be issued u=
+nobfuscated (similarly to how they are in exports created by the online scr=
+eens)? That would allow flows in and out of various investments to become e=
+vident.
+Thanks,
+
+Adam
+
+
+
+
+PUBLIC
+
+-----------------------------------------
+SAVE PAPER - THINK BEFORE YOU PRINT!
+
+This E-mail is confidential.=20
+
+It may also be legally privileged. If you are not the addressee you may not=
+ copy,
+forward, disclose or use any part of it. If you have received this message =
+in error,
+please delete it and all copies from your system and notify the sender imme=
+diately by
+return E-mail.
+
+Internet communications cannot be guaranteed to be timely secure, error or =
+virus-free.
+The sender does not accept liability for any errors or omissions.
+
+--_000_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle19
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+p.msipfootercffe3ac4, li.msipfootercffe3ac4, div.msipfootercffe3ac4
+	{mso-style-name:msipfootercffe3ac4;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:86120915;
+	mso-list-template-ids:-406674600;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:36.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:72.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:108.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:144.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:180.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:216.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:252.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:288.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:324.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l1
+	{mso-list-id:231932590;
+	mso-list-template-ids:-284950274;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:36.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Symbol;}
+@list l1:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:72.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:"Courier New";
+	mso-bidi-font-family:"Times New Roman";}
+@list l1:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:108.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:144.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:180.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:216.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:252.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:288.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+@list l1:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:324.0pt;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	mso-ansi-font-size:10.0pt;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-GB" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Hi Adam<o:=
+p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><br>
+My apologies but for those full details they only come in the PDF which is =
+now attached.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Best regar=
+ds<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US">Max
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><b><span style=3D"font-size:10.0pt;font-family:&quot=
+;Calibri&quot;,sans-serif;color:red">Max Powles</span></b><span style=3D"fo=
+nt-size:9.0pt;font-family:&quot;Arial&quot;,sans-serif;color:#555555"><br>
+</span><span style=3D"font-size:9.0pt;font-family:&quot;Calibri&quot;,sans-=
+serif;color:#555555">Relationship Manager</span><span style=3D"font-size:9.=
+0pt;font-family:&quot;Arial&quot;,sans-serif;color:#555555">&nbsp;|</span><=
+span style=3D"font-size:9.0pt;font-family:&quot;Calibri&quot;,sans-serif;co=
+lor:#555555">
+ UK HNW RND</span><span style=3D"font-size:9.0pt;font-family:&quot;Arial&qu=
+ot;,sans-serif;color:#555555"><br>
+</span><b><span style=3D"font-size:9.0pt;font-family:&quot;Calibri&quot;,sa=
+ns-serif;color:#555555">Private Banking, HSBC UK Bank plc</span></b><b><spa=
+n style=3D"font-size:10.0pt;font-family:&quot;Calibri&quot;,sans-serif;colo=
+r:red"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:9.0pt;font-family:&quot;Cal=
+ibri&quot;,sans-serif;color:#555555">8 Cork Street, London, W1S 3LJ<b><o:p>=
+</o:p></b></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:9.0pt;font-family:&quot;Cal=
+ibri&quot;,sans-serif;color:red">M</span><span style=3D"font-size:9.0pt;fon=
+t-family:&quot;Calibri&quot;,sans-serif;color:#555555"> &#43;44 (0) 740 881=
+ 4173
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:9.0pt;font-family:&quot;Cal=
+ibri&quot;,sans-serif;color:red">E
+</span><span style=3D"font-size:9.0pt;font-family:&quot;Calibri&quot;,sans-=
+serif;color:#1F497D"><a href=3D"mailto:max.powles@hsbcpb.com">max.powles@hs=
+bcpb.com</a></span><span style=3D"font-size:9.0pt;font-family:&quot;Calibri=
+&quot;,sans-serif;color:#555555"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:3.0pt;font-family:&quot;Cal=
+ibri&quot;,sans-serif;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D"><img border=3D"0" width=3D"61" height=
+=3D"32" style=3D"width:.6354in;height:.3333in" id=3D"Picture_x0020_1" src=
+=3D"cid:image001.png@01D8FB4A.A9D2B620" alt=3D"cid:image002.png@01D3896C.9A=
+5B3BE0"></span><span style=3D"font-size:11.0pt;font-family:&quot;Calibri&qu=
+ot;,sans-serif;color:#1F497D"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"font-size:11.0pt;font-family:&quot;Ca=
+libri&quot;,sans-serif;color:#1F497D;mso-fareast-language:EN-US"><o:p>&nbsp=
+;</o:p></span></p>
+<p class=3D"MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:11.0pt;fo=
+nt-family:&quot;Calibri&quot;,sans-serif">From:</span></b><span lang=3D"EN-=
+US" style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif"> =
+Adam Marash &lt;adam@marash.net&gt;
+<br>
+<b>Sent:</b> 18 November 2022 10:12<br>
+<b>To:</b> Max POWLES &lt;max.powles@hsbcpb.com&gt;<br>
+<b>Cc:</b> Tammy Marash &lt;tamar@marash.net&gt;<br>
+<b>Subject:</b> EXTERNAL: Re: Establishing source of funds for Cyprus bank<=
+o:p></o:p></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<div>
+<p class=3D"MsoNormal" style=3D"mso-line-height-alt:.75pt"><span style=3D"f=
+ont-size:1.0pt;color:white">Max Hi, Reviewing the export you sent me yester=
+day, I notice the following: Transactions go back to inception - good! Paye=
+e names are obfuscated with asterisks.
+ Can the export be issued unobfuscated (similarly to how they are in export=
+s created
+<o:p></o:p></span></p>
+</div>
+<div>
+<p class=3D"MsoNormal" style=3D"mso-line-height-alt:.75pt"><span style=3D"f=
+ont-size:1.0pt;color:white">ZjQcmQRYFpfptBannerStart<o:p></o:p></span></p>
+</div>
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0" width=3D"100%" style=3D"width:100.0%;border-radius:4px">
+<tbody>
+<tr>
+<td style=3D"padding:12.0pt 0cm 12.0pt 0cm">
+<table class=3D"MsoNormalTable" border=3D"1" cellspacing=3D"0" cellpadding=
+=3D"0" width=3D"100%" style=3D"width:100.0%;background:#FCECA6;border:none;=
+border-top:solid #E4CA00 3.0pt">
+<tbody>
+<tr>
+<td valign=3D"top" style=3D"border:none;padding:0cm 7.5pt 3.75pt 4.5pt">
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0" align=3D"left">
+<tbody>
+<tr>
+<td style=3D"padding:3.0pt 6.0pt 3.0pt 6.0pt">
+<p class=3D"MsoNormal"><b><span style=3D"font-size:10.5pt;font-family:&quot=
+;Arial&quot;,sans-serif;color:black">This Message Is From an External Sender
+<o:p></o:p></span></b></p>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:3.0pt 6.0pt 3.0pt 6.0pt">
+<p class=3D"MsoNormal"><span style=3D"font-size:9.0pt;font-family:&quot;Ari=
+al&quot;,sans-serif;color:black">This message came from outside your organi=
+zation.
+<o:p></o:p></span></p>
+</td>
+</tr>
+<tr>
+<td style=3D"padding:3.0pt 6.0pt 3.0pt 6.0pt">
+<p class=3D"MsoNormal"><span style=3D"font-size:9.0pt;font-family:&quot;Ari=
+al&quot;,sans-serif;color:black">Its originator may or may not be who they =
+claim to be. The information in the message and any attachments need to be =
+treated with care and attention. If you believe
+ the message to be suspicious, please use the Report Phishing button. <o:p>=
+</o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<div>
+<p class=3D"MsoNormal" style=3D"mso-line-height-alt:.75pt"><span style=3D"f=
+ont-size:1.0pt;color:white">ZjQcmQRYFpfptBannerEnd<o:p></o:p></span></p>
+</div>
+<div>
+<div>
+<p class=3D"MsoNormal">Max Hi,<o:p></o:p></p>
+<div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+</div>
+<div>
+<p class=3D"MsoNormal">Reviewing the export you sent me yesterday, I notice=
+ the following:<o:p></o:p></p>
+</div>
+<div>
+<ul type=3D"disc">
+<li class=3D"MsoNormal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-=
+alt:auto;mso-list:l1 level1 lfo3">
+Transactions go back to inception - good!<o:p></o:p></li><li class=3D"MsoNo=
+rmal" style=3D"mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;mso-list:=
+l1 level1 lfo3">
+Payee names are obfuscated with asterisks. Can the export be issued unobfus=
+cated (similarly to how they are in exports created by the online screens)?=
+ That would allow flows in and out of various investments to&nbsp;become ev=
+ident.<o:p></o:p></li></ul>
+<p class=3D"MsoNormal">Thanks,<br>
+<br>
+Adam<o:p></o:p></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<div>
+<div>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"msipfootercffe3ac4" align=3D"center" style=3D"margin:0cm;margin=
+-bottom:.0001pt;text-align:center">
+<span style=3D"font-size:10.0pt;font-family:&quot;Calibri&quot;,sans-serif;=
+color:black">PUBLIC</span><o:p></o:p></p>
+</div>
+</div>
+</div>
+</div>
+
+<DIV>
+-----------------------------------------<BR>
+SAVE PAPER - THINK BEFORE YOU PRINT!<BR>
+<BR>
+This E-mail is confidential. <BR>
+<BR>
+It may also be legally privileged. If you are not the addressee you may not=
+ copy,<BR>
+forward, disclose or use any part of it. If you have received this message =
+in error,<BR>
+please delete it and all copies from your system and notify the sender imme=
+diately by<BR>
+return E-mail.<BR>
+<BR>
+Internet communications cannot be guaranteed to be timely secure, error or =
+virus-free.<BR>
+The sender does not accept liability for any errors or omissions.<BR>
+</DIV></body>
+</html>
+
+--_000_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_--
+
+--_005_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: image/png; name="image001.png"
+Content-Description: image001.png
+Content-Disposition: inline; filename="image001.png"; size=716;
+	creation-date="Fri, 18 Nov 2022 12:39:06 GMT";
+	modification-date="Fri, 18 Nov 2022 12:39:06 GMT"
+Content-ID: <image001.png@01D8FB4A.A9D2B620>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAD0AAAAgCAYAAAChKnCsAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAO
+xAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAAJMSURBVFhH
+5di9SgNBEADgUU6JQSQQwcJKSGlx2FleEyxNmcKQIEKeIK1JnkAbEQW5RmInpNEujQ9whekComAR
+YpHSIoXu6Z2J3s/M7I4WbpdjZ2e/ZLO3s1ar1YL/1iwd8MZgsLO7sHC+2O8v64xDiX3c2rrrrKzs
+zWWzY0rcdF82WoHLnc61NRplwHEAPI87B3zc4SFk5udz9ZOT3mm16nDhLHQInkwykMsB9HogDn8H
+Q7MJ0G7D2nBo112XDSejZ8DBbyQND8BTa0IHTkJHgqXhEeAgJReORieCpeAJYB04Co0Cm4YjwFx4
+KpoENgUngDnwRDQLrAtngKnwWLQWmAvXAFPgkWgjYCrcABgL/4E2CsbCDYIx8Bm0CDgNLgBOg4do
+UXAcXBCcBPfRq8/Ptl88qLO0dAuOrGdnAI2GdDZ/fHVy27+8vLk4ONhWn330y/q6d7+5eWV7XvVX
+ZnF0BHB8DFAsAti2eMqJZb32HCe8OAiXd7dUqqns4nBVKQUXF6okVRWaIFyBO+Vy6aFQuA2+3ZmN
+TBw+DVYzGI8/SlIheBQ4XN7T60sM/h0cJBWCx4Ej0eqhcXgcWAieBI5FG4WngQ3D08CJaCNwLNgQ
+HANORWvBXfdrl6a8lJj/cSwYhWbBFbjmvwF5jQingNFoElwXTFzqVDAJjYKbAiPhHDAZnQg3DU6B
+c8EsdCRcChwFf3+mA2ajZ+CuW9XatLBb3efmZlUqS9/P0tghgn6pt6FJA6qTW/fpqRYWENTs3P75
+PDfSj9NCa2X+w+A3ISzqlvD0MGAAAAAASUVORK5CYII=
+
+--_005_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_--
+
+--_006_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_
+Content-Type: application/pdf; name="Marash.pdf"
+Content-Description: Marash.pdf
+Content-Disposition: attachment; filename="Marash.pdf"; size=132882;
+	creation-date="Fri, 18 Nov 2022 12:38:52 GMT";
+	modification-date="Fri, 18 Nov 2022 12:38:52 GMT"
+
+[attachment stripped]
+--_006_792bcb4bd8674632ad9ed16a4707ddechsbcpbcom_--

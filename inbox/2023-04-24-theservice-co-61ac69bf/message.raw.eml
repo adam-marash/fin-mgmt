@@ -1,0 +1,812 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:7412:37ca:b0:c9:7bcf:80ff with SMTP id
+ jz10csp2882523rdb;
+        Mon, 24 Apr 2023 10:16:29 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AKy350YsFFB40sL0fTc/eDS1D9aFe/+Gpm4RmtKcCuGy4tg5oZmV0zgWblkV4JiLFDi2iEEGyh4L
+X-Received: by 2002:a17:906:b46:b0:94e:6b12:caab with SMTP id
+ v6-20020a1709060b4600b0094e6b12caabmr10228160ejg.51.1682356589612;
+        Mon, 24 Apr 2023 10:16:29 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1682356589; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=k2Tfqz+/VacHqY7eRw0Hm3wXI3dTBBFpANAw0IuKcc9eoPpzCtz45Lb8TgxqMxkzEk
+         xwoP1LhOdiQ+Hz9EfFM+7xp+NPervIiJsAVsaWWRRQuAIddeZiYxeR/CHtbPZuTnlKTF
+         wNGJgcqPx606dbhNm0s1qgg5vjjOeJeOF4c61QXc4CKCdLQeTAmir2X0j0Wfeg5dkT4+
+         KjwYoQ/cVve2Egxk8V4vS0DU2c/Tous8wd1rPYkXEszGq7UTj/oqv+2JYQI51jVUDQV/
+         78JPgil6cCzUlnZA9RKI/8dsGMgumL1AxlN519MR7IDSd7jOPMyVEAF3ccnfVRbr5EVg
+         KJyA==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=XB34xfIMI3FdAEVAhIi6R4k4ly48h1PhwAKGjmPeeYw=;
+        b=y7XLbcDNQIRiiKkyHKstjoOs1IL9L+ByScAenGuNmFscT0p5HYQGoZpgrv8xLS8Tsv
+         E4BWxIpp3pl4y/qts14ht24bp+866BBydWFZ288cezBgIH7xMbopm8Z+fGJYl8WDwobb
+         Y0ng0RgSuWbWaS++t92yinstws2xmP/DPGW28IzDosC4Kv84tDk9Xh/p0lxOsOdrbxNE
+         0BiPQOX303cc0RLkUgerzpfgjvQIW9wd+LnLLEOD6OO44dsRfZmR2mh74i1VFETg1sLS
+         DO5IVWE1kGQp+vHfiePwq3Awmxl76pumtan0aqDkr3R/SyWLnsHAeFib0cLc1qdSRbD7
+         OmIw==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=dxIqShHt;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f400:fe12::72a as permitted sender)
+ smtp.mailfrom=eran@theservice.co.il
+Return-Path: <eran@theservice.co.il>
+Received: from EUR02-DB5-obe.outbound.protection.outlook.com
+ (mail-db5eur02on2072a.outbound.protection.outlook.com.
+ [2a01:111:f400:fe12::72a])
+        by mx.google.com with ESMTPS id
+ qh23-20020a170906ecb700b0094eefec3d68si8662941ejb.97.2023.04.24.10.16.29
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 24 Apr 2023 10:16:29 -0700 (PDT)
+Received-SPF: pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f400:fe12::72a as permitted sender)
+ client-ip=2a01:111:f400:fe12::72a;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=dxIqShHt;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f400:fe12::72a as permitted sender)
+ smtp.mailfrom=eran@theservice.co.il
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=A1d+WJV2NdR7DN/3AI52yCoIITasBmX2xiXz2TIcTVGlsvi9Kv57rJEf1Yg/wnbgeijHQkKpO5fW133jQOyZnCOkpGwm79+2X43462QZ4iT9NaTTij2YoVOJQ2Ieu3UKyixj/V82sRdtauy8+u6KCCIE2yeuTl+mzqagEW/40bR7rQp0SIMMmO92lpcRifSEe8V1lka+P31bprDghb8li5WN9Qi7gY0o6E+TgOKi3ODt7q5Q1d/zVY3J98Fcgol7V9O6+fGHbCpFoYIS4ck5FzukqSTDvFwxZPs83RhmQrsdFYRWQ5dVq66JFcd5Go4PngbHjaKtQL3bD4iBlfrv7Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XB34xfIMI3FdAEVAhIi6R4k4ly48h1PhwAKGjmPeeYw=;
+ b=aoPaLjqrLv8qnCzBbfj/OFNch+MC0G/lHArvqKpFeRfnIYU06AkHyfYEphXJLvOuGNbgcqor6xrLaXhgHwgh9zfTFyLiGuJltOdByEqx3LbtAckmMr2e/tBF2wLJn2qJay5tbAh3jREiLqdebzReLlXbmJLLFFO3caKB9yjoV0ugeYi5YRKgO3Vb9hrCTvKlZyDp0LRAoXj70wf9IzITzIVkhaulgiH7zngKvl/jl4pf0WlxZtyJRAzEZUxR1UrWkj67PhpZgNr44WbUEc8Dt4jSFvlX4rSpeelMhLnfqEagRcRbl+Tr01jOsafPe7AwstGY+wwr/fqfi3C/yJPG8g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=theservice.co.il; dmarc=pass action=none
+ header.from=theservice.co.il; dkim=pass header.d=theservice.co.il; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XB34xfIMI3FdAEVAhIi6R4k4ly48h1PhwAKGjmPeeYw=;
+ b=dxIqShHtZsTq8e7bAUiTibG+vcufDp5+Va34PSzE9iarpbwM8YqilbIRXrO8yseVORXRjmW7WNJebnuf16HDzuW50uRNQoO+K8DHpQbYA7OPkILV3lCHS0wYbLERQDikBCnRYqWlDRrGzL8LV0jipQbk1GtZBM5L/tuuZzZeklE=
+Received: from DB9PR05MB7916.eurprd05.prod.outlook.com (2603:10a6:10:255::6)
+ by PAXPR05MB8607.eurprd05.prod.outlook.com (2603:10a6:102:1ab::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.33; Mon, 24 Apr
+ 2023 17:16:27 +0000
+Received: from DB9PR05MB7916.eurprd05.prod.outlook.com
+ ([fe80::8f38:8a5f:e3b2:86be]) by DB9PR05MB7916.eurprd05.prod.outlook.com
+ ([fe80::8f38:8a5f:e3b2:86be%5]) with mapi id 15.20.6319.033; Mon, 24 Apr 2023
+ 17:16:22 +0000
+From: eran <eran@theservice.co.il>
+To: "adam@marash.net" <adam@marash.net>
+Subject: =?windows-1255?B?RndkOiD67vgg5eDj7SDu+PkgLSDy4+vl7w==?=
+Thread-Topic: =?windows-1255?B?+u74IOXg4+0g7vj5IC0g8uPr5e8=?=
+Thread-Index: AdlYCe3Q1LSHsvZiTH2uyouCmZWxRgegY+MAAA6EndAAAJYoRAACIRnF
+Date: Mon, 24 Apr 2023 17:16:22 +0000
+Message-ID: 
+ <DB9PR05MB79167259845CB9FE14156351EF679@DB9PR05MB7916.eurprd05.prod.outlook.com>
+References: 
+ <AM0PR05MB675535B031F45AC5B7C5675D81BC9@AM0PR05MB6755.eurprd05.prod.outlook.com>
+ <CABgnYtLKvMCWLYtWufqXsyAN3VswKBshYcmb_-f130eiDJqQ-Q@mail.gmail.com>
+ <AM8PR05MB79053F6043AFAE64459F8D47EF679@AM8PR05MB7905.eurprd05.prod.outlook.com>
+ <AM8PR05MB7905CAC8D38FD584D8DFC092EF679@AM8PR05MB7905.eurprd05.prod.outlook.com>
+In-Reply-To: 
+ <AM8PR05MB7905CAC8D38FD584D8DFC092EF679@AM8PR05MB7905.eurprd05.prod.outlook.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=theservice.co.il;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DB9PR05MB7916:EE_|PAXPR05MB8607:EE_
+x-ms-office365-filtering-correlation-id: 65f1076a-f1e5-4dbd-e66b-08db44e7a073
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ 9jVEhaInhZ3FwUhcojMGmVQ6d7zJTJZrOetZxWXwBMSlA5PRn4hLXd/jcEqGi3eWnBvxP222rvrRrLKBYKv+Nyu3DODrz0ql1Oi9OgoWGracfbVC+7sd5tAKJvPsKvKIWnvHGqqbW+S2pIp76MZ3roBZaKvloDwUK2PvrF336Bckml0PCFKZvHqy6rp4K/dOKKJLZHkWx+riCa9yOJsOFzAYV73nnp7Idd4og0IaUFHTyY5WiNPqUWyonqk+PAhZrj/4TEmbAzzxvnCkeVwjSDcWNUrF1RN7qM3Pj9xdKtmn1kTWLCMvO9/PAtyeWbKGjfm3KmuM60tYSGgO7KI7IjKWB7+8rUoYaE3DfgxYcqHY8JPw5O7B7ROyXoq5NS+tJNMfnKEhFJa0T37nQNk5ykxPSHO3hycukkd55Par5Y/XZqc3n/sBLM1q2534UCjzanOID3rpV0ypAI7WkCbNAyA5BkAqOSBKb0XFpXsLG8JT64yQiOP2Dx5fOkpYXc5n2nQKiqEY+3VxuWtdydst3LDesnTincyDSOHRfqITTvVwknJDq7XY4RBRZ2mJ1V6OBBJAkxlKE6kVNTWdDuqlVW7kJ3rn48X7B3ErPpMSfF8=
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR05MB7916.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(136003)(366004)(39840400004)(346002)(396003)(376002)(451199021)(2906002)(55016003)(7696005)(71200400001)(86362001)(33656002)(8936002)(76116006)(66946007)(66556008)(66476007)(66446008)(64756008)(478600001)(316002)(41300700001)(6916009)(9686003)(224303003)(6506007)(91956017)(26005)(53546011)(186003)(166002)(38070700005)(122000001)(38100700002)(45080400002)(5660300002)(52536014);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?ojAk+wKBlR7nDKHcqVSCwOYEAx2J0L0royKYmxcPB5+Wf6RKIIc9oTX3?=
+ =?windows-1255?Q?pgtXO/2iSpFdsT0iqrbLQM5pUVvc7z80YRHSxuUAOJiDmwOGtKGXtMfy?=
+ =?windows-1255?Q?hETYX3et+2FQGcYfyUkr06Ywxn5TLqpkKdaQTDVwKu21WEilmuD2eV58?=
+ =?windows-1255?Q?q0egs/OO5GU1JlSclC/8fhQ9zhT4GQK0pDp8p4akte6yjcgzxeg7ulCt?=
+ =?windows-1255?Q?THlfqTrrXJ0Z8jX3IQ0SHXGuxd+f5Y0FhFcNQaNRMH3jklp9J7r73fAo?=
+ =?windows-1255?Q?dd9pWfMLaRykiV0BwAhci0Xvt7II7BBv01hyI+CbM6/1tU7mSzh8VGzI?=
+ =?windows-1255?Q?cFESJDjvdgVyAXwjGSzupeHM33ZFA6A+vDJHDNir2Xo5RGmgGcHCkvtK?=
+ =?windows-1255?Q?rHNrVLuK8Zuu/n49ik7vbHhg6yVdpTeReWuoY13H+AJzG4M1fyREQ2+5?=
+ =?windows-1255?Q?KY1vAgT3vbmPcsRqZuSsI8Lj03DwyHJzG8Snl0uOONYfxFIDVMtB0uF4?=
+ =?windows-1255?Q?2AvZUcYX4qHSZfBo9rsV/qoyj0+Hc6e0JOJx4l7YagS0VVUbscNRP7HS?=
+ =?windows-1255?Q?ggKWtbIVyvGaHL8fVosAxkO0maZY9e9EcGkDrMPxsTye2ylqfNBHG6l2?=
+ =?windows-1255?Q?c47QGQpLmPqdzKs8cQqeFugPbHqVKf8hS9x5CfXXwF6e55TIOsD/sGxH?=
+ =?windows-1255?Q?r8V7P2Y1GQ5Nu9Xv6e228k7EDLUtoBiMxhPPr3/5RZoeA6n6StheMZKg?=
+ =?windows-1255?Q?cH6UwMo/6OpTKvNCFZ3BYPAMOXPiiziakkQcdd7rPvFesO6QA3AwLS5X?=
+ =?windows-1255?Q?s/yyysXJniuyTykXv2HMwuGb7KcWDdjYWX+1QJueQyjdMgKDuDkXggJJ?=
+ =?windows-1255?Q?7WemrVZSl66ukhQvBhpG9dUX7WjzkzcPeo40h9J2ZpY0HBn5nZkgrg8q?=
+ =?windows-1255?Q?1siedYUHYem42+Ygf2W+yrFb0Q1htgHxmnG4TteeIkE05RoIQ/UWZ7+W?=
+ =?windows-1255?Q?p+05gQqO5G36yajbu9CunQDGNGo1UWrL7hjx/FpeOUJr4DW/zunuQFTT?=
+ =?windows-1255?Q?l0gVYDta8da+CCOvsZBaTqq9cZ5mdaYyyeoieEaFB42RcmBb2hzXWOlM?=
+ =?windows-1255?Q?7bnPuJKRvJ5rfCDpftM+KkBoi+/Ji8DCUeuW7jfnuW6Rg7L7tFHTjhHA?=
+ =?windows-1255?Q?XLJbssE6qvO+kOGzbJ6J0i6BFDe4qPq6aZsGokRDX7spTcCyW/iMxaEQ?=
+ =?windows-1255?Q?htEVAGHG3Pp9XRwblsCCO/RXfzUf2Dqs+4KvjfkmyjROMUEplp0a1bHu?=
+ =?windows-1255?Q?9fZ9mcOMrLZ8DjazE4bF6MS55Dg11fQCX1WTRNy4f7rHOsQaBUqCIqyh?=
+ =?windows-1255?Q?oYXVrB+uc6oOugFehTmWYsfBVdc5R958cSSDL1Uhda7Fytw4PHcUgkD8?=
+ =?windows-1255?Q?L86Mytd6bIILVAzbxKeZJ2I8HS1XRDW5ConGKy4rJCciIwDlFVYg8dGO?=
+ =?windows-1255?Q?Q8WcYhBA+5npRhY8IfKyfk0Y9ece7IZuZ960UuemfwdU7oFz+exG5+6A?=
+ =?windows-1255?Q?ltKTQDfJD1DwMPqdviYOZsPzp2ZkxPfq33ZHBIirhPZ0W/HAhwC0TX0a?=
+ =?windows-1255?Q?RxAcVVK0aGcoRr+Kv4s3eudHlhka4ZOQaCyDDx9y7Z4FOtbTF/+8F19r?=
+ =?windows-1255?Q?WrzmEmPIILKF4W8yGxPuu8mjXv5jjGNovmdq5l6WXDOV699n3XMd6A?=
+ =?windows-1255?Q?=3D=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_DB9PR05MB79167259845CB9FE14156351EF679DB9PR05MB7916eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: theservice.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DB9PR05MB7916.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ 65f1076a-f1e5-4dbd-e66b-08db44e7a073
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Apr 2023 17:16:22.2554
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ 7plxTCxa+PuAHv7rKa7KM/S+aapPz3AlP919v8k3okrlhAuwXaqJaiuBiMJgow0gjoN3xAldMOKNXNjt2wg1Hg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR05MB8607
+
+--_000_DB9PR05MB79167259845CB9FE14156351EF679DB9PR05MB7916eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+
+
+=F7=E1=EC =FEOutlook =F2=E1=E5=F8 Android=FE<https://aka.ms/AAb9ysg>
+
+________________________________
+=EE=E0=FA: eran <eran@theservice.co.il>
+=F0=F9=EC=E7: =E9=E5=ED =F9=F0=E9, 24 =E1=E0=F4=F8=E9=EC 2023, 19:15
+=E0=EC: eran <eran@theservice.co.il>
+=F0=E5=F9=E0: Re: =FA=EE=F8 =E5=E0=E3=ED =EE=F8=F9 - =F2=E3=EB=E5=EF
+
+=F9=EC=E5=ED =E0=E3=ED. =E9=E9=EC=F7=E7 =E1=E7=F9=E1=E5=EF =EB=EE=E5=E1=EF
+
+=F7=E1=EC =FEOutlook =F2=E1=E5=F8 Android=FE<https://aka.ms/AAb9ysg>
+________________________________
+From: eran <eran@theservice.co.il>
+Sent: Monday, April 24, 2023 6:58:38 PM
+To: eran <eran@theservice.co.il>
+Subject: FW: =FA=EE=F8 =E5=E0=E3=ED =EE=F8=F9 - =F2=E3=EB=E5=EF
+
+
+=EE=F7=F4=E9=F6=E4 =EC=EA =EE=E9=E9=EC =EE=EE=F8=F9
+
+
+
+=E2'=F0=E9
+
+
+
+
+
+From: Adam Marash <adam@marash.net>
+Sent: Monday, April 24, 2023 12:02 PM
+To: eran=FE <eran@theservice.co.il>
+Subject: Re: =FA=EE=F8 =E5=E0=E3=ED =EE=F8=F9 - =F2=E3=EB=E5=EF
+
+
+
+=F2=F8=EF =E4=E9,
+
+
+
+=F2=E1=F8=FA=E9 =F2=EC =E4=EE=F6=E2=FA =F9=F9=EC=E7=FA=ED =E0=E7=F8=E9 =F9=
+=E9=E7=FA=F0=E5 =E4=E0=E7=F8=E5=F0=E4 =E1=EE=F8=F5 =E5=E0=F0=E9 =F8=E5=F6=
+=E4 1. =EC=E5=E5=E3=E0 =F9=E0=F0=E9 =EE=E1=E9=EF =E5-2. =EC=F2=E3=EB=EF =E1=
+=F2=F0=E9=E9=EF =F8=EC=E5=E5=F0=E8=E9.
+
+
+
+1. =E4=E0=ED =E0=F0=E9 =EE=E1=E9=EF =F9=E0=EC=E4 =E4=EE=F9=F7=EC=E5=FA =E5=
+=E4=FA=F0=E5=F2=E5=FA =F9=E0=FA=E4 =EE=F6=E9=F2 =E1=FA=E9=F7:
+
+
+
+=EE=F6=E1 =EB=F2=FA
+
+=E0=E7=F8=E9 =F9=E9=F0=E5=E9
+
+=E4=E1=E3=EC
+
+=EE=E6=E5=EE=F0=E9=ED
+
+15%
+
+$3,990
+
+10%
+
+$2,660
+
+-$1,330
+
+=F9=E5=F7 =E4=E4=E5=EF
+
+35%
+
+$9,310
+
+32%
+
+$8,512
+
+-$798
+
+=E0=EC=E8=F8=F0=E8=E9=E1=E9
+
+18%
+
+$4,788
+
+23%
+
+$6,118
+
+$1,330
+
+=F0=E3=EC"=EF
+
+32%
+
+$8,512
+
+35%
+
+$9,310
+
+$798
+
+
+
+=E0=ED =EB=EF, =F8=F6=E5=E9 =EC=E7=F9=E5=E1 =EC=F7=F8=E0=FA =F9=E9=E7=FA=F0=
+=E5, =EE=E0=E9=E6=E4 =EE=F7=E5=F8=E5=FA =EE=E6=E5=EE=F0=E9=ED =F1=F4=F6=E9=
+=F4=E9=FA =EE=E3=E5=E1=F8?
+
+
+
+2. =F0=FA=E5=EF =F9=F2=F9=E5=E9 =EC=E4=F9=F4=E9=F2 =F2=EC =E4=FA=F9=E5=E1=
+=E4 =EC=F9=E0=EC=E4 =EC=EE=F2=EC=E4
+
+
+
+=EC=E0=E5=F8 =E4=FA=F4=FA=E7=E5=FA =F9=EC =E4=E9=EE=E9=ED =E4=E0=E7=F8=E5=
+=F0=E9=ED =EE=EE=F9, =E7=F9=E5=E1 =EC=F2=E3=EB=EF: =E4=F8=E9=E1=E9=FA =F2=
+=EC =E4=EE=F9=EB=F0=FA=E0 =F2=EC =E1=E9=FA =E4=EE=E2=E5=F8=E9=ED =E1=E0=F0=
+=E2=EC=E9=E4 =E4=E9=E0 =EB=F8=E2=F2 =F2=EC 5.4% =E5=FA=F2=EC=E4 =E4=E7=EC =
+=EE=E9=E5=F0=E9 =EC- 6.05% =E1=EC=E9=F9"=E8. =F2=E3 =EB=E4 =F0=EE=F0=F2=FA=
+=E9 =EE=EC=E4=EB=F0=E9=F1 =EB=F1=F3 =E6=E4 =EC=E0=F0=E2=EC=E9=E4, =EB=E3=E9=
+ =F9=E9=E4=E9=E4 =E0=F4=F9=F8 =EC=F2=E1=E5=E3 =E0=E9=FA=E5, =E0=E1=EC =E1=
+=EE=E7=E9=F8 =EB=E6=E4 =F9=EC =EB=F1=F3 =E9=E9=FA=EB=EF =F9=EB=E3=E0=E9 "=
+=EC=E4=F9=F7=E9=F2" =E0=E5=FA=E5 =E1=EE=F9=EB=F0=FA=E0. =EE=F7=E5=F8 =E4=EB=
+=F1=F3 =EC=EB=E9=F1=E5=E9 =E4=EE=F9=EB=F0=FA=E0 =E4=E5=E0 =E3=E5=EC=F8=E9=
+=ED ("=F0=F7=E9=E9=ED" =EC=E4=EB=F0=F1=E4 =EC=E0=F0=E2=EC=E9=E4) =F9=EB=F8=
+=E2=F2 =E9=E5=F9=E1=E9=ED =E1=E2=F8=F0=E6=E9 =E5=EE=E5=F9=EB=E9=ED =F8=E1=
+=E9=FA =E3=E5=EC=F8=E9=FA =F9=EC 3.93% =EC=F9=F0=E4, =F1=E2=E5=F8=E9=ED =F8=
+=E1=F2=E5=F0=E9=FA. =EB=E9=F1=E5=E9 =E4=EE=F9=EB=FA=F0=E0 =E9=F2=EC=E4 =EB-=
+ $1.6.
+
+
+
+=F8=F6=E5=E9 =EC=F7=E7=FA =E0=FA =E6=E4 =E1=E7=F9=E1=E5=EF =E1=F9=E9=E7=FA=
+=F0=E5 =E4=F7=F8=E5=E1=E4.
+
+
+
+=E1=E1=F8=EB=E4,
+
+
+
+=E0=E3=ED
+
+
+--_000_DB9PR05MB79167259845CB9FE14156351EF679DB9PR05MB7916eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+</head>
+<body>
+<div><br>
+</div>
+<div id=3D"ms-outlook-mobile-signature" dir=3D"rtl">
+<div><br>
+</div>
+=F7=E1=EC <a href=3D"https://aka.ms/AAb9ysg">=FEOutlook =F2=E1=E5=F8 Androi=
+d=FE</a>
+<div id=3D"mail-editor-reference-message-container" dir=3D"rtl"><br>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" style=3D"font-size: 11pt;"><strong>=EE=E0=FA:</st=
+rong> eran &lt;eran@theservice.co.il&gt;<br>
+<strong>=F0=F9=EC=E7:</strong> =E9=E5=ED =F9=F0=E9, 24 =E1=E0=F4=F8=E9=EC 2=
+023, 19:15<br>
+<strong>=E0=EC:</strong> eran &lt;eran@theservice.co.il&gt;<br>
+<strong>=F0=E5=F9=E0:</strong> Re: =FA=EE=F8 =E5=E0=E3=ED =EE=F8=F9 - =F2=
+=E3=EB=E5=EF<br>
+</div>
+<br>
+=F9=EC=E5=ED =E0=E3=ED. =E9=E9=EC=F7=E7 =E1=E7=F9=E1=E5=EF =EB=EE=E5=E1=EF
+<div><br>
+</div>
+<div id=3D"ms-outlook-mobile-signature" dir=3D"rtl">=F7=E1=EC <a href=3D"ht=
+tps://aka.ms/AAb9ysg">
+=FEOutlook =F2=E1=E5=F8 Android=FE</a></div>
+<hr tabindex=3D"-1" style=3D"display:inline-block; width:98%">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" co=
+lor=3D"#000000" style=3D"font-size:11pt"><b>From:</b> eran &lt;eran@theserv=
+ice.co.il&gt;<br>
+<b>Sent:</b> Monday, April 24, 2023 6:58:38 PM<br>
+<b>To:</b> eran &lt;eran@theservice.co.il&gt;<br>
+<b>Subject:</b> FW: =FA=EE=F8 =E5=E0=E3=ED =EE=F8=F9 - =F2=E3=EB=E5=EF</fon=
+t>
+<div>&nbsp;</div>
+</div>
+<div lang=3D"en-IL" style=3D"word-wrap:break-word">
+<div class=3D"x_WordSection1">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;Arial&quot;,sans-serif">=EE=F7=
+=F4=E9=F6=E4 =EC=EA =EE=E9=E9=EC =EE=EE=F8=F9 </span>
+</p>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;Arial&quot;,sans-serif">&nbsp;=
+</span></p>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;Arial&quot;,sans-serif">=E2'=
+=F0=E9</span></p>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"en-IL" dir=3D"LTR" style=3D"">&nbsp;</span></p>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"en-IL" dir=3D"LTR" style=3D"">&nbsp;</span></p>
+<div style=3D"border:none; border-top:solid #E1E1E1 1.0pt; padding:3.0pt 0c=
+m 0cm 0cm">
+<p class=3D"x_MsoNormal" style=3D"margin: 0cm; font-size: 11pt; font-family=
+: Calibri, sans-serif;">
+<b>From:</b> Adam Marash &lt;adam@marash.net&gt; <br>
+<b>Sent:</b> Monday, April 24, 2023 12:02 PM<br>
+<b>To:</b> eran<span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=
+=3D"HE" dir=3D"RTL"><span dir=3D"RTL"></span><span dir=3D"RTL"></span>=FE</=
+span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span><span dir=3D"LTR"></span> &lt;eran@theservice.co.il&gt;<br>
+<b>Subject:</b> Re: <span lang=3D"HE" dir=3D"RTL">=FA=EE=F8 =E5=E0=E3=ED =
+=EE=F8=F9 - =F2=E3=EB=E5=EF</span></p>
+</div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span dir=3D"LTR">&nbsp;</span></p>
+<div>
+<div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=F2=F8=EF =E4=E9,</span><span dir=3D"LTR"></span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=F2=E1=F8=FA=E9 =F2=EC =E4=EE=F6=E2=FA =F9=F9=EC=E7=FA=ED=
+&nbsp;=E0=E7=F8=E9 =F9=E9=E7=FA=F0=E5 =E4=E0=E7=F8=E5=F0=E4 =E1=EE=F8=F5 =
+=E5=E0=F0=E9 =F8=E5=F6=E4 1. =EC=E5=E5=E3=E0 =F9=E0=F0=E9 =EE=E1=E9=EF =E5-=
+2. =EC=F2=E3=EB=EF =E1=F2=F0=E9=E9=EF =F8=EC=E5=E5=F0=E8=E9.</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE">1. =E4=E0=ED =E0=F0=E9 =EE=E1=E9=EF =F9=E0=EC=E4 =E4=
+=EE=F9=F7=EC=E5=FA =E5=E4=FA=F0=E5=F2=E5=FA =F9=E0=FA=E4 =EE=F6=E9=F2 =E1=
+=FA=E9=F7</span></b><span lang=3D"HE">:</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<div align=3D"right">
+<table class=3D"x_MsoNormalTable" dir=3D"rtl" border=3D"0" cellspacing=3D"0=
+" cellpadding=3D"0" width=3D"0" style=3D"border-collapse:collapse">
+<tbody>
+<tr style=3D"height:15.75pt">
+<td valign=3D"bottom" style=3D"border:solid black 1.0pt; padding:1.5pt 2.25=
+pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+</td>
+<td colspan=3D"2" valign=3D"bottom" style=3D"border:solid black 1.0pt; bord=
+er-right:none; padding:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:=
+hidden">
+<p class=3D"x_MsoNormal" align=3D"center" dir=3D"RTL" style=3D"margin: 0cm;=
+ font-size: 11pt; font-family: Calibri, sans-serif;text-align:center; direc=
+tion:rtl; unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=EE=F6=E1 =EB=F2=FA</span></b><b><span dir=3D"LTR" style=3D"=
+font-size:10.0pt; font-family:&quot;Arial&quot;,sans-serif"></span></b></p>
+</td>
+<td colspan=3D"2" valign=3D"bottom" style=3D"border:solid black 1.0pt; bord=
+er-right:none; padding:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:=
+hidden">
+<p class=3D"x_MsoNormal" align=3D"center" dir=3D"RTL" style=3D"margin: 0cm;=
+ font-size: 11pt; font-family: Calibri, sans-serif;text-align:center; direc=
+tion:rtl; unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=E0=E7=F8=E9 =F9=E9=F0=E5=E9</span></b></p>
+</td>
+<td valign=3D"bottom" style=3D"border:solid black 1.0pt; border-right:none;=
+ padding:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" align=3D"center" dir=3D"RTL" style=3D"margin: 0cm;=
+ font-size: 11pt; font-family: Calibri, sans-serif;text-align:center; direc=
+tion:rtl; unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=E4=E1=E3=EC</span></b></p>
+</td>
+</tr>
+<tr style=3D"height:15.75pt">
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:solid black 1.0pt; padd=
+ing:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=EE=E6=E5=EE=F0=E9=ED</span></b></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">15%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$3,990</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">10%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$2,660</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">-$1,330</span></p>
+</td>
+</tr>
+<tr style=3D"height:15.75pt">
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:solid black 1.0pt; padd=
+ing:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=F9=E5=F7 =E4=E4=E5=EF</span></b></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">35%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$9,310</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">32%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$8,512</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">-$798</span></p>
+</td>
+</tr>
+<tr style=3D"height:15.75pt">
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:solid black 1.0pt; padd=
+ing:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=E0=EC=E8=F8=F0=E8=E9=E1=E9</span></b></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">18%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$4,788</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2=
+.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">23%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$6,118</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid #CCCCCC 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$1,330</span></p>
+</td>
+</tr>
+<tr style=3D"height:15.75pt">
+<td valign=3D"bottom" style=3D"border:solid black 1.0pt; border-top:none; p=
+adding:1.5pt 2.25pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quo=
+t;,sans-serif">=F0=E3=EC&quot;=EF</span></b></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid black 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">32%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid black 1.0pt; border-right:none; padding:1.5pt 2.25p=
+t 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$8,512</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid #CCCCCC 1=
+.0pt; border-bottom:solid black 1.0pt; border-right:none; padding:1.5pt 2.2=
+5pt 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">35%</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid black 1.0pt; border-right:none; padding:1.5pt 2.25p=
+t 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$9,310</span></p>
+</td>
+<td valign=3D"bottom" style=3D"border-top:none; border-left:solid black 1.0=
+pt; border-bottom:solid black 1.0pt; border-right:none; padding:1.5pt 2.25p=
+t 1.5pt 2.25pt; height:15.75pt; overflow:hidden">
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE" style=3D"font-size:10.0pt; font-family:&quot;Arial&quot;,=
+sans-serif">$798</span></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=E0=ED =EB=EF, =F8=F6=E5=E9 =EC=E7=F9=E5=E1 =EC=F7=F8=E0=
+=FA =F9=E9=E7=FA=F0=E5, =EE=E0=E9=E6=E4 =EE=F7=E5=F8=E5=FA =EE=E6=E5=EE=F0=
+=E9=ED =F1=F4=F6=E9=F4=E9=FA =EE=E3=E5=E1=F8?</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<b><span lang=3D"HE">2. =F0=FA=E5=EF =F9=F2=F9=E5=E9 =EC=E4=F9=F4=E9=F2 =F2=
+=EC =E4=FA=F9=E5=E1=E4 =EC=F9=E0=EC=E4 =EC=EE=F2=EC=E4</span></b><span lang=
+=3D"HE"></span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=EC=E0=E5=F8 =E4=FA=F4=FA=E7=E5=FA =F9=EC =E4=E9=EE=E9=ED=
+ =E4=E0=E7=F8=E5=F0=E9=ED =EE=EE=F9, =E7=F9=E5=E1 =EC=F2=E3=EB=EF: =E4=F8=
+=E9=E1=E9=FA =F2=EC =E4=EE=F9=EB=F0=FA=E0 =F2=EC =E1=E9=FA =E4=EE=E2=E5=F8=
+=E9=ED =E1=E0=F0=E2=EC=E9=E4 =E4=E9=E0 =EB=F8=E2=F2 =F2=EC 5.4% =E5=FA=F2=
+=EC=E4 =E4=E7=EC =EE=E9=E5=F0=E9 =EC- 6.05% =E1=EC=E9=F9&quot;=E8. =F2=E3 =
+=EB=E4 =F0=EE=F0=F2=FA=E9 =EE=EC=E4=EB=F0=E9=F1&nbsp;=EB=F1=F3 =E6=E4 =EC=
+=E0=F0=E2=EC=E9=E4, =EB=E3=E9 =F9=E9=E4=E9=E4 =E0=F4=F9=F8 =EC=F2=E1=E5=E3 =
+=E0=E9=FA=E5, =E0=E1=EC =E1=EE=E7=E9=F8 =EB=E6=E4 =F9=EC =EB=F1=F3 =E9=E9=
+=FA=EB=EF =F9=EB=E3=E0=E9 &quot;=EC=E4=F9=F7=E9=F2&quot;
+ =E0=E5=FA=E5 =E1=EE=F9=EB=F0=FA=E0. =EE=F7=E5=F8 =E4=EB=F1=F3 =EC=EB=E9=F1=
+=E5=E9 =E4=EE=F9=EB=F0=FA=E0 =E4=E5=E0 =E3=E5=EC=F8=E9=ED (&quot;=F0=F7=E9=
+=E9=ED&quot; =EC=E4=EB=F0=F1=E4 =EC=E0=F0=E2=EC=E9=E4) =F9=EB=F8=E2=F2 =E9=
+=E5=F9=E1=E9=ED =E1=E2=F8=F0=E6=E9 =E5=EE=E5=F9=EB=E9=ED =F8=E1=E9=FA =E3=
+=E5=EC=F8=E9=FA =F9=EC 3.93% =EC=F9=F0=E4, =F1=E2=E5=F8=E9=ED =F8=E1=F2=E5=
+=F0=E9=FA. =EB=E9=F1=E5=E9 =E4=EE=F9=EB=FA=F0=E0&nbsp;=E9=F2=EC=E4&nbsp;=EB=
+- $1.6.</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=F8=F6=E5=E9 =EC=F7=E7=FA =E0=FA =E6=E4 =E1=E7=F9=E1=E5=
+=EF =E1=F9=E9=E7=FA=F0=E5 =E4=F7=F8=E5=E1=E4.</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=E1=E1=F8=EB=E4,</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">&nbsp;</span></p>
+</div>
+<div>
+<p class=3D"x_MsoNormal" dir=3D"RTL" style=3D"margin: 0cm; font-size: 11pt;=
+ font-family: Calibri, sans-serif;text-align:right; direction:rtl; unicode-=
+bidi:embed">
+<span lang=3D"HE">=E0=E3=ED</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<br>
+</div>
+</div>
+</body>
+</html>
+
+--_000_DB9PR05MB79167259845CB9FE14156351EF679DB9PR05MB7916eurp_--

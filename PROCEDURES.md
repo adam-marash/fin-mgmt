@@ -128,11 +128,71 @@ When an investment concludes, any uncalled commitment is explicitly released:
 | Personal expense | `Expenses:Personal:<Person>` | `Expenses:Personal:Tamar` |
 | Commitment offset | `Equity:Commitments` | multi-currency (USD, EUR, ILS) |
 
+### Investment metadata on cross-cutting accounts
+
+Some accounts are organized by jurisdiction or cost type rather than by investment (e.g., `Expenses:Tax:Israel`, `Expenses:FO-Fees`). Transactions on these accounts that relate to a specific investment carry `investment:` metadata so they appear in investment-level queries:
+
+```beancount
+2021-10-21 * "Data Center LA - US withholding" ^data-center-la-dist-2
+  investment: "Data-Center-LA"
+  Expenses:Tax:US:NYS  -77,223.00 USD
+  Assets:Receivable:Data-Center-LA  77,223.00 USD
+```
+
+Accounts that need `investment:` metadata (the account name does not contain the investment):
+- `Expenses:Tax:<Jurisdiction>` - withholding tax
+- `Expenses:FO-Fees` - family office fees attributable to a specific investment
+- `Expenses:Tax-Advisory` - tax advisory fees for a specific investment
+
+Accounts that do NOT need it (the investment name is already in the account path):
+- `Assets:Receivable:<Investment>`
+- `Liabilities:Commitments:<Investment>`
+- `Income:Distribution:<Investment>:*`
+- `Expenses:Carried-Interest:<Investment>`
+
+A complete investment view:
+```
+WHERE account ~ '<Investment>' OR ANY_META('investment') = '<Investment>'
+```
+
 ### Receivable balance signals
 
 - **Positive**: announcement booked, bank credit pending ("where's my money?")
 - **Negative**: bank credit arrived, announcement pending ("what is this for?")
 - **Zero**: fully reconciled
+
+## Distribution Classification
+
+Distributions are initially booked as `Income:Distribution:<Investment>:Unclassified` when the income type is unknown. Classification happens when a source provides the yield vs capital-return breakdown.
+
+### Classification sources (in priority order)
+
+1. **Annual tax certificate** from the fund - definitive, reclassify all distributions for that tax year
+2. **FO transaction data** - FO often reports yield and capital-return as separate line items for the same distribution event
+3. **Distribution notice** from investee or trustee - sometimes states the character of the payment
+
+### Reclassification procedure
+
+When reclassifying from `Unclassified` to `Yield`/`Capital-Return`/`Capital-Gain`:
+
+1. Change the income account from `Income:Distribution:<Investment>:Unclassified` to the appropriate sub-account
+2. Add `classification-source:` metadata pointing to the document that provides the classification
+3. Remove `#provisional` tag if present
+4. If a single distribution splits into multiple types (e.g., part yield + part capital return), split into separate legs
+
+```beancount
+2023-10-12 * "Data Center LA - distribution announced" ^data-center-la-dist-2
+  classification-source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
+  Assets:Receivable:Data-Center-LA  859,646.00 USD
+  Income:Distribution:Data-Center-LA:Yield  -277,682.00 USD
+  Income:Distribution:Data-Center-LA:Capital-Return  -581,964.00 USD
+```
+
+### When NOT to reclassify
+
+- FO split is ambiguous or doesn't match the primary entry amount
+- Annual tax certificate will arrive soon and override any interim classification
+- The amounts don't reconcile (investigate first)
 
 ## Leumi Deposit Redemptions
 

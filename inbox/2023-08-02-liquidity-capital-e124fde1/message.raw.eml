@@ -1,0 +1,452 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:7412:db11:b0:df:2a7b:2801 with SMTP id fc17csp550889rdb;
+        Wed, 2 Aug 2023 07:24:05 -0700 (PDT)
+X-Received: by 2002:a05:6512:6d1:b0:4fe:19ef:8791 with SMTP id
+ u17-20020a05651206d100b004fe19ef8791mr5970539lff.38.1690986244977;
+        Wed, 02 Aug 2023 07:24:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1690986244; cv=none;
+        d=google.com; s=arc-20160816;
+        b=LIcBESmDeffLlNfelA223p7Zdseph04FNenmL0D5XM5uwodlX1BXPAQK8fnu2CIM/8
+         a0jRmCvtXsFgGZYdxXnYwrbFGd5ksNHNdho8E+yfS3cdvySdDudrU9Jx3/IsI0pTe5Zt
+         /hGu6WWW/6u4b8oMWxucNfEbO6cZxdH6TFyr5iZ3eA9f2oPC8sNrmbwSXDiUffkAoukV
+         3OSuablNyp8WTWxXLEl4iCj3mWDDDJQCzQb5BNBuanSVrgUh8oaQWl/m3J0cbCACGzjt
+         /+aSpsNtWjFDCAya2mb+A8dt6v8yKEYBbTNQBGpGe/eqR+8sYhSK4S9NBms3cB+QHUdW
+         ST/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=gS6QmaYrvKGI7S0b8oQoW0xIyV5FJJCdw6eiE5PFfB4=;
+        fh=upsHiHpo2//mJsLL1HVgI7QNrn+KZs1Eqwid6Dhftm0=;
+        b=Jcv6jKTvbqt3YY+k++MQOmTJuwwouC51KiBOWE4d7rHRHf/IVrcpFlSPRyuC11cRIP
+         5vqMHqMHH3wWV7SiSWVZGYtlplapiV7+qKlH6a28T+6kmiLg6d5aTHoNA04Wy8aTVVMW
+         NOVWigrj665/RuqXVOxnKFT+P7IQF6YgfXVnLVo8r/KecUkOsN2Yblwkl+Ft34BfEADX
+         Yn1seOjf2qZMm/ygSc9Me51L4eiXxqxMBnJqjoShYXszBJOtYrefEOk3bE98eFs7GLQV
+         j4UWJFkEThulKzNhTlfE9cFcBQQ1AVktlY+007mGGAwjLZdOA9547YsFHOav0zyNAm85
+         ns2g==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@liquidity-capital.com header.s=google
+ header.b=I5xi06ny;
+       spf=pass (google.com: domain of fundops@liquidity-capital.com
+ designates 209.85.220.41 as permitted sender)
+ smtp.mailfrom=fundops@liquidity-capital.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE)
+ header.from=liquidity-capital.com
+Return-Path: <fundops@liquidity-capital.com>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com.
+ [209.85.220.41])
+        by mx.google.com with SMTPS id
+ j29-20020a056512029d00b004f84d3afab7sor5624996lfp.11.2023.08.02.07.24.04
+        for <adam@marash.net>
+        (Google Transport Security);
+        Wed, 02 Aug 2023 07:24:04 -0700 (PDT)
+Received-SPF: pass (google.com: domain of fundops@liquidity-capital.com
+ designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@liquidity-capital.com header.s=google
+ header.b=I5xi06ny;
+       spf=pass (google.com: domain of fundops@liquidity-capital.com
+ designates 209.85.220.41 as permitted sender)
+ smtp.mailfrom=fundops@liquidity-capital.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE)
+ header.from=liquidity-capital.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=liquidity-capital.com; s=google; t=1690986244; x=1691591044;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gS6QmaYrvKGI7S0b8oQoW0xIyV5FJJCdw6eiE5PFfB4=;
+        b=I5xi06nyrQtOg8ogvK6OycJvmcWcdBrfY/mCHTgLFUZbYLGl9hwQWVNUr+Hck1HLI6
+         tkiTymPkPgO3tK3RyC95ctxew+GUbx9B22U6uXWoLU4YBU7M1nsH7lrUVQUkL5GqtpNl
+         gXFKNu9rIhCuM2aIqyOyuWWF5dxzyPlOHng8o=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1690986244; x=1691591044;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gS6QmaYrvKGI7S0b8oQoW0xIyV5FJJCdw6eiE5PFfB4=;
+        b=KnKhmcqTerqdzYwvis9MGXzt+y/9iEo59jkrchIcRGIByuBdoUlPwNzZXYeC0QC5oh
+         TP+/7qiEFAmQRznAbIbgSp0y/uYWVy3Qcd3sXXggFLagEFvp19kbTPHolI74Smz6X63m
+         MZDDJmiOYwDcteOeBZDZigUoRzzgSHpwbwqYX+ASVDNaGmwQyWTYHcp96DzvjhmAY+rh
+         FaPA+Y0P6oGqyql280ZgDk9hiRwRMXoc0ffZH4JmjOWDV8NRDC6avpuwvom+EE75YHnI
+         vYb4bXmSWw+PAzFyuSNMvdiIzA5Ulgf8Z7NnN1OYLrMfZ1rcwje897m98mG31EVHB8os
+         jJpg==
+X-Gm-Message-State: ABy/qLZezgsF8utWZ0RiOTBOLlhWIoxzQ3Yb6rOLG1SQf53ew+7PXB8g
+	nVFIPHX/gX+lw+ejfZMg1TdK+m5/hlhe84um5DOZ8A==
+X-Google-Smtp-Source: 
+ APBJJlGRoZbKUAqtQ9LLmVYCpuy1GMc+T4K5OVz0XnHnpPGEbtKa+6MMiCMbg2ssVQbZwATmtIolzWBjFfi9nW843bs=
+X-Received: by 2002:a19:6554:0:b0:4f9:5d2a:e0f6 with SMTP id
+ c20-20020a196554000000b004f95d2ae0f6mr4334327lfj.14.1690986244128; Wed, 02
+ Aug 2023 07:24:04 -0700 (PDT)
+MIME-Version: 1.0
+From: Fund Ops <fundops@liquidity-capital.com>
+Date: Wed, 2 Aug 2023 17:23:52 +0300
+Message-ID: 
+ <CAFs7G6+8gh0ehXPt+srEdizK_DXBMX5W7dfSPQ3hcGP0eNOGzA@mail.gmail.com>
+Subject: Liquidity Capital II LP | Distribution #7
+To: undisclosed-recipients:;
+Content-Type: multipart/alternative; boundary="00000000000066dfe90601f16a1d"
+Bcc: adam@marash.net
+
+--00000000000066dfe90601f16a1d
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+157Xqden15nXoteZ150g15nXp9eo15nXnSwNCg0KDQoNCteR16nXkdeV16Ig15TXkdeQINem16TX
+ldeZ15Qg15zXlNeq15HXpteiINeU15fXnNeV16fXlCDXlNep15HXmdei15nXqiDXqdecINen16jX
+nyBMaXF1aWRpdHkg15DXnCDXl9ep15HXldefINeU15HXoNenL9eX16nXkdeV158NCteULUlSQS4g
+16DXpteZ15nXnyDXm9eZINeU15vXodek15nXnSDXqdeZ15fXldec16fXlSDXkdee16HXkteo16og
+15fXnNeV16fXlCDXlteVINee15nXldeX16HXmdedINeR157XnNeV15DXnSDXnNee16jXm9eZ15Eg
+15TXqNeZ15HXmdeqLg0KDQoNCteR16LXqiDXlNeX15zXlden15Qg16rXqdec15cg15TXldeT16LX
+lCDXoNeV16HXpNeqINeR15DXntem16LXldeqICfXp9eR15XXpteqINeQ15nXmdek16fXoScgKNeQ
+15PXnteZ16DXmdeh15jXqNeY15XXqCDXlNen16jXnykuDQoNCg0KDQoq15zXqtep15XXnteqINec
+15HXm9edINeb16HXpNeZINeU15fXnNeV16fXlCDXmdeV16LXkdeo15Ug15zXpNeo15jXmSDXlNeX
+16nXkdeV158g16nXnteV16TXmdeiINeQ16bXnNeg15Ug15DXnNeQINeQ150g16rXoteT15vXoNeV
+DQrXkNeV16rXoNeVINeQ15fXqNeqKi4NCg0K15HXnteZ15PXlCDXldeZ16nXoNedINep15nXoNeV
+15nXmdedINeR16TXqNeY15kg15fXqdeR15XXnyDXlNeR16DXpyDXqdec15vXnSDXnteQ15Yg15TX
+l9ec15XXp9eUINeU16fXldeT157XqiDXqdeU16rXkdem16LXlCDXkQ0KNi8yMDIzLCDXkNeg15Ag
+16LXk9eb16DXlSDXkNeV16rXoNeVINeR16TXqNeY15kg15TXl9ep15HXldefINeU15fXk9ep15nX
+nSDXldep15zXl9eVINec16DXlSDXkNeZ16nXldeoINeg15nXlNeV15wg15fXqdeR15XXnw0K16LX
+k9eb16DXmS4NCg0K15vXnteVINeb158sINeR16fXqdeoINec15DXmdep15XXqCDXkdeT15HXqCDX
+pNeY15XXqCDXnteg15nXm9eV15kg157XoSDXkdee16fXldeoINec16nXoNeqIDIwMjMsINeb15vX
+nCDXldeZ16kg15zXm9edDQrXoteT15vXldeg15nXnSDXkdeg15XXqdeQINeQ16DXkCDXoteT15vX
+oNeVINeQ15XXqteg15Ug15HXlNeq15DXnSDXotecINee16DXqiDXqdec15Ag16DXoNeb15Qg157X
+oSDXkdee16fXldeoLg0KDQoNCg0KKteQ16DXkCDXlNep15nXkdeVINeR15TXp9eT150g15TXkNek
+16nXqNeZINeV15zXkCDXmdeQ15XXl9eoINee15nXldedINeULTA5INeR15DXldeS15XXodeYIDIw
+MjMsINeZ15XXnSDXqNeR15nXoteZLioNCg0KDQoNCteQ16DXlSDXltee15nXoNeZ150g15zXqdeQ
+15zXldeqLA0KDQrXpteV15XXqiBMaXF1aWRpdHkNCg0KDQoNCiBEZWFyIEludmVzdG9ycywNCg0K
+DQoNCkluIHRoZSB1cGNvbWluZyB3ZWVrLCB0aGUgU2V2ZW50aCBkaXN0cmlidXRpb24gb2YgdGhl
+IExpcXVpZGl0eSBmdW5kIHdpbGwNCmJlIHdpcmVkIHRvIHlvdXIgYmFuayBhY2NvdW50L0lSQSBh
+Y2NvdW50Lg0KDQpQbGVhc2Ugbm90ZSB0aGF0IHRoaXMgZGlzdHJpYnV0aW9uIGlzIHJlbGF0ZWQg
+dG8gdGhlIGludGVyZXN0IGNvbXBvbmVudCwgaW4NCml0cyBlbnRpcmV0eS4NCg0KVXBvbiB3aXJp
+bmcsIGFuIGFkZGl0aW9uYWwgbm90aWNlIHdpbGwgYmUgc2VudCB2aWEgJ0FwZXggR3JvdXAnICh0
+aGUgZnVuZCdzDQphZG1pbmlzdHJhdG9yKS4NCg0KDQoNCipVbmxlc3MgeW91IGluZm9ybSB1cyBv
+dGhlcndpc2UsIHRoZSBmdW5kcyBwdXJzdWFudCB0byB0aGlzIGRpc3RyaWJ1dGlvbg0Kd2lsbCBi
+ZSB0cmFuc2ZlcnJlZCBhY2NvcmRpbmcgdG8gdGhlIGFjY291bnQgZGV0YWlscyB3ZSBjdXJyZW50
+bHkgaGF2ZSBpbg0Kb3VyIHBvc3Nlc3Npb24uKg0KDQpJZiB5b3VyIGJhbmsgYWNjb3VudCBkZXRh
+aWxzIGhhdmUgY2hhbmdlZCBzaW5jZSB0aGUgbGFzdCBkaXN0cmlidXRpb24sDQp3aGljaCBvY2N1
+cnJlZCBpbiBKdW5lIDIwMjMsIHBsZWFzZSBzaGFyZSB0aGUgZGV0YWlscyBvZiB0aGUgbmV3IGFj
+Y291bnQNCndpdGggdXMgYW5kIGFsc28gc2hhcmUgYW4gdXBkYXRlZCBJQkFOIExldHRlciBvciBC
+YW5rIEFjY291bnQgQ29uZmlybWF0aW9uDQpMZXR0ZXIuDQoNCklmIHlvdSB3aXNoIHRvIGluZm9y
+bSB1cyBvZiBhbnkgdXBkYXRlcyByZWdhcmRpbmcgdGF4IGV4ZW1wdGlvbiB0aGF0IGhhdmUNCmNo
+YW5nZWQgc2luY2UgdGhlIGxhc3QgZGlzdHJpYnV0aW9uLCBraW5kbHkgYWxzbyBzaGFyZSB3aXRo
+IHVzIHlvdXIgdXBkYXRlZA0Kd2l0aGhvbGRpbmcgdGF4IGV4ZW1wdGlvbiwgaW4gb3JkZXIgZm9y
+IHVzIG5vdCB0byBkZWR1Y3Qgd2l0aGhvbGRpbmcgdGF4Lg0KDQoNCg0KKlBsZWFzZSByZXZlcnQg
+dG8gdXMgYXMgc29vbiBhcyBwb3NzaWJsZSBhbmQgYnkgbm8gbGF0ZXIgdGhhbiBXZWRuZXNkYXks
+DQpBdWd1c3QgMDksIDIwMjMuKg0KDQoNCg0KQXZhaWxhYmxlIGZvciB5b3VyIHF1ZXN0aW9ucywN
+Cg0KDQoqTGlxdWlkaXR5IFRlYW0gKg0KDQoNCkZ1bmQgT3BlcmF0aW9ucw0KRnVuZE9wc0BsaXF1
+aWRpdHlncm91cC5jb20gPGd1eW96QGxpcXVpZGl0eWdyb3VwLmNvbT4NCk0gKzk3MjUzNjkxNjIz
+OA0KSFEgT2ZmaWNlICsxKDkxNyktMjYxLTUyMzANClRMViBPZmZpY2UgKzk3Mi0zLTYyMDAtMTAy
+DQo0MTkgIExhZmF5ZXR0ZSAgU3QuLCAgIE5ldyAgWW9yaywgICBOWSAgMTAwMDMNCg0KPGh0dHA6
+Ly93d3cubGlxdWlkaXR5Z3JvdXAuY29tLz4NCg0KDQpsaXF1aWRpdHlncm91cC5jb20NCk5FVyBZ
+T1JLLUxPTkRPTi1URUwgQVZJVi1UT0tZTy1TSU5HQVBPUkUtQUJVLURIQUJJDQoNCjxodHRwczov
+L21haWwuZ29vZ2xlLmNvbS9tYWlsL3UvMC8jbV8tMjY2MzEzNzQ5NjE5NzIzOTM1OF9TaWduYXR1
+cmVTYW5pdGl6ZXJfU2FmZUh0bWxGaWx0ZXJfPg0KPGh0dHBzOi8vbWFpbC5nb29nbGUuY29tL21h
+aWwvdS8wLyNtXy0yNjYzMTM3NDk2MTk3MjM5MzU4X1NpZ25hdHVyZVNhbml0aXplcl9TYWZlSHRt
+bEZpbHRlcl8+DQo8aHR0cHM6Ly9tYWlsLmdvb2dsZS5jb20vbWFpbC91LzAvI21fLTI2NjMxMzc0
+OTYxOTcyMzkzNThfU2lnbmF0dXJlU2FuaXRpemVyX1NhZmVIdG1sRmlsdGVyXz4NCjxodHRwczov
+L21haWwuZ29vZ2xlLmNvbS9tYWlsL3UvMC8jbV8tMjY2MzEzNzQ5NjE5NzIzOTM1OF9TaWduYXR1
+cmVTYW5pdGl6ZXJfU2FmZUh0bWxGaWx0ZXJfPg0K
+--00000000000066dfe90601f16a1d
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0c=
+m;line-height:normal;direction:rtl;unicode-bidi:embed"><font face=3D"arial,=
+ sans-serif" color=3D"#000000"><span lang=3D"HE" style=3D"background-image:=
+initial;background-position:initial;background-size:initial;background-repe=
+at:initial;background-origin:initial;background-clip:initial">=D7=9E=D7=A9=
+=D7=A7=D7=99=D7=A2=D7=99=D7=9D =D7=99=D7=A7=D7=A8=D7=99=D7=9D,=C2=A0</span>=
+<span dir=3D"LTR"></span></font></p><p class=3D"MsoNormal" dir=3D"RTL" styl=
+e=3D"margin:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font =
+face=3D"arial, sans-serif" color=3D"#000000"><span dir=3D"RTL"></span><span=
+ dir=3D"RTL"></span><span lang=3D"HE" style=3D"background-image:initial;bac=
+kground-position:initial;background-size:initial;background-repeat:initial;=
+background-origin:initial;background-clip:initial"><span dir=3D"RTL"></span=
+><span dir=3D"RTL"></span>=C2=A0</span><span lang=3D"HE"></span></font></p>=
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:normal;d=
+irection:rtl;unicode-bidi:embed"><font color=3D"#000000"><font face=3D"aria=
+l, sans-serif"><span lang=3D"HE" style=3D"background-image:initial;backgrou=
+nd-position:initial;background-size:initial;background-repeat:initial;backg=
+round-origin:initial;background-clip:initial">=D7=91=D7=A9=D7=91=D7=95=D7=
+=A2=C2=A0=D7=94=D7=91=D7=90 =D7=A6=D7=A4=D7=95=D7=99=D7=94 =D7=9C=D7=94=D7=
+=AA=D7=91=D7=A6=D7=A2 =D7=94=D7=97=D7=9C=D7=95=D7=A7=D7=94 =D7=94=D7=A9=D7=
+=91=D7=99=D7=A2=D7=99=D7=AA</span><span lang=3D"HE" style=3D"background-ima=
+ge:initial;background-position:initial;background-size:initial;background-r=
+epeat:initial;background-origin:initial;background-clip:initial">=C2=A0</sp=
+an><span lang=3D"HE" style=3D"background-image:initial;background-position:=
+initial;background-size:initial;background-repeat:initial;background-origin=
+:initial;background-clip:initial">=D7=A9=D7=9C =D7=A7=D7=A8=D7=9F=C2=A0</sp=
+an><span lang=3D"EN-US" dir=3D"LTR" style=3D"background-image:initial;backg=
+round-position:initial;background-size:initial;background-repeat:initial;ba=
+ckground-origin:initial;background-clip:initial">Liquidity</span><span dir=
+=3D"RTL"></span><span dir=3D"RTL"></span><span lang=3D"HE" style=3D"backgro=
+und-image:initial;background-position:initial;background-size:initial;backg=
+round-repeat:initial;background-origin:initial;background-clip:initial"><sp=
+an dir=3D"RTL"></span><span dir=3D"RTL"></span>=C2=A0=D7=90=D7=9C =D7=97=D7=
+=A9=D7=91=D7=95=D7=9F =D7=94=D7=91=D7=A0=D7=A7/=D7=97=D7=A9=D7=91=D7=95=D7=
+=9F =D7=94-</span><span lang=3D"EN-US" dir=3D"LTR" style=3D"background-imag=
+e:initial;background-position:initial;background-size:initial;background-re=
+peat:initial;background-origin:initial;background-clip:initial">IRA</span><=
+span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=3D"HE" style=3D=
+"background-image:initial;background-position:initial;background-size:initi=
+al;background-repeat:initial;background-origin:initial;background-clip:init=
+ial"><span dir=3D"RTL"></span><span dir=3D"RTL"></span>. =D7=A0=D7=A6=D7=99=
+=D7=99=D7=9F =D7=9B=D7=99 =D7=94=D7=9B=D7=A1=D7=A4=D7=99=D7=9D =D7=A9=D7=99=
+=D7=97=D7=95=D7=9C=D7=A7=D7=95=C2=A0=D7=91=D7=9E=D7=A1=D7=92=D7=A8=D7=AA=C2=
+=A0</span></font><span style=3D"font-family:arial,sans-serif">=D7=97=D7=9C=
+=D7=95=D7=A7=D7=94 =D7=96=D7=95=C2=A0<span style=3D"background-color:rgb(25=
+5,255,255)">=D7=9E=D7=99=D7=95=D7=97=D7=A1=D7=99=D7=9D =D7=91=D7=9E=D7=9C=
+=D7=95=D7=90=D7=9D=C2=A0</span>=D7=9C=D7=9E=D7=A8=D7=9B=D7=99=D7=91 =D7=94=
+=D7=A8=D7=99=D7=91=D7=99=D7=AA.</span></font></p><span class=3D"gmail-im" s=
+tyle=3D""><font color=3D"#000000"><p class=3D"MsoNormal" dir=3D"RTL" style=
+=3D"margin:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font f=
+ace=3D"arial, sans-serif"><span lang=3D"HE"></span></font></p><p class=3D"M=
+soNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:normal;direction:rtl;=
+unicode-bidi:embed"><br></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"mar=
+gin:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font face=3D"=
+arial, sans-serif"><span lang=3D"HE" style=3D"background-image:initial;back=
+ground-position:initial;background-size:initial;background-repeat:initial;b=
+ackground-origin:initial;background-clip:initial">=D7=91=D7=A2=D7=AA =D7=94=
+=D7=97=D7=9C=D7=95=D7=A7=D7=94 =D7=AA=D7=A9=D7=9C=D7=97 =D7=94=D7=95=D7=93=
+=D7=A2=D7=94 =D7=A0=D7=95=D7=A1=D7=A4=D7=AA =D7=91=D7=90=D7=9E=D7=A6=D7=A2=
+=D7=95=D7=AA &#39;=D7=A7=D7=91=D7=95=D7=A6=D7=AA =D7=90=D7=99=D7=99=D7=A4=
+=D7=A7=D7=A1&#39; (=D7=90=D7=93=D7=9E=D7=99=D7=A0=D7=99=D7=A1=D7=98=D7=A8=
+=D7=98=D7=95=D7=A8=C2=A0=D7=94=D7=A7=D7=A8=D7=9F).=C2=A0</span><span lang=
+=3D"HE"></span></font></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margi=
+n:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font face=3D"ar=
+ial, sans-serif"><span lang=3D"HE" style=3D"background-image:initial;backgr=
+ound-position:initial;background-size:initial;background-repeat:initial;bac=
+kground-origin:initial;background-clip:initial">=C2=A0</span><span lang=3D"=
+HE"></span></font></p></font></span><p class=3D"MsoNormal" dir=3D"RTL" styl=
+e=3D"margin:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font =
+face=3D"arial, sans-serif" color=3D"#000000"><b><span lang=3D"HE" style=3D"=
+background-image:initial;background-position:initial;background-size:initia=
+l;background-repeat:initial;background-origin:initial;background-clip:initi=
+al"><span style=3D"background-color:rgb(255,255,255)">=D7=9C=D7=AA=D7=A9=D7=
+=95=D7=9E=D7=AA =D7=9C=D7=91=D7=9B=D7=9D=C2=A0=D7=9B=D7=A1=D7=A4=D7=99=C2=
+=A0=D7=94=D7=97</span>=D7=9C=D7=95=D7=A7=D7=94 =D7=99=D7=95=D7=A2=D7=91=D7=
+=A8=D7=95 =D7=9C=D7=A4=D7=A8=D7=98=D7=99 =D7=94=D7=97=D7=A9=D7=91=D7=95=D7=
+=9F =D7=A9=D7=9E=D7=95=D7=A4=D7=99=D7=A2 =D7=90=D7=A6=D7=9C=D7=A0=D7=95=C2=
+=A0=D7=90=D7=9C=D7=90 =D7=90=D7=9D=C2=A0=D7=AA=D7=A2=D7=93=D7=9B=D7=A0=D7=
+=95 =D7=90=D7=95=D7=AA=D7=A0=D7=95 =D7=90=D7=97=D7=A8=D7=AA</span></b><span=
+ lang=3D"HE" style=3D"background-image:initial;background-position:initial;=
+background-size:initial;background-repeat:initial;background-origin:initial=
+;background-clip:initial">.<b>=C2=A0</b></span><span lang=3D"HE"></span></f=
+ont></p><span class=3D"gmail-im" style=3D""><font color=3D"#000000"><p clas=
+s=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:normal;directio=
+n:rtl;unicode-bidi:embed"><font face=3D"arial, sans-serif"><span lang=3D"HE=
+" style=3D"background-image:initial;background-position:initial;background-=
+size:initial;background-repeat:initial;background-origin:initial;background=
+-clip:initial">=D7=91=D7=9E=D7=99=D7=93=D7=94 =D7=95=D7=99=D7=A9=D7=A0=D7=
+=9D =D7=A9=D7=99=D7=A0=D7=95=D7=99=D7=99=D7=9D =D7=91=D7=A4=D7=A8=D7=98=D7=
+=99 =D7=97=D7=A9=D7=91=D7=95=D7=9F =D7=94=D7=91=D7=A0=D7=A7 =D7=A9=D7=9C=D7=
+=9B=D7=9D =D7=9E=D7=90=D7=96 =D7=94=D7=97=D7=9C=D7=95=D7=A7=D7=94 =D7=94=D7=
+=A7=D7=95=D7=93=D7=9E=D7=AA =D7=A9=D7=94=D7=AA=D7=91=D7=A6=D7=A2=D7=94 =D7=
+=91 6/2023, =D7=90=D7=A0=D7=90=C2=A0</span><span lang=3D"HE">=D7=A2=D7=93=
+=D7=9B=D7=A0=D7=95 =D7=90=D7=95=D7=AA=D7=A0=D7=95 =D7=91=D7=A4=D7=A8=D7=98=
+=D7=99 =D7=94=D7=97=D7=A9=D7=91=D7=95=D7=9F =D7=94=D7=97=D7=93=D7=A9=D7=99=
+=D7=9D =D7=95=D7=A9=D7=9C=D7=97=D7=95 =D7=9C=D7=A0=D7=95 =D7=90=D7=99=D7=A9=
+=D7=95=D7=A8 =D7=A0=D7=99=D7=94=D7=95=D7=9C =D7=97=D7=A9=D7=91=D7=95=D7=9F =
+=D7=A2=D7=93=D7=9B=D7=A0=D7=99</span><span lang=3D"HE">.</span></font></p><=
+p class=3D"MsoNormal" dir=3D"rtl" style=3D"margin:0cm;line-height:normal;un=
+icode-bidi:embed"><font face=3D"arial, sans-serif"><span lang=3D"HE">=D7=9B=
+=D7=9E=D7=95 =D7=9B=D7=9F,=C2=A0</span></font><span style=3D"font-family:ar=
+ial,sans-serif">=D7=91=D7=A7=D7=A9=D7=A8=C2=A0=D7=9C=D7=90=D7=99=D7=A9=D7=
+=95=D7=A8 =D7=91=D7=93=D7=91=D7=A8 =D7=A4=D7=98=D7=95=D7=A8 =D7=9E=D7=A0=D7=
+=99=D7=9B=D7=95=D7=99 =D7=9E=D7=A1 =D7=91=D7=9E=D7=A7=D7=95=D7=A8 =D7=9C=D7=
+=A9=D7=A0=D7=AA 2023, =D7=9B=D7=9B=D7=9C =D7=95=D7=99=D7=A9 =D7=9C=D7=9B=D7=
+=9D =D7=A2=D7=93=D7=9B=D7=95=D7=A0=D7=99=D7=9D =D7=91=D7=A0=D7=95=D7=A9=D7=
+=90 =D7=90=D7=A0=D7=90 =D7=A2=D7=93=D7=9B=D7=A0=D7=95 =D7=90=D7=95=D7=AA=D7=
+=A0=D7=95 =D7=91=D7=94=D7=AA=D7=90=D7=9D =D7=A2=D7=9C =D7=9E=D7=A0=D7=AA =
+=D7=A9=D7=9C=D7=90=C2=A0</span>=D7=A0=D7=A0=D7=9B=D7=94<span style=3D"font-=
+family:arial,sans-serif">=C2=A0=D7=9E=D7=A1 =D7=91=D7=9E=D7=A7=D7=95=D7=A8.=
+</span></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-heig=
+ht:normal;direction:rtl;unicode-bidi:embed"><font face=3D"arial, sans-serif=
+"><span lang=3D"HE" style=3D"background-image:initial;background-position:i=
+nitial;background-size:initial;background-repeat:initial;background-origin:=
+initial;background-clip:initial">=C2=A0</span><span lang=3D"HE"></span></fo=
+nt></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:n=
+ormal;direction:rtl;unicode-bidi:embed"><font face=3D"arial, sans-serif"><b=
+><span lang=3D"HE" style=3D"background-image:initial;background-position:in=
+itial;background-size:initial;background-repeat:initial;background-origin:i=
+nitial;background-clip:initial">=D7=90=D7=A0=D7=90 =D7=94=D7=A9=D7=99=D7=91=
+=D7=95 =D7=91=D7=94=D7=A7=D7=93=D7=9D =D7=94=D7=90=D7=A4=D7=A9=D7=A8=D7=99 =
+=D7=95=D7=9C=D7=90 =D7=99=D7=90=D7=95=D7=97=D7=A8 =D7=9E=D7=99=D7=95=D7=9D =
+=D7=94-09 =D7=91=D7=90=D7=95=D7=92=D7=95=D7=A1=D7=98 2023, =D7=99=D7=95=D7=
+=9D =D7=A8=D7=91=D7=99=D7=A2=D7=99.</span></b><span lang=3D"HE"></span></fo=
+nt></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:n=
+ormal;direction:rtl;unicode-bidi:embed"><font face=3D"arial, sans-serif"><s=
+pan lang=3D"HE" style=3D"background-image:initial;background-position:initi=
+al;background-size:initial;background-repeat:initial;background-origin:init=
+ial;background-clip:initial">=C2=A0</span><span lang=3D"HE"></span></font><=
+/p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;line-height:norma=
+l;direction:rtl;unicode-bidi:embed"><font face=3D"arial, sans-serif"><span =
+lang=3D"HE" style=3D"background-image:initial;background-position:initial;b=
+ackground-size:initial;background-repeat:initial;background-origin:initial;=
+background-clip:initial">=D7=90=D7=A0=D7=95 =D7=96=D7=9E=D7=99=D7=A0=D7=99=
+=D7=9D =D7=9C=D7=A9=D7=90=D7=9C=D7=95=D7=AA,=C2=A0</span><span lang=3D"HE">=
+</span></font></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin:0cm;li=
+ne-height:normal;direction:rtl;unicode-bidi:embed"><font face=3D"arial, san=
+s-serif"><span lang=3D"HE" style=3D"background-image:initial;background-pos=
+ition:initial;background-size:initial;background-repeat:initial;background-=
+origin:initial;background-clip:initial">=D7=A6=D7=95=D7=95=D7=AA=C2=A0</spa=
+n><span lang=3D"EN-US" dir=3D"LTR" style=3D"background-image:initial;backgr=
+ound-position:initial;background-size:initial;background-repeat:initial;bac=
+kground-origin:initial;background-clip:initial">Liquidity</span><span lang=
+=3D"HE"></span></font></p><p class=3D"MsoNormal" dir=3D"RTL" style=3D"margi=
+n:0cm;line-height:normal;direction:rtl;unicode-bidi:embed"><font face=3D"ar=
+ial, sans-serif"><span lang=3D"HE" style=3D"background-image:initial;backgr=
+ound-position:initial;background-size:initial;background-repeat:initial;bac=
+kground-origin:initial;background-clip:initial">=C2=A0</span><span lang=3D"=
+HE"></span></font></p><p class=3D"MsoNormal" style=3D"margin:0cm;line-heigh=
+t:normal"><font face=3D"arial, sans-serif"><span lang=3D"HE" dir=3D"RTL" st=
+yle=3D"background-image:initial;background-position:initial;background-size=
+:initial;background-repeat:initial;background-origin:initial;background-cli=
+p:initial">=C2=A0</span><span lang=3D"EN-US" style=3D"background-image:init=
+ial;background-position:initial;background-size:initial;background-repeat:i=
+nitial;background-origin:initial;background-clip:initial">Dear Investors,</=
+span><span lang=3D"HE" dir=3D"RTL"></span></font></p><p class=3D"MsoNormal"=
+ style=3D"margin:0cm;line-height:normal"><span lang=3D"HE" dir=3D"RTL" styl=
+e=3D"background-image:initial;background-position:initial;background-size:i=
+nitial;background-repeat:initial;background-origin:initial;background-clip:=
+initial"><font face=3D"arial, sans-serif">=C2=A0</font></span></p><p class=
+=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><font face=3D"arial,=
+ sans-serif"><span lang=3D"EN-US" style=3D"background-image:initial;backgro=
+und-position:initial;background-size:initial;background-repeat:initial;back=
+ground-origin:initial;background-clip:initial">In the=C2=A0upcoming week, t=
+he Seventh</span><span lang=3D"EN-US" style=3D"background-image:initial;bac=
+kground-position:initial;background-size:initial;background-repeat:initial;=
+background-origin:initial;background-clip:initial">=C2=A0</span><span lang=
+=3D"EN-US" style=3D"background-image:initial;background-position:initial;ba=
+ckground-size:initial;background-repeat:initial;background-origin:initial;b=
+ackground-clip:initial">distribution of the Liquidity fund will be wired to=
+ your bank account/IRA account.</span></font></p></font></span><p class=3D"=
+MsoNormal" style=3D"margin:0cm;line-height:normal"><span lang=3D"EN-US" sty=
+le=3D"background-image:initial;background-position:initial;background-size:=
+initial;background-repeat:initial;background-origin:initial;background-clip=
+:initial"><font face=3D"arial, sans-serif" color=3D"#000000">Please note th=
+at this distribution<span style=3D"background-color:rgb(255,255,255)">=C2=
+=A0is related to the interest component, in its entirety.</span><br><br></f=
+ont></span></p><span class=3D"gmail-im" style=3D""><font color=3D"#000000">=
+<p class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><font face=
+=3D"arial, sans-serif">Upon wiring, an additional notice will be sent via &=
+#39;Apex Group&#39; (the fund&#39;s administrator).=C2=A0<br></font></p><p =
+class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><span lang=3D"E=
+N-US" style=3D"background-image:initial;background-position:initial;backgro=
+und-size:initial;background-repeat:initial;background-origin:initial;backgr=
+ound-clip:initial"><font face=3D"arial, sans-serif">=C2=A0</font></span></p=
+><p class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><b><span la=
+ng=3D"EN-US" style=3D"background-image:initial;background-position:initial;=
+background-size:initial;background-repeat:initial;background-origin:initial=
+;background-clip:initial"><font face=3D"arial, sans-serif">Unless you infor=
+m us otherwise, the funds pursuant to this distribution will be transferred=
+ according to the account details we currently have in our possession.</fon=
+t></span></b></p><p class=3D"MsoNormal" style=3D"margin:0cm;line-height:nor=
+mal"><span lang=3D"EN-US" style=3D"background-image:initial;background-posi=
+tion:initial;background-size:initial;background-repeat:initial;background-o=
+rigin:initial;background-clip:initial"><font face=3D"arial, sans-serif" sty=
+le=3D"">If your bank account details have changed=C2=A0</font></span>since =
+the last distribution, which occurred in June 2023,<span style=3D"font-fami=
+ly:arial,sans-serif">=C2=A0plea</span><span style=3D"font-family:arial,sans=
+-serif">se share the details of the new account with us and also share an u=
+pdated IBAN Letter or Bank Account Confirmation Letter.</span></p><p class=
+=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><span style=3D"font-=
+family:arial,sans-serif"><span lang=3D"EN-US" style=3D"background-image:ini=
+tial;background-position:initial;background-size:initial;background-repeat:=
+initial;background-origin:initial;background-clip:initial">If you wish to i=
+nform us of any updates regarding=C2=A0tax exemption that have changed sinc=
+e the last distribution, kindly also share with us your updated withholding=
+ tax exemption, in order for us not to deduct withholding tax</span></span>=
+<span lang=3D"EN-US" style=3D"font-family:arial,sans-serif;background-image=
+:initial;background-position:initial;background-size:initial;background-rep=
+eat:initial;background-origin:initial;background-clip:initial">.</span></p>=
+<p class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><span lang=
+=3D"EN-US" style=3D"background-image:initial;background-position:initial;ba=
+ckground-size:initial;background-repeat:initial;background-origin:initial;b=
+ackground-clip:initial"><font face=3D"arial, sans-serif">=C2=A0</font></spa=
+n></p></font></span><p class=3D"MsoNormal" style=3D"margin:0cm;line-height:=
+normal"><b><span lang=3D"EN-US" style=3D"background-image:initial;backgroun=
+d-position:initial;background-size:initial;background-repeat:initial;backgr=
+ound-origin:initial;background-clip:initial"><font face=3D"arial, sans-seri=
+f" color=3D"#000000">Pleas<span style=3D"background-color:rgb(255,255,255)"=
+>e=C2=A0revert=C2=A0to u</span>s as soon as possible and by no later than W=
+ednesday, August 09, 2023.</font></span></b></p><span class=3D"gmail-im" st=
+yle=3D""><p class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><sp=
+an lang=3D"EN-US" style=3D"background-image:initial;background-position:ini=
+tial;background-size:initial;background-repeat:initial;background-origin:in=
+itial;background-clip:initial"><font face=3D"arial, sans-serif" color=3D"#0=
+00000">=C2=A0</font></span></p><p class=3D"MsoNormal" style=3D"margin:0cm;l=
+ine-height:normal"><span lang=3D"EN-US" style=3D"background-image:initial;b=
+ackground-position:initial;background-size:initial;background-repeat:initia=
+l;background-origin:initial;background-clip:initial"><font face=3D"arial, s=
+ans-serif" color=3D"#000000">Available for your questions,=C2=A0</font></sp=
+an></p><p class=3D"MsoNormal" style=3D"margin:0cm;line-height:normal"><font=
+ color=3D"#000000"><br></font></p><p style=3D""><span style=3D"font-size:16=
+px"><strong style=3D""><span style=3D"line-height:0.2"><font color=3D"#0000=
+00">Liquidity Team=C2=A0</font></span></strong></span></p><p style=3D""><fo=
+nt color=3D"#000000"><span style=3D"display:inline-flex;min-height:28px;ver=
+tical-align:bottom;font-family:&quot;Google Sans&quot;,Roboto,RobotoDraft,H=
+elvetica,Arial,sans-serif;font-size:22px"><br></span><span style=3D"font-si=
+ze:12px">Fund Operations</span><br><span style=3D"font-size:12px"><a href=
+=3D"mailto:guyoz@liquiditygroup.com" target=3D"_blank">FundOps@liquiditygro=
+up.com</a></span></font></p><table border=3D"0" cellpadding=3D"2" cellspaci=
+ng=3D"0" style=3D"width:220px"><tbody><tr><td><span style=3D"font-size:11px=
+"><font color=3D"#000000">M</font></span></td><td style=3D"text-align:right=
+"><span style=3D"font-size:11px"><font color=3D"#000000">+972536916238</fon=
+t></span></td></tr><tr><td><span style=3D"font-size:11px"><font color=3D"#0=
+00000">HQ Office</font></span></td><td style=3D"text-align:right"><span sty=
+le=3D"font-size:11px"><font color=3D"#000000">+1(917)-261-5230</font></span=
+></td></tr><tr><td><span style=3D"font-size:11px"><font color=3D"#000000">T=
+LV Office</font></span></td><td style=3D"text-align:right"><span style=3D"f=
+ont-size:11px"><font color=3D"#000000">+972-3-6200-102</font></span></td></=
+tr><tr><td colspan=3D"2" style=3D"text-align:justify"><span style=3D"font-s=
+ize:11px"><font color=3D"#000000">419=C2=A0 Lafayette=C2=A0 St.,=C2=A0 =C2=
+=A0New=C2=A0 York,=C2=A0 =C2=A0NY=C2=A0 10003</font></span></td></tr></tbod=
+y></table><p style=3D""><font color=3D"#000000"><a href=3D"http://www.liqui=
+ditygroup.com/" target=3D"_blank" style=3D""><img height=3D"32" src=3D"http=
+s://cdn.bulksignature.com/images/1003/p6vYJVkmTQBl0SppLvadoWycLb47DDebOTLj1=
+DxW.png" width=3D"217" class=3D"gmail-CToWUd" style=3D"border-width: 0px; b=
+order-style: solid; margin: 1px; float: left;"></a><br><br></font><img alt=
+=3D"" height=3D"9" src=3D"https://cdn.bulksignature.com/images/1003/irb84yn=
+ihw5NPWNEf5rOiR08bmSHKjc2sryTtWh7.png" width=3D"210" class=3D"gmail-CToWUd"=
+ style=3D"margin: 1px; float: left;"><font color=3D"#000000"><br><span styl=
+e=3D"font-size:12px"><a href=3D"http://liquiditygroup.com/" target=3D"_blan=
+k" style=3D"text-decoration-line:none;letter-spacing:7px">liquiditygroup.co=
+m</a></span><br><span style=3D"font-size:8px"><span style=3D"font-family:Ve=
+rdana,Geneva,sans-serif">NEW YORK-LONDON-TEL AVIV-TOKYO-SINGAPORE-ABU-DHABI=
+</span></span></font></p><p class=3D"MsoNormal" style=3D"color:rgb(80,0,80)=
+;margin:0cm;line-height:normal"><span lang=3D"EN-US" style=3D"background-im=
+age:initial;background-position:initial;background-size:initial;background-=
+repeat:initial;background-origin:initial;background-clip:initial"></span></=
+p><table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"366" sty=
+le=3D"color:rgb(80,0,80);width:294px"><tbody><tr><td height=3D"15" width=3D=
+"74" style=3D"color:rgb(34,34,34);width:54px"><a href=3D"https://mail.googl=
+e.com/mail/u/0/#m_-2663137496197239358_SignatureSanitizer_SafeHtmlFilter_">=
+<img height=3D"10" src=3D"https://cdn.bulksignature.com/images/1003/C79KTni=
+FdkZzzqrxv7FxV8wYTWVVHc2i9vN9oeCO.png" width=3D"50" class=3D"gmail-CToWUd" =
+style=3D"border-width: 0px; border-style: solid; margin: 0px; float: left;"=
+></a></td><td align=3D"center" height=3D"15" width=3D"" style=3D"color:rgb(=
+34,34,34);width:91px"><a href=3D"https://mail.google.com/mail/u/0/#m_-26631=
+37496197239358_SignatureSanitizer_SafeHtmlFilter_"><img height=3D"14" src=
+=3D"https://cdn.bulksignature.com/images/1003/P0G4rncduArkGQcliWFW9UKj2DlV9=
+GzwzREPlAZk.png" width=3D"90" class=3D"gmail-CToWUd" style=3D"border-width:=
+ 0px; border-style: solid; margin: 0px; float: left;"></a></td><td align=3D=
+"center" height=3D"15" width=3D"" style=3D"color:rgb(34,34,34);width:53px">=
+<a href=3D"https://mail.google.com/mail/u/0/#m_-2663137496197239358_Signatu=
+reSanitizer_SafeHtmlFilter_"><img height=3D"10" src=3D"https://cdn.bulksign=
+ature.com/images/1003/ACbEVOH8lFtSp44KyLE1AcwEDbC9cxYE4TmWfK6l.png" width=
+=3D"50" class=3D"gmail-CToWUd" style=3D"border-width: 0px; border-style: so=
+lid; margin: 0px; float: left;"></a></td><td align=3D"right" height=3D"15" =
+width=3D"65" style=3D"color:rgb(34,34,34);width:84px"><a href=3D"https://ma=
+il.google.com/mail/u/0/#m_-2663137496197239358_SignatureSanitizer_SafeHtmlF=
+ilter_"><br class=3D"gmail-Apple-interchange-newline"></a></td></tr></tbody=
+></table><p class=3D"MsoNormal" style=3D"color:rgb(80,0,80);margin:0cm;line=
+-height:normal"><span lang=3D"EN-US" style=3D"background-image:initial;back=
+ground-position:initial;background-size:initial;background-repeat:initial;b=
+ackground-origin:initial;background-clip:initial"><font face=3D"arial, sans=
+-serif" color=3D"#000000"><br></font></span></p><p class=3D"MsoNormal" styl=
+e=3D"color:rgb(80,0,80);margin:0cm;line-height:normal"><span lang=3D"EN-US"=
+ style=3D"background-image:initial;background-position:initial;background-s=
+ize:initial;background-repeat:initial;background-origin:initial;background-=
+clip:initial"><font face=3D"arial, sans-serif" color=3D"#000000"><br></font=
+></span></p></span></div><div><br></div></div>
+
+--00000000000066dfe90601f16a1d--

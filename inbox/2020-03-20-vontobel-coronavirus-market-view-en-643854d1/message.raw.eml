@@ -1,0 +1,732 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:6214:505:0:0:0:0 with SMTP id v5csp922838qvw;
+        Fri, 20 Mar 2020 05:59:22 -0700 (PDT)
+X-Received: by 2002:aa7:cac3:: with SMTP id l3mr7828471edt.90.1584709161228;
+        Fri, 20 Mar 2020 05:59:21 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1584709161; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=z1STdNB8baKqzecBffr6PZyUMh1ucoP/U0GDuNwB+ZmOXE73R1qhf8I8CpNVaqTAMB
+         eG7AQEqAGA8YepbC8b/6rySx3WrgOCgJGfIHQsJ8O4rPdAm4j+St77H+ZyZvFIVh0JcX
+         9DNyIWlGHOhatfwSvBvx2s6nEEIzmcv4D5t+FUZAn4tXP3HqvQq+mDOJxVqEgimmQDIG
+         S1rKWN3e/I6MTvhIjidwDkWHVYH9ld/oIzZBdOMeYDcrdXh2d3Ph04Y54c6wNnqXrMTf
+         CGxaz0/aLRmMJKPC17zRoaDNXlU34NQbjAYlvBmvsUZok7Y+sv2Sd8rYCXuYhYaGNtCT
+         6jKw==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=content-language:accept-language:message-id:date:thread-index
+         :thread-topic:subject:to:from:ironport-sdr:mime-version:ironport-sdr
+         :delivered-to;
+        bh=egfd2VVOZM3Z6DjmyXut+Yn1+kakQP4en01aZGttjYM=;
+        b=j8wwSirfh+d6GMg4Lj/Ssrsy8mbN6NMwXG+gn/FGELjRF5Ph2zuRomgmpMhEL/Fit3
+         +6hedhRoS0o++JUSe1Myl0n2LB450Sf2mF3mq9Mg+8OImfaR7vugj1DVg0P4VV4rfpRk
+         NSLZWtjGI9/fBZ+pYsi0ijV5TCbLGNas5edE4yOYeSxUFbzV2OwBIRRiMQdeF88/Vwd9
+         fA8PlX0GloNTFYxSN/JGvDB4dbqnXzyMOXZwzg43EwGVib3SwDnXkPlqOJCLwGXvpF8t
+         snG4t3o0cuObfcDEeugZV/oJkrUZRtr+6HSropCsRiazFRGnFJ/cANb1MqVgLy57Q+nc
+         mlHg==
+ARC-Authentication-Results: i=2; mx.google.com;
+       arc=pass (i=1 spf=pass spfdomain=vontobel.com);
+       spf=neutral (google.com: 209.85.220.41 is neither permitted nor denied
+ by best guess record for domain of tamar+caf_=adam=marash.net@marash.net)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net"
+Return-Path: <tamar+caf_=adam=marash.net@marash.net>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com.
+ [209.85.220.41])
+        by mx.google.com with SMTPS id oq7sor2521772ejb.21.2020.03.20.05.59.20
+        for <adam@marash.net>
+        (Google Transport Security);
+        Fri, 20 Mar 2020 05:59:21 -0700 (PDT)
+Received-SPF: neutral (google.com: 209.85.220.41 is neither permitted nor
+ denied by best guess record for domain of
+ tamar+caf_=adam=marash.net@marash.net) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       arc=pass (i=1 spf=pass spfdomain=vontobel.com);
+       spf=neutral (google.com: 209.85.220.41 is neither permitted nor denied
+ by best guess record for domain of tamar+caf_=adam=marash.net@marash.net)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net"
+Authentication-Results: vonn-mx001-ch-zur-1; dkim=none
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-original-authentication-results:x-gm-message-state:delivered-to
+         :ironport-sdr:mime-version:ironport-sdr:from:to:subject:thread-topic
+         :thread-index:date:message-id:accept-language:content-language;
+        bh=egfd2VVOZM3Z6DjmyXut+Yn1+kakQP4en01aZGttjYM=;
+        b=oPEJo8RJ0Uv9YITQQu6uiqCD/cWeWykRG4fEOamAZSm9vHUfgneF6iytZ+seQGXq6m
+         P8DCSb0T/ueuRRJpuSKpqEmdRhzAxbucFHNGlVwVEA69vPwugl8bYO8IyugfR3UR8tCx
+         vVGRZ0a7TBySfS6lxT6pTM1H533qdvprqWwFfhLZBW98lDRP1UzPKAv6JVgj0TIQqvHM
+         3TGOQrI64/DZ9PFLIC4KQhOJpxrEF8Y8F4/ges0FoCfdmKpUfoJKxiNzeJdIdYmgTPYH
+         WzkDfXd7HBdb4KBnm4/1WY4uiHyK8NbdQkHErExxSSvRgIH2xzQnEWZGy5vB4A02awr2
+         89NQ==
+X-Original-Authentication-Results: mx.google.com;
+       spf=pass (google.com: domain of maya.fankhauser@vontobel.com designates
+ 194.56.165.25 as permitted sender) smtp.mailfrom=maya.fankhauser@vontobel.com
+X-Gm-Message-State: ANhLgQ3YyZ8sU7+Hc7BcN5rI6TS6pQjqhJm3omJV6PnN0RH8JG42eh/J
+	+i+fLU1e51nwbd3E+nFvZXrDhGDWsVdGHm+3O5RrGPjNZZ6O87oreQ==
+X-Received: by 2002:a17:906:53ce:: with SMTP id
+ p14mr7990630ejo.212.1584709159585;
+        Fri, 20 Mar 2020 05:59:19 -0700 (PDT)
+X-Forwarded-To: adam@marash.net
+X-Forwarded-For: tamar@marash.net adam@marash.net
+Delivered-To: tamar@marash.net
+Received: by 2002:a17:906:d8a4:0:0:0:0 with SMTP id qc4csp748234ejb;
+        Fri, 20 Mar 2020 05:59:16 -0700 (PDT)
+X-Google-Smtp-Source: 
+ ADFU+vs24p4gcE3nrC6iUpQ79oIe8gFOd8ezjWLDLwm3XsVGs6WVuEH4LykzXp+xiVjyR/DDadXa
+X-Received: by 2002:a17:906:d286:: with SMTP id
+ ay6mr7659060ejb.113.1584709155152;
+        Fri, 20 Mar 2020 05:59:15 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1584709155; cv=none;
+        d=google.com; s=arc-20160816;
+        b=f2TUFquGs+j/5QFn5mVndN6CiIIHx/ldx5l1D/T1GgNGQRBE9iO2GPTAqwGZdVDfJj
+         pYdbnxH2rK+U2sBdPrTEAEiOf8TkkzzarIAAagzAdatckSqurOWc1UgffIqyLO/SgFHL
+         NTp57uhnX1aH/qhPnNlOLbab5ciSrCcQEW43cFryABvjlOBuXea7OQfDMNIg4yWLATay
+         654xD8XFQzQvSfW53xi3wNY0n9RBzbXxEUeXI3nCwZ2afo8IUGxbY49P7ukRJQSimxJ/
+         x24df14h4w+MBRaGDMIE5NEe74S1eNvR+I94Oly3Ft3idvgAzgF070lwuWnlsdHXb32t
+         cI5w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=content-language:accept-language:message-id:date:thread-index
+         :thread-topic:subject:to:from:ironport-sdr:mime-version:ironport-sdr;
+        bh=egfd2VVOZM3Z6DjmyXut+Yn1+kakQP4en01aZGttjYM=;
+        b=ODp7KsVDGSbO+fMVC/xHyNDA09UnLPQPidLP2uSMmhdPwcp5E/h8aFVJQ22mTuakkw
+         AqiXRQYXUdSl+C5CjBUd14yzJUO71u7zer+CpxSOzB0gWYcE8Fpl/B2giR7KPbMFcZLn
+         u5M1Z2Q+Hk+IhQ3C8xDS0Ggnsz9LT1DNHogfRF7DYyUXYqOwCoVfMmiplrfo6b2NmiBp
+         s94wBNqwx1gm1Z2bFd9SD0OENi2WtxrdN5SFFpohHwoEZdaGT5uyIRYzEgG/tATFhfuJ
+         d8q0khg3oOVAvDRR2nLPKl1GwR9PDqOto3JL19OOKjdvFe433dihI1FOW+BMrurl/hGf
+         c4xA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       spf=pass (google.com: domain of maya.fankhauser@vontobel.com designates
+ 194.56.165.25 as permitted sender) smtp.mailfrom=maya.fankhauser@vontobel.com
+Return-Path: <maya.fankhauser@vontobel.com>
+Received: from smtp1.vontobel.ch (smtp1.vontobel.ch. [194.56.165.25])
+        by mx.google.com with ESMTPS id
+ t22si3598833ejf.119.2020.03.20.05.59.14
+        for <tamar@marash.net>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Mar 2020 05:59:15 -0700 (PDT)
+Received-SPF: pass (google.com: domain of maya.fankhauser@vontobel.com
+ designates 194.56.165.25 as permitted sender) client-ip=194.56.165.25;
+Received: from vontobel.ch (localhost [127.0.0.1])
+	by smtp1.vontobel.ch (Mission Control Email Gateway,
+ 18401) with SMTP id 48kP425d1gzcWs4
+	for <tamar@marash.net>; Fri, 20 Mar 2020 13:59:14 +0100 (MET)
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+IronPort-SDR: 
+ 0SKkj7sL5HEhgN5hWMErZ2YE9oJm9dsmYmbOSvqF9uCWJSBY8zgoz0pFCudTVRVoyxtROuqOfy
+ 80t0RXGaruEA==
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+MIME-Version: 1.0
+X-DLP-CHECK: passed
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+IronPort-SDR: 
+ uBqAdQoe6g3uJzaPUlr3yK0kTegaWu5ldBP8Ap2QjuIVUKYYsGPAM2356f1hL07mnTmhpouuxa
+ AxFikaQ1L58g==
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+Received: from trusted client by smtp1.vontobel.ch; Fri Mar 20 13:59:14 2020
+From: Fankhauser-Fieramonte Maya H. <maya.fankhauser@vontobel.com>
+To: "'tamar@marash.net'" <tamar@marash.net>
+Subject: Investment Flash 
+Thread-Topic: Investment Flash 
+Thread-Index: AdX+tuZMmQ3b1GQMS6uvQljC2RZk3wAAEzPg
+Date: Fri, 20 Mar 2020 12:58:47 +0000
+Message-ID: 
+ <21535_1584709154_5E74BE22_21535_6479_1_1467b06674414b35a350b8dc8c81233e@vontobel.com>
+Accept-Language: de-CH, en-US
+Content-Language: en-US
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Content-Type: multipart/mixed;
+	boundary="_010_1467b06674414b35a350b8dc8c81233evontobelcom_"
+
+
+--_010_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: multipart/related;
+	boundary="_009_1467b06674414b35a350b8dc8c81233evontobelcom_";
+	type="multipart/alternative"
+
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: multipart/alternative;
+	boundary="_000_1467b06674414b35a350b8dc8c81233evontobelcom_"
+
+
+--_000_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Dear Client
+
+Please find attached our Swiss Equity Research team's latest take on the co=
+ronavirus and its implications for markets.
+
+In the report, our analysts discuss, among others, the broad price target (=
+PT) adjustments and the new VT scenarios.
+
+Should you have any questions, feel free to reach out to us.
+
+Best regards,
+
+Maya H. Fankhauser-Fieramonte
+Director
+
+
+
+
+[https://w2p.vontobel.com/data/8/img/sig/logo-vontobel.png]
+
+
+Bank Vontobel AG, Wealth Management
+Gotthardstrasse 43, 8022 Z=FCrich, Schweiz
+T +41 58 283 54 32,<tel:+41582835896> M +41 79 <tel:+41795779988> 761 13 55
+maya.fankhauser@vontobel.com,<mailto:maya.fankhauser@vontobel.com,> vontobe=
+l.com<https://www.vontobel.com/>
+
+
+[https://w2p.vontobel.com/data/8/img/sig/icon-tw.png]<https://twitter.com/V=
+ontobel>[https://w2p.vontobel.com/data/8/img/sig/icon-fb.png]<https://www.f=
+acebook.com/Vontobel-158596137987378/>[https://w2p.vontobel.com/data/8/img/=
+sig/icon-li.png]<http://www.linkedin.com/company/15310>[https://w2p.vontobe=
+l.com/data/8/img/sig/icon-yt.png]<http://www.youtube.com/vontobelgroup>
+
+Read our Social Media Terms of Use<http://www.vontobel.com/socialmediaterms>
+
+
+
+____________________________________________________
+Please consider the environment before printing this e-mail.
+Bitte denken Sie an die Umwelt, bevor Sie dieses E-Mail drucken.
+
+Important Notice
+=20
+ This message is intended only for the individual named. It may contain con=
+fidential or privileged information. If you are not the named addressee you=
+ should in particular not disseminate, distribute, modify or copy this e-ma=
+il. Please notify the sender immediately by e-mail, if you have received th=
+is message by mistake and delete it from your system.
+ Without prejudice to any contractual agreements between you and us which s=
+hall prevail in any case, we take it as your authorization to correspond wi=
+th you by e-mail if you send us messages by e-mail. However, we reserve the=
+ right not to execute orders and instructions transmitted by e-mail at any =
+time and without further explanation.
+ E-mail transmission may not be secure or error-free as information could b=
+e intercepted, corrupted, lost, destroyed, arrive late or incomplete. Also =
+processing of incoming e-mails cannot be guaranteed. All liability of Vonto=
+bel Holding Ltd. and any of its affiliates (hereinafter collectively referr=
+ed to as "Vontobel Group") for any damages resulting from e-mail use is exc=
+luded. You are advised that urgent and time sensitive messages should not b=
+e sent by e-mail and if verification is required please request a printed v=
+ersion.
+ Please note that all e-mail communications to and from the Vontobel Group =
+are subject to electronic storage and review by Vontobel Group. Unless stat=
+ed to the contrary and without prejudice to any contractual agreements betw=
+een you and Vontobel Group which shall prevail in any case, e-mail-communic=
+ation is for informational purposes only and is not intended as an offer or=
+ solicitation for the purchase or sale of any financial instrument or as an=
+ official confirmation of any transaction.
+ The legal basis for the processing of your personal data is the legitimate=
+ interest to develop a commercial relationship with you, as well as your co=
+nsent to forward you commercial communications. You can exercise, at any ti=
+me and under the terms established under current regulation, your rights. I=
+f you prefer not to receive any further communications, please contact your=
+ client relationship manager if you are a client of Vontobel Group or notif=
+y the sender.
+ Please note for an exact reference to the affected group entity the corpor=
+ate e-mail signature.
+ For further information about data privacy at Vontobel Group please consul=
+t www.vontobel.com.
+
+
+--_000_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Arial",sans-serif;
+	color:windowtext;}
+span.EmailStyle19
+	{mso-style-type:personal-reply;
+	font-family:"Arial",sans-serif;
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:70.85pt 70.85pt 2.0cm 70.85pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"DE-CH" link=3D"blue" vlink=3D"purple">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span style=3D"font-size:10.0pt;font-family:&quot;Ar=
+ial&quot;,sans-serif">Dear Client</span><span lang=3D"EN-US" style=3D"font-=
+family:&quot;Arial&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-family:&quot;Aria=
+l&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif">Please find attached our Swiss Equity =
+Research team&#8217;s latest take on the coronavirus and its implications f=
+or markets.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif">In the report, our analysts discuss, a=
+mong others, the broad price target (PT) adjustments and the new VT scenari=
+os.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif">Should you have any questions, feel fr=
+ee to reach out to us.</span><b><span lang=3D"EN-US" style=3D"font-size:10.=
+0pt;font-family:&quot;Arial&quot;,sans-serif;mso-fareast-language:DE-CH"><o=
+:p></o:p></span></b></p>
+<p class=3D"MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:10.0pt;fo=
+nt-family:&quot;Arial&quot;,sans-serif;mso-fareast-language:DE-CH"><o:p>&nb=
+sp;</o:p></span></b></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif;mso-fareast-language:DE-CH">Best regard=
+s,<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif;mso-fareast-language:DE-CH"><o:p>&nbsp;=
+</o:p></span></p>
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0">
+<tbody>
+<tr>
+<td width=3D"276" style=3D"width:207.0pt;border:none;border-bottom:dotted b=
+lack 1.0pt;padding:0cm 0cm 5.25pt 0cm">
+<p class=3D"MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:10.0pt;fo=
+nt-family:&quot;Arial&quot;,sans-serif;color:black;mso-fareast-language:DE-=
+CH">Maya H. Fankhauser-Fieramonte</span></b><span lang=3D"EN-US" style=3D"f=
+ont-size:10.0pt;font-family:&quot;Arial&quot;,sans-serif;color:black;mso-fa=
+reast-language:DE-CH"><o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif;color:black;mso-fareast-language:DE-CH"=
+>Director<o:p></o:p></span></p>
+</td>
+<td width=3D"4" style=3D"width:.3pt;padding:0cm 0cm 0cm 0cm">
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt;font-=
+family:&quot;Arial&quot;,sans-serif;mso-fareast-language:DE-CH">&nbsp;<o:p>=
+</o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman&quot;,serif;display:none;mso-fareast-language:DE-CH"><o:p>&nb=
+sp;</o:p></span></p>
+<table class=3D"MsoNormalTable" border=3D"0" cellpadding=3D"0">
+<tbody>
+<tr>
+<td width=3D"100%" style=3D"width:100.0%;padding:13.5pt 0cm 8.25pt 0cm">
+<p class=3D"MsoNormal"><span style=3D"font-size:10.0pt;font-family:&quot;Ar=
+ial&quot;,sans-serif;color:black;mso-fareast-language:DE-CH"><img width=3D"=
+135" height=3D"24" style=3D"width:1.4062in;height:.25in" id=3D"Picture_x002=
+0_1" src=3D"cid:image001.png@01D5FEBF.83DC28F0" alt=3D"https://w2p.vontobel=
+.com/data/8/img/sig/logo-vontobel.png"><o:p></o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman&quot;,serif;display:none;mso-fareast-language:DE-CH"><o:p>&nb=
+sp;</o:p></span></p>
+<table class=3D"MsoNormalTable" border=3D"0" cellpadding=3D"0">
+<tbody>
+<tr>
+<td width=3D"100%" style=3D"width:100.0%;padding:0cm 0cm 0cm 0cm">
+<p class=3D"MsoNormal"><span style=3D"font-size:10.0pt;font-family:&quot;Ar=
+ial&quot;,sans-serif;color:black;mso-fareast-language:DE-CH">Bank Vontobel =
+AG, Wealth Management<br>
+Gotthardstrasse 43, 8022 Z=FCrich, Schweiz<br>
+</span><span style=3D"mso-fareast-language:DE-CH"><a href=3D"tel:&#43;41582=
+835896"><span style=3D"font-size:10.0pt;font-family:&quot;Arial&quot;,sans-=
+serif;color:black;text-decoration:none">T &#43;41 58 283 54 32,</span></a><=
+/span><span style=3D"font-size:10.0pt;font-family:&quot;Arial&quot;,sans-se=
+rif;color:black;mso-fareast-language:DE-CH">
+</span><span style=3D"mso-fareast-language:DE-CH"><a href=3D"tel:&#43;41795=
+779988"><span style=3D"font-size:10.0pt;font-family:&quot;Arial&quot;,sans-=
+serif;color:black;text-decoration:none">M &#43;41 79
+</span></a></span><span style=3D"font-size:10.0pt;font-family:&quot;Arial&q=
+uot;,sans-serif;color:black;mso-fareast-language:DE-CH">761 13 55
+<br>
+</span><span style=3D"mso-fareast-language:DE-CH"><a href=3D"mailto:maya.fa=
+nkhauser@vontobel.com,"><span style=3D"font-size:10.0pt;font-family:&quot;A=
+rial&quot;,sans-serif;color:black;text-decoration:none">maya.fankhauser@von=
+tobel.com,</span></a></span><span style=3D"font-size:10.0pt;font-family:&qu=
+ot;Arial&quot;,sans-serif;color:black;mso-fareast-language:DE-CH">
+</span><span style=3D"mso-fareast-language:DE-CH"><a href=3D"https://www.vo=
+ntobel.com/" target=3D"_blank"><span style=3D"font-size:10.0pt;font-family:=
+&quot;Arial&quot;,sans-serif;color:black;text-decoration:none">vontobel.com=
+</span></a></span><span style=3D"font-size:10.0pt;font-family:&quot;Arial&q=
+uot;,sans-serif;color:black;mso-fareast-language:DE-CH">
+<o:p></o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman&quot;,serif;display:none;mso-fareast-language:DE-CH"><o:p>&nb=
+sp;</o:p></span></p>
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0" width=3D"0" style=3D"width:1003.35pt">
+<tbody>
+<tr>
+<td width=3D"627" style=3D"width:470.3pt;padding:0cm 0cm 0cm 0cm">
+<p class=3D"MsoNormal"><span style=3D"mso-fareast-language:DE-CH"><a href=
+=3D"https://twitter.com/Vontobel" target=3D"_blank"><span style=3D"font-siz=
+e:1.0pt;font-family:&quot;Arial&quot;,sans-serif;color:#0075BE;text-decorat=
+ion:none"><img border=3D"0" width=3D"30" height=3D"30" style=3D"width:.3125=
+in;height:.3125in" id=3D"Picture_x0020_2" src=3D"cid:image002.png@01D5FEBF.=
+83DC28F0" alt=3D"https://w2p.vontobel.com/data/8/img/sig/icon-tw.png"></spa=
+n></a><a href=3D"https://www.facebook.com/Vontobel-158596137987378/" target=
+=3D"_blank"><span style=3D"font-size:1.0pt;font-family:&quot;Arial&quot;,sa=
+ns-serif;color:#0075BE;text-decoration:none"><img border=3D"0" width=3D"30"=
+ height=3D"30" style=3D"width:.3125in;height:.3125in" id=3D"Picture_x0020_5=
+" src=3D"cid:image003.png@01D5FEBF.83DC28F0" alt=3D"https://w2p.vontobel.co=
+m/data/8/img/sig/icon-fb.png"></span></a><a href=3D"http://www.linkedin.com=
+/company/15310" target=3D"_blank"><span style=3D"font-size:1.0pt;font-famil=
+y:&quot;Arial&quot;,sans-serif;color:#0075BE;text-decoration:none"><img bor=
+der=3D"0" width=3D"30" height=3D"30" style=3D"width:.3125in;height:.3125in"=
+ id=3D"Picture_x0020_4" src=3D"cid:image004.png@01D5FEBF.83DC28F0" alt=3D"h=
+ttps://w2p.vontobel.com/data/8/img/sig/icon-li.png"></span></a><a href=3D"h=
+ttp://www.youtube.com/vontobelgroup" target=3D"_blank"><span style=3D"font-=
+size:1.0pt;font-family:&quot;Arial&quot;,sans-serif;color:#0075BE;text-deco=
+ration:none"><img border=3D"0" width=3D"30" height=3D"30" style=3D"width:.3=
+125in;height:.3125in" id=3D"Picture_x0020_3" src=3D"cid:image005.png@01D5FE=
+BF.83DC28F0" alt=3D"https://w2p.vontobel.com/data/8/img/sig/icon-yt.png"></=
+span></a></span><span style=3D"font-size:10.0pt;font-family:&quot;Arial&quo=
+t;,sans-serif;color:black;mso-fareast-language:DE-CH"><o:p></o:p></span></p>
+</td>
+<td width=3D"6" style=3D"width:4.6pt;padding:0cm 0cm 0cm 0cm"></td>
+<td width=3D"54" style=3D"width:40.4pt;padding:0cm 0cm 0cm 0cm"></td>
+<td width=3D"30" style=3D"width:22.5pt;padding:0cm 0cm 0cm 0cm"></td>
+<td width=3D"621" style=3D"width:465.55pt;padding:3.0pt 0cm 3.0pt 0cm"></td>
+</tr>
+<tr>
+<td width=3D"1338" colspan=3D"5" style=3D"width:1003.35pt;padding:0cm 0cm 0=
+cm 0cm">
+<p class=3D"MsoNormal"><span style=3D"mso-fareast-language:DE-CH"><a href=
+=3D"http://www.vontobel.com/socialmediaterms" target=3D"_blank"><span lang=
+=3D"EN-US" style=3D"font-size:8.5pt;font-family:&quot;Arial&quot;,sans-seri=
+f;color:black;text-decoration:none">Read our Social Media
+ Terms of Use</span></a></span><span lang=3D"EN-US" style=3D"font-size:10.0=
+pt;font-family:&quot;Arial&quot;,sans-serif;color:black;mso-fareast-languag=
+e:DE-CH"><o:p></o:p></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"mso-fareast-language:D=
+E-CH"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US"><o:p>&nbsp;</o:p></span></p>
+</div>
+<style type=3D"text/css">
+
+ p.MsoNormal
+	{margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	margin-left: 0cm;
+	margin-right: 0cm;
+	margin-top: 0cm;
+}
+</style>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"color:green;mso-ansi-l=
+anguage:EN-US;
+mso-fareast-language:DE-CH">_______________________________________________=
+_____<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"color:green;mso-ansi-l=
+anguage:EN-US;
+mso-fareast-language:DE-CH">Please consider the environment before printing=
+ this e-mail.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:green;mso-fareast-language:DE-C=
+H">Bitte denken Sie an die Umwelt, bevor Sie dieses E-Mail drucken.</span><=
+span style=3D"color:green"><o:p></o:p></span></p>
+Important Notice
+=20
+ This message is intended only for the individual named. It may contain con=
+fidential or privileged information. If you are not the named addressee you=
+ should in particular not disseminate, distribute, modify or copy this e-ma=
+il. Please notify the sender immediately by e-mail, if you have received th=
+is message by mistake and delete it from your system.
+ Without prejudice to any contractual agreements between you and us which s=
+hall prevail in any case, we take it as your authorization to correspond wi=
+th you by e-mail if you send us messages by e-mail. However, we reserve the=
+ right not to execute orders and instructions transmitted by e-mail at any =
+time and without further explanation.
+ E-mail transmission may not be secure or error-free as information could b=
+e intercepted, corrupted, lost, destroyed, arrive late or incomplete. Also =
+processing of incoming e-mails cannot be guaranteed. All liability of Vonto=
+bel Holding Ltd. and any of its affiliates (hereinafter collectively referr=
+ed to as "Vontobel Group") for any damages resulting from e-mail use is exc=
+luded. You are advised that urgent and time sensitive messages should not b=
+e sent by e-mail and if verification is required please request a printed v=
+ersion.
+ Please note that all e-mail communications to and from the Vontobel Group =
+are subject to electronic storage and review by Vontobel Group. Unless stat=
+ed to the contrary and without prejudice to any contractual agreements betw=
+een you and Vontobel Group which shall prevail in any case, e-mail-communic=
+ation is for informational purposes only and is not intended as an offer or=
+ solicitation for the purchase or sale of any financial instrument or as an=
+ official confirmation of any transaction.
+ The legal basis for the processing of your personal data is the legitimate=
+ interest to develop a commercial relationship with you, as well as your co=
+nsent to forward you commercial communications. You can exercise, at any ti=
+me and under the terms established under current regulation, your rights. I=
+f you prefer not to receive any further communications, please contact your=
+ client relationship manager if you are a client of Vontobel Group or notif=
+y the sender.
+ Please note for an exact reference to the affected group entity the corpor=
+ate e-mail signature.
+ For further information about data privacy at Vontobel Group please consul=
+t www.vontobel.com.
+</body>
+</html>
+
+--_000_1467b06674414b35a350b8dc8c81233evontobelcom_--
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: image/png; name="image001.png"
+Content-Description: image001.png
+Content-Disposition: inline; filename="image001.png"; size=4733;
+	creation-date="Fri, 20 Mar 2020 12:58:46 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:46 GMT"
+Content-ID: <image001.png@01D5FEBF.83DC28F0>
+Content-Transfer-Encoding: base64
+
+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
+YII=
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: image/png; name="image002.png"
+Content-Description: image002.png
+Content-Disposition: inline; filename="image002.png"; size=665;
+	creation-date="Fri, 20 Mar 2020 12:58:46 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:46 GMT"
+Content-ID: <image002.png@01D5FEBF.83DC28F0>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAO
+xAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAAIZSURBVEhL
+7ZVNKIRBGMfZuFBKEkXycSAHjoqDg69VPvYkyoU4uDjIZV3WFsnRbQ+IkKObRMhlIw4+Di4oOdnD
+FnHxEb+nXrW9O7M7Q9mUqX/zvjP///Of53ln5s0IBoNpqWgZqTAVz3/jX6v83y51IBBoo1RVTrnO
+OSn7X6VjrpjnCGMvseVUZgy5DtIj5MtEtYdXwPw86IjlMb7K+zrwgVviTLvj6EpdBnFSMkF0qzJn
+LpPxJeBVzPczJpA2CLeGOOdJM4awB5bBDqJhRAeK4I0aUzfVz8CQUcYYRTBcgzwAtnkO0Ydcpa9W
+VcI1dsJ7H7orI2OHNEUv3y4fjMqqWYBUYhecgVID40WVqeh0m8uD4AajFThjjkGWs5CvjfRmYPyg
+4+g2lxfTOUQ5CYKb3AERW+NDBLKbmwyy0lGiTFxYGVPmKBl3I5Lz6PumeZg491bGQkb0jHkvj3KU
+5EKxbbJobdNtrh4U7aAQlNg6wj8FG9bGCJ6AlDr3G6Yi8bvvZnccZcaINilzLeQF0GJpPoN+K5lG
+eyQQ3yFuZQGz9OPAkyyYLBTdhAEv/gLBqBxhJcgGRQ7SkwSTywTPoNx2Rk2VcR7KEdBpEEEM5QqV
+8qp+JNoQccYEOIbdReb19M2gAVTElPqV52twBLbgS2/dEn3jMNEEaSwilveB2bu1k0tgct/KxzP5
+IVitxcjYKqIh+d/YsFA/p30CRECaG0L5gvQAAAAASUVORK5CYII=
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: image/png; name="image003.png"
+Content-Description: image003.png
+Content-Disposition: inline; filename="image003.png"; size=488;
+	creation-date="Fri, 20 Mar 2020 12:58:46 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:46 GMT"
+Content-ID: <image003.png@01D5FEBF.83DC28F0>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAO
+xAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAAFoSURBVEhL
+7ZaxSgNBEIaDOU0VLDRaRJLCZxAstPIVLKxjZeMD2BxX+Qw2gZB3EAQRFAVBba3ENoR0KQQLTb6R
+PTBmD3bmLqbJws9Nsfd/Mzuzx0VJkpTmsaJ5QIW5AP/byXuPOo7jbTLYKyiLBwb47a9XVo8P2HhR
+EPgEn2DwZ0FQsfF65Z3qPsYfaAnVNbfECh4COUWX9G/ATKwSvyCZjaBlBXcBdoTgoJuE5SCi22QF
+vztok+czqqLKLME9zO8cTDjS31tX7T7PtVC4tuJHjvgoNZf+Eh+66p9mCd6ip3LHX4H2iOV4d9EG
+aoRWK/u0Fe/wzjU6Rm20jq60/bWAfUXJHVYvbcUpYPSL9EW8rCVbwVrO1H4r+Ns5SbWmZQVHTLR8
+qVZMVMNUp5xzgjMkcNUXKzWwVlzDQGReWWBTFRlZeL2ywDeYtMzlTL547/Pxgt0/0tTvSkGJ/NhY
+e5w7hwU49xGGGowBHzc90bwcBt8AAAAASUVORK5CYII=
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: image/png; name="image004.png"
+Content-Description: image004.png
+Content-Disposition: inline; filename="image004.png"; size=574;
+	creation-date="Fri, 20 Mar 2020 12:58:47 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:47 GMT"
+Content-ID: <image004.png@01D5FEBF.83DC28F0>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAO
+xAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAAG+SURBVEhL
+7ZZNK0VBGMe93LwVSlnImrVIkVheRZasZMHKV5A6zs63UIrUtZIshA2lfAJJWYlCeS/k5ffUjOaO
+Gc6tOc7mTv2bc2bmeX5znnnmuTcXx3FFFi2XBVSYZfC/Rd4b6iiKOtlFP3pBWyThfchdOcFA+4Bs
+oFYF22ZsPCTc98WzBlTYeTSENkN9tQ9c4wDUh4L+dp2WmJxAVQp2Qr+fOpizlDOV8A6jR7TM2GXq
+YAEA2qUTJW5stpHFH9g+/WXky+pRDCP0qRxU0k+hC7SOmg3HazxfoRnULmA2cEy/yAYOfRvwJVcb
+Br2WURPv12gQ1Rpz3TxXW2ulBuTZwBjwHRfcB35zLH5XEZAzN8E2VJvWyVcDHwAuRaiohfqROMPr
+Heqy/PfwLhH5EfIQ4CMcj6BbNI8WLHhHWuACobwRGGEt0M0hswA1lHLGrrW+sQdjQnLj2QK/pgXW
+1U38y7UTmU1fyaLBEGdcSnS+15bBOhRmgdBjEh05vxYrtlIodJNiYpZTGXf58v7L3MNg2gKc8i5V
+a9JyZhaHczVvXqeDxFnNvRSIyNVWfdmk/hqtJMm2cnIliVKQNZmF+gtoz1+uudOAHQAAAABJRU5E
+rkJggg==
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: image/png; name="image005.png"
+Content-Description: image005.png
+Content-Disposition: inline; filename="image005.png"; size=802;
+	creation-date="Fri, 20 Mar 2020 12:58:47 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:47 GMT"
+Content-ID: <image005.png@01D5FEBF.83DC28F0>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAAlwSFlzAAAO
+xAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAAKiSURBVEhL
+7ZZLSFRRGMd7TC8yTHRhT9tki8KFogS2KAgs2xS0tSCijYZtNARpnNyoUaKbCCQii6Bw0yaUZlBp
+lQ9C8YEIEiq0kaASVCz7/eEcuY5z7x2amdzMgR/fd8898/3P4zvfnUAoFNq2FS2wFaLSTAv/t513
+3epgMLidWZyFERJw0c6I/lP4a/RNJTJLrzPeSeA2mICbEkE0B/MJGiE1wqxoFaHbCAxgwzy/xH8L
+X/Db6QtozL+u2jOrCTyCwC2Ct2IvY49DCX4D9hq2H3sPbsAo4wfpu4B/GP+116R8r5MCEKyYINVw
+BoqgEurgIfTCVdDRDMI5MyYxYTPrTmw5kxhjEhfxI/gd+CVmF75jbQL+xP/ldwS+KzYBnONW6Ntr
++ndj12APHDF9R7G7kiWsQFmscAd2HJrwn5otfmVW2ELfMXzlxN1kCc8TSELK5D4EFLgc6nj+KBH6
+MjHa+hr6XiRFmEAzBHpgg5mrpeu13uh77CfmfB/zjJl9IYOug6pXdNOZ2qaz1bPO3a11Mamh6Jdu
+yaXro+vi134zQNfIq83yMm7hJRPpDVbsA12XZjjtULmDr9pd66FsY20Y4nedJKLVP4F2+AE9kAXL
+kA3dcB6UWLrD70BFJN9rG/yEC/ixsvU9VEAYuuAkKNNzYQ6qQEXmOXwA1XSN2+8m7ies32mVOks1
+fRQOmMl8wy5APeiLpXMchgzQyj0/IPEIS9SWQK3+M0xCGahyqYCoZOpDcQiUTFfMBNwWHNd/roP8
++pKJoHNU0K+gCqWmVap+l4K+148gDzyz3W3Fup+2ncBRYqmpZN6PWsYzx7MyvCPqvTPW+is34Yhj
+RVbwj/mVLSq2kMR6dhYZnf+mFlOYSjPNSJGyFk9ypUQ8LZySbY0V9C9+i69qy+INEwAAAABJRU5E
+rkJggg==
+
+--_009_1467b06674414b35a350b8dc8c81233evontobelcom_--
+
+--_010_1467b06674414b35a350b8dc8c81233evontobelcom_
+Content-Type: application/pdf; name="Coronavirus Market View_en.pdf"
+Content-Description: Coronavirus Market View_en.pdf
+Content-Disposition: attachment; filename="Coronavirus Market View_en.pdf";
+	size=1059092; creation-date="Fri, 20 Mar 2020 12:57:32 GMT";
+	modification-date="Fri, 20 Mar 2020 12:58:46 GMT"
+
+[attachment stripped]
+--_010_1467b06674414b35a350b8dc8c81233evontobelcom_--

@@ -1,0 +1,574 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a0c:968e:0:0:0:0:0 with SMTP id a14csp974056qvd;
+        Tue, 25 Jun 2019 11:19:41 -0700 (PDT)
+X-Google-Smtp-Source: 
+ APXvYqxMbXdFikq7G4hT2VqjrlOU0mnwrqS0ntQ70woZlA3+lkEUeKTKSfe+o2QuYoCJ8ClSQRY6
+X-Received: by 2002:aca:c695:: with SMTP id
+ w143mr14030486oif.11.1561486781368;
+        Tue, 25 Jun 2019 11:19:41 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1561486781; cv=none;
+        d=google.com; s=arc-20160816;
+        b=MsZzHYRLM2tBd+45b8RUaAjWkaqQP8+Fn10u2WZWuMCUNXs1s/Usgehzg7TqpXwROq
+         2wC+w/Ib3pfYo6NroGnF6xy03dM6TC+QRebbEZ2aoLUmvRt2wy9h3uG96Di2oEh8h6Uj
+         s0au2eymPN5fa33Ag+YsPq69qDe40UINKJxMUAH4bI1F2ETUek0bhl+FbvpfXZabDs2t
+         sEOrzBpq18yrXzFbf99ecFzHwmEe5NEp8ESGM4MoUzByg6mkeVl1F06iFb2kf4SJHY2q
+         v/qCD03Fl9pjbNdxZVizhGFYJd4NQjqN5StYZODMugAL5tt9wfxaWwj5+vt/p5JZv/Qv
+         YDOg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=45LgE/dejSszYMhNyxua2v2vtTGx0EzY5d3lZ8HmlnM=;
+        b=XJb51LCPeS5+8hOOkxYfOngNJRo66k0EQkdkquO48WiysgecIZeOWlcgD/1PFqycFP
+         4ZhtityR2qTQ/baGAzYHBEx8NZ4H28LOhy86J2/P+9HoEEVNR4V+pfQEc9MpppLxLQ7U
+         KOYIYDEsEs5FXCzntxLMYUrRh9yQ6Gfz/Xgfu9p32kQOyzPnHneZ5q90jl6VQTLZttzx
+         oftgSS01jRWzsDn245XP4W6LQVAGoRU1NQrDxpH03Puw4p2Lb01BSfgfMhcWrCBL6ngn
+         2f1d0eZA0aTkvGCFN5WApqjke3TYNnQf7X23TIl9eFSBjDUgOV1wKsNfJE/4p+T/lDJ+
+         bTfQ==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector1-servicecrm-onmicrosoft-com header.b=QoOT7aoh;
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.8.138 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+Return-Path: <eran@theservice.co.il>
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com
+ (mail-eopbgr80138.outbound.protection.outlook.com. [40.107.8.138])
+        by mx.google.com with ESMTPS id
+ l65si9557820otc.293.2019.06.25.11.19.41
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 25 Jun 2019 11:19:41 -0700 (PDT)
+Received-SPF: pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.8.138 as permitted sender) client-ip=40.107.8.138;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector1-servicecrm-onmicrosoft-com header.b=QoOT7aoh;
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.8.138 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector1-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=45LgE/dejSszYMhNyxua2v2vtTGx0EzY5d3lZ8HmlnM=;
+ b=QoOT7aoh77Ubi7OqmySUERZsQLYOjb6/OnLxUqDOVd92RzfKIIAVkkE28Gr8ze5QlhOKReYef6IRchfzsEpSP2EYE2acSpCbxOvQnwifgvDufM47vyLCpi/crId4Abz8WqpWdylsA3i4I2LRvdHWVDWK7Zcd3o75RaI884FpoBI=
+Received: from AM6PR05MB4983.eurprd05.prod.outlook.com (20.177.36.20) by
+ AM6PR05MB4263.eurprd05.prod.outlook.com (52.135.161.152) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2008.13; Tue, 25 Jun 2019 18:19:39 +0000
+Received: from AM6PR05MB4983.eurprd05.prod.outlook.com
+ ([fe80::f120:eca8:10b2:b0f6]) by AM6PR05MB4983.eurprd05.prod.outlook.com
+ ([fe80::f120:eca8:10b2:b0f6%5]) with mapi id 15.20.2008.014; Tue, 25 Jun 2019
+ 18:19:39 +0000
+From: eran <eran@theservice.co.il>
+To: Adam Marash <adam@marash.net>
+Subject: Re: Working with HSBC
+Thread-Topic: Working with HSBC
+Thread-Index: AdUrTdznDbeM1SsmQhWZ85NRyvRhhAAEFgIaAAOjSYAABVZQuw==
+Date: Tue, 25 Jun 2019 18:19:39 +0000
+Message-ID: 
+ <AM6PR05MB49835A51A4AEEED512347E31EFE30@AM6PR05MB4983.eurprd05.prod.outlook.com>
+References: <AE2C9BDBEB4A394F889F3B719649A80F0165261787@Exch.Yelin.local>
+ <AM6PR05MB498334E3B5D46A7C13556DDCEFE30@AM6PR05MB4983.eurprd05.prod.outlook.com>,<CABgnYtLdGkEjiiSkDpxdPzO=yu1RX4LnEuppz1tSqKJZVYjQCQ@mail.gmail.com>
+In-Reply-To: 
+ <CABgnYtLdGkEjiiSkDpxdPzO=yu1RX4LnEuppz1tSqKJZVYjQCQ@mail.gmail.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=eran@theservice.co.il;
+x-originating-ip: [87.70.139.23]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a78952cb-a73e-4e39-93a0-08d6f999afa5
+x-microsoft-antispam: 
+ BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(7021145)(8989299)(4534185)(7022145)(4603075)(4627221)(201702281549075)(8990200)(7048125)(7024125)(7027125)(7023125)(5600148)(711020)(4605104)(1401327)(2017052603328)(49563074)(7193020);SRVR:AM6PR05MB4263;
+x-ms-traffictypediagnostic: AM6PR05MB4263:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: 
+ <AM6PR05MB4263C008995A52D9E662C030EFE30@AM6PR05MB4263.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0079056367
+x-forefront-antispam-report: 
+ SFV:NSPM;SFS:(10019020)(136003)(376002)(39840400004)(396003)(366004)(346002)(189003)(199004)(517774005)(6246003)(440504004)(8676002)(6306002)(33656002)(66946007)(81156014)(606006)(99286004)(74482002)(52536014)(73956011)(81166006)(11346002)(68736007)(14454004)(76116006)(53386004)(3480700005)(54556002)(733005)(66476007)(6436002)(2906002)(9686003)(236005)(74316002)(5660300002)(54896002)(7736002)(14444005)(486006)(76176011)(186003)(6506007)(71190400001)(3846002)(25786009)(91956017)(66556008)(10130500003)(476003)(256004)(66446008)(5070765005)(53936002)(53546011)(55016002)(71200400001)(229853002)(66616009)(64756008)(99936001)(7116003)(508600001)(7696005)(86362001)(26005)(6116002)(316002)(66066001)(102836004)(8936002)(446003)(6916009);DIR:OUT;SFP:1102;SCL:1;SRVR:AM6PR05MB4263;H:AM6PR05MB4983.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: theservice.co.il does not
+ designate permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: 
+ Rd7NSr6J8nTJOY1uBTbIosjgOv6JMrtTMXJfUeyQLS3YYDFvW4ClywvamaMvRaNJbJt+VknIEV3xSfP3Wx4k+TW09Lw1YCsbY0jRAoTsMt7v8uGGVOXVfc99mkkc4pQRM26IQF0EGCgm5HxgBAcDQ11Fti8h/UARWTsj366a0os+GRW19/3JKah9SmhXAL0M+hV4mUK4DqJW55hY7ehxSw2UNNYZsyufNeCkvixGVI8T2F79McOtny6cW9bzuVavCIllAkLKfkYr4CCf+GL+opFPYtGRuW/NIa9ncL9XMeIAv/5+l+/qJRMO23xPqA4lR2UPFHI1M1aCu56PRswhkb4RsB2wVwJ0veJco6Dcl4sANVK8KW6gxJ2KkAjt8Som0J2MEmKOvwqtIbOQbseYBUgc1DbqNNtrjgnc+8XhDb8=
+Content-Type: multipart/related;
+	boundary="_004_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_";
+	type="multipart/alternative"
+MIME-Version: 1.0
+X-OriginatorOrg: theservice.co.il
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ a78952cb-a73e-4e39-93a0-08d6f999afa5
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Jun 2019 18:19:39.1290
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: eran@theservice.co.il
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM6PR05MB4263
+
+--_004_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_
+Content-Type: multipart/alternative;
+	boundary="_000_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_"
+
+--_000_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+=F7=E7 =E1=E7=F9=E1=E5=EF =F9=F1=E1=E9=F8 =F9=E1=E1=F0=F7 =E9=F0=F1=E5 =EC=
+=E4=F6=E9=F2 =EC=EA =F0=E9=E4=E5=EC =F9=EC=E4=ED =E5=E9=F1=E1=E9=F8=E5 =EC=
+=EA =EB=EE=E4 =E4=ED =E4=EB=E9 =E8=E5=E1=E9=ED. =E0=F0=E9 =EE=F6=E9=F2 =F9=
+=FA=FA=E9=E7=F1 =EC=E3=E1=F8=E9=ED =E1=F2=F8=E1=E5=EF =EE=E5=E2=E1=EC =E0=
+=E1=EC =FA=E0=EE=F8 =EC=E4=ED =F9=F0=F9=EE=E7 =EE=E0=E5=E3 =EC=E1=E7=E5=EF =
+=EB=EC =E4=F6=F2=E4 =E0=E5 =F8=F2=E9=E5=EF =E4=F9=F7=F2=E4. =E0=F0=E9 =EC=
+=F8=F9=E5=FA=EA
+
+Eran Blatman
+eran@theservice.co.il
+mobile: 050-3109052
+
+________________________________
+From: Adam Marash <adam@marash.net>
+Sent: Tuesday, June 25, 2019 6:43:39 PM
+To: eran
+Subject: Re: Working with HSBC
+
+=F2=F8=EF =E4=E9,
+
+=FA=E5=E3=E4, =E6=E4 =F9=E9=EE=E5=F9=E9 =EC=F4=E2=E9=F9=E4 =F9=EE=FA=E5=EB=
+=F0=F0=FA =EC=F0=E5 =EC=EE=E7=F8 =F2=ED =E4=E1=F0=F7.
+
+=E0=F2=E3=EB=EF =E0=E5=FA=EA =E0=E7=F8=E9=E4.
+
+=E0=E3=ED
+
+
+On Tue, 25 Jun 2019 at 15:00, eran <eran@theservice.co.il<mailto:eran@these=
+rvice.co.il>> wrote:
+=E6=E4 =EE=E9=E9=EC =EE=E9=E5=F0=FA=EF =F9=E9=F9=EC=E7 =EB=E0=EE=E5=F8 =F2=
+=EF =E0=E9=F9=E5=F8=EA =EC=E2=E1=F8=FA =E4=E0=F8=E8=F8
+
+Eran Blatman
+eran@theservice.co.il<mailto:eran@theservice.co.il>
+mobile: 050-3109052
+
+________________________________
+From: Jonathan Nassie <Jonathan@yl-invest.co.il<mailto:Jonathan@yl-invest.c=
+o.il>>
+Sent: Tuesday, June 25, 2019 3:27:07 PM
+To: eran
+Subject: Working with HSBC
+
+
+Hi Eran =96 further to our conversation in connection with managing the acc=
+ount in HSBC what we will need to have in place at the end is:
+
+-          we have gotten a limited POA in place allowing us to make transa=
+ctions and to charge monthly management fees
+
+-          We have a contact person q trading desk where we can transfer or=
+ders
+
+-          We got access to the account and are able to download daily the =
+account holdings/transactions/transfers in a format that we can then upload=
+ to our system
+
+As I mentioned to you we have this with numerous global private banks in va=
+rious jurisdictions like UBS, CS (SW and London), Julius Baer (also in Guer=
+nsey), UBP, Safra (both Switzerland and Lux) and Bank of Singapore so shoul=
+dn=92t be a big issue but we will need to set it up with the banks and make=
+ sure all is in place.
+
+
+Thanks
+
+
+Jonathan
+
+
+
+
+Jonathan Nassie  | =F8=E0=F9 =FA=E7=E5=ED =E4=F9=F7=F2=E5=FA =E7=E5"=EC
+
+=E8=EC=F4=E5=EF: 03-7132378 |  | 053-2742625 =F4=F7=F1: 03-7132322
+=EE=E2=E3=EC =F2=EC, =E3=E9=E6=F0=E2=E5=F3 50 =FA=EC-=E0=E1=E9=E1,   |  www=
+.yl-invest.co.il<http://www.yl-invest.co.il>
+
+[QQQ]<http://www.yl-invest.co.il/>
+
+
+--_000_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+</head>
+<body>
+<div dir=3D"auto" style=3D"direction: rtl; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+=F7=E7 =E1=E7=F9=E1=E5=EF =F9=F1=E1=E9=F8 =F9=E1=E1=F0=F7 =E9=F0=F1=E5 =EC=
+=E4=F6=E9=F2 =EC=EA =F0=E9=E4=E5=EC =F9=EC=E4=ED =E5=E9=F1=E1=E9=F8=E5 =EC=
+=EA =EB=EE=E4 =E4=ED =E4=EB=E9 =E8=E5=E1=E9=ED. =E0=F0=E9 =EE=F6=E9=F2 =F9=
+=FA=FA=E9=E7=F1 =EC=E3=E1=F8=E9=ED =E1=F2=F8=E1=E5=EF =EE=E5=E2=E1=EC =E0=
+=E1=EC =FA=E0=EE=F8 =EC=E4=ED =F9=F0=F9=EE=E7 =EE=E0=E5=E3 =EC=E1=E7=E5=EF =
+=EB=EC =E4=F6=F2=E4 =E0=E5 =F8=F2=E9=E5=EF =E4=F9=F7=F2=E4. =E0=F0=E9 =EC=
+=F8=F9=E5=FA=EA<br>
+<br>
+</div>
+<div dir=3D"auto" style=3D"direction: ltr; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+<span id=3D"OutlookSignature">
+<div dir=3D"auto" style=3D"direction: ltr; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+Eran Blatman<br>
+</div>
+<div dir=3D"auto" style=3D"direction: ltr; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+eran@theservice.co.il<br>
+</div>
+<div dir=3D"auto" style=3D"direction: ltr; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+mobile: 050-3109052</div>
+</span><br>
+</div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Adam Marash &lt;adam@=
+marash.net&gt;<br>
+<b>Sent:</b> Tuesday, June 25, 2019 6:43:39 PM<br>
+<b>To:</b> eran<br>
+<b>Subject:</b> Re: Working with HSBC</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div dir=3D"ltr">
+<div dir=3D"rtl">=F2=F8=EF =E4=E9,</div>
+<div dir=3D"rtl"><br>
+</div>
+<div dir=3D"rtl">=FA=E5=E3=E4, =E6=E4 =F9=E9=EE=E5=F9=E9 =EC=F4=E2=E9=F9=E4=
+ =F9=EE=FA=E5=EB=F0=F0=FA =EC=F0=E5 =EC=EE=E7=F8 =F2=ED =E4=E1=F0=F7.</div>
+<div dir=3D"rtl"><br>
+</div>
+<div dir=3D"rtl">=E0=F2=E3=EB=EF =E0=E5=FA=EA =E0=E7=F8=E9=E4.</div>
+<div dir=3D"rtl"><br>
+</div>
+<div dir=3D"rtl">=E0=E3=ED</div>
+</div>
+<div dir=3D"ltr">&nbsp;</div>
+<br>
+<div class=3D"gmail_quote">
+<div dir=3D"ltr" class=3D"gmail_attr">On Tue, 25 Jun 2019 at 15:00, eran &l=
+t;<a href=3D"mailto:eran@theservice.co.il" target=3D"_blank">eran@theservic=
+e.co.il</a>&gt; wrote:<br>
+</div>
+<blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-=
+left:1px solid rgb(204,204,204);padding-left:1ex">
+<div lang=3D"EN-US">
+<div dir=3D"auto" style=3D"direction:rtl;margin:0px;padding:0px;font-family=
+:sans-serif;font-size:11pt;color:black">
+=E6=E4 =EE=E9=E9=EC =EE=E9=E5=F0=FA=EF =F9=E9=F9=EC=E7 =EB=E0=EE=E5=F8 =F2=
+=EF =E0=E9=F9=E5=F8=EA =EC=E2=E1=F8=FA =E4=E0=F8=E8=F8<br>
+<br>
+</div>
+<div dir=3D"auto" style=3D"direction:ltr;margin:0px;padding:0px;font-family=
+:sans-serif;font-size:11pt;color:black">
+<span id=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735OutlookSi=
+gnature">
+<div dir=3D"auto" style=3D"direction:ltr;margin:0px;padding:0px;font-family=
+:sans-serif;font-size:11pt;color:black">
+Eran Blatman<br>
+</div>
+<div dir=3D"auto" style=3D"direction:ltr;margin:0px;padding:0px;font-family=
+:sans-serif;font-size:11pt;color:black">
+<a href=3D"mailto:eran@theservice.co.il" target=3D"_blank">eran@theservice.=
+co.il</a><br>
+</div>
+<div dir=3D"auto" style=3D"direction:ltr;margin:0px;padding:0px;font-family=
+:sans-serif;font-size:11pt;color:black">
+mobile: 050-3109052</div>
+</span><br>
+</div>
+<hr style=3D"display:inline-block;width:98%">
+<div id=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735divRplyFwd=
+Msg" dir=3D"ltr">
+<font face=3D"Calibri, sans-serif" style=3D"font-size:11pt" color=3D"#00000=
+0"><b>From:</b> Jonathan Nassie &lt;<a href=3D"mailto:Jonathan@yl-invest.co=
+.il" target=3D"_blank">Jonathan@yl-invest.co.il</a>&gt;<br>
+<b>Sent:</b> Tuesday, June 25, 2019 3:27:07 PM<br>
+<b>To:</b> eran<br>
+<b>Subject:</b> Working with HSBC</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div class=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735WordSec=
+tion1">
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed">Hi Eran =96 further to our conversation in connection with managing =
+the account in HSBC what we will need to have in place at the end is:
+<u></u><u></u></p>
+<p class=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735MsoListPa=
+ragraph" style=3D"margin-right:0cm;margin-left:36pt;margin-bottom:0.0001pt;=
+text-align:left;direction:ltr;unicode-bidi:embed">
+<u></u><span>-<span style=3D"font:7pt &quot;Times New Roman&quot;">&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><u></u><span d=
+ir=3D"LTR"></span>we have gotten a limited POA in place allowing us to make=
+ transactions and to charge monthly management fees<u></u><u></u></p>
+<p class=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735MsoListPa=
+ragraph" style=3D"margin-right:0cm;margin-left:36pt;margin-bottom:0.0001pt;=
+text-align:left;direction:ltr;unicode-bidi:embed">
+<u></u><span>-<span style=3D"font:7pt &quot;Times New Roman&quot;">&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><u></u><span d=
+ir=3D"LTR"></span>We have a contact person q trading desk where we can tran=
+sfer orders<u></u><u></u></p>
+<p class=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735MsoListPa=
+ragraph" style=3D"margin-right:0cm;margin-left:36pt;margin-bottom:0.0001pt;=
+text-align:left;direction:ltr;unicode-bidi:embed">
+<u></u><span>-<span style=3D"font:7pt &quot;Times New Roman&quot;">&nbsp;&n=
+bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><u></u><span d=
+ir=3D"LTR"></span>We got access to the account and are able to download dai=
+ly the account holdings/transactions/transfers in a format that we can then=
+ upload to our system<u></u><u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed">As I mentioned to you we have this with numerous global private bank=
+s in various jurisdictions like UBS, CS (SW and London), Julius Baer (also =
+in Guernsey), UBP, Safra (both Switzerland
+ and Lux) and Bank of Singapore so shouldn=92t be a big issue but we will n=
+eed to set it up with the banks and make sure all is in place.<u></u><u></u=
+></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed">Thanks<u></u><u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed">Jonathan<u></u><u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><u></u>&nbsp;<u></u></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;direction:ltr;unicode-bidi:=
+embed"><span lang=3D"HE" dir=3D"RTL" style=3D"font-family:Arial,sans-serif"=
+><u></u>&nbsp;<u></u></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><u></u>&nbsp;<u></u></=
+span></p>
+<div align=3D"right">
+<table class=3D"gmail-m_4317145799048345344gmail-m_2281922049118620735MsoNo=
+rmalTable" dir=3D"rtl" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" wid=
+th=3D"0" style=3D"border-collapse:collapse">
+<tbody>
+<tr style=3D"break-inside:avoid;height:13.15pt">
+<td width=3D"628" nowrap=3D"" colspan=3D"2" valign=3D"top" style=3D"width:4=
+70.7pt;padding:0cm 5.4pt;height:13.15pt">
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:0.3pt"><b><span di=
+r=3D"LTR" style=3D"font-size:10pt;font-family:Arial,sans-serif;color:rgb(13=
+,13,13)">Jonathan Nassie</span></b><span dir=3D"RTL"></span><span dir=3D"RT=
+L"></span><b><span lang=3D"HE" style=3D"font-size:10pt;font-family:Arial,sa=
+ns-serif;color:rgb(13,13,13)"><span dir=3D"RTL"></span><span dir=3D"RTL"></=
+span>&nbsp;
+ |</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lan=
+g=3D"HE" dir=3D"LTR" style=3D"font-size:10pt;font-family:Arial,sans-serif;c=
+olor:rgb(13,13,13)"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:10pt;font-family:Arial,s=
+ans-serif;color:rgb(13,13,13)">=F8=E0=F9 =FA=E7=E5=ED =E4=F9=F7=F2=E5=FA =
+=E7=E5&quot;=EC</span></b><b><span dir=3D"LTR" style=3D"font-size:10pt;font=
+-family:Arial,sans-serif;color:rgb(13,13,13)"><u></u><u></u></span></b></p>
+</td>
+</tr>
+<tr style=3D"break-inside:avoid;height:32.6pt">
+<td width=3D"355" nowrap=3D"" valign=3D"top" style=3D"width:266.4pt;padding=
+:0cm 5.4pt;height:32.6pt">
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:0.2pt"><span lang=
+=3D"HE" style=3D"font-size:10pt;font-family:Arial,sans-serif;color:rgb(13,1=
+3,13)"><br>
+=E8=EC=F4=E5=EF: 03-7132378 |</span><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span><span dir=3D"LTR" style=3D"font-size:10pt;font-family:Arial,sans=
+-serif;color:rgb(13,13,13)"><span dir=3D"LTR"></span><span dir=3D"LTR"></sp=
+an>&nbsp; | 053-2742625
+</span><span lang=3D"HE" style=3D"font-size:10pt;font-family:Arial,sans-ser=
+if;color:rgb(13,13,13)">=F4=F7=F1: 03-7132322<u></u><u></u></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:0.2pt"><span lang=
+=3D"HE" style=3D"font-size:10pt;font-family:Arial,sans-serif;color:rgb(13,1=
+3,13)">=EE=E2=E3=EC =F2=EC, =E3=E9=E6=F0=E2=E5=F3 50 =FA=EC-=E0=E1=E9=E1,&n=
+bsp;&nbsp; |
+</span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:10pt;font-family:Arial,sans-serif;color:rgb(=
+13,13,13)"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>&nbsp;</span><=
+span dir=3D"LTR"><a href=3D"http://www.yl-invest.co.il" target=3D"_blank"><=
+span style=3D"font-size:10pt;font-family:Arial,sans-serif;color:blue">www.y=
+l-invest.co.il</span></a></span><span dir=3D"RTL"></span><span dir=3D"RTL">=
+</span><span style=3D"font-size:10pt;font-family:Arial,sans-serif;color:rgb=
+(13,13,13)"><span dir=3D"RTL"></span><span dir=3D"RTL"></span>
+</span><span lang=3D"HE" style=3D"font-family:Arial,sans-serif;color:rgb(13=
+,13,13)"><u></u><u></u></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:0.2pt"><span lang=
+=3D"HE" style=3D"font-family:Arial,sans-serif;color:rgb(13,13,13)"><u></u>&=
+nbsp;<u></u></span></p>
+</td>
+<td width=3D"273" style=3D"width:204.3pt;padding:0cm 5.4pt;height:32.6pt">
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:0.2pt;line-height:=
+115%"><a href=3D"http://www.yl-invest.co.il/" target=3D"_blank"><span dir=
+=3D"LTR" style=3D"font-family:Arial,sans-serif;color:windowtext;text-decora=
+tion:none"><img border=3D"0" width=3D"258" height=3D"51" id=3D"gmail-m_4317=
+145799048345344gmail-m_2281922049118620735=FA=EE=E5=F0=E4_x0020_1" alt=3D"Q=
+QQ" src=3D"cid:16b8f4d52745b16b21"></span></a><span lang=3D"HE" style=3D"fo=
+nt-family:Arial,sans-serif"><u></u><u></u></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><u></u>&nbsp;<u></u></=
+span></p>
+</div>
+</div>
+</div>
+</blockquote>
+</div>
+</div>
+</body>
+</html>
+
+--_000_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_--
+
+--_004_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_
+Content-Type: image/png; name="image002.png"
+Content-Description: image002.png
+Content-Disposition: inline; filename="image002.png"; size=6573;
+	creation-date="Tue, 25 Jun 2019 15:43:55 GMT";
+	modification-date="Tue, 25 Jun 2019 15:43:55 GMT"
+Content-ID: <16b8f4d52745b16b21>
+Content-Transfer-Encoding: base64
+
+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
+wBwKYzBvAAAAAElFTkSuQmCC
+
+--_004_AM6PR05MB49835A51A4AEEED512347E31EFE30AM6PR05MB4983eurp_--

@@ -1,0 +1,588 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:7119:3fc5:b0:1b3:4cfd:da96 with SMTP id yp5csp352086ggb;
+        Tue, 9 Dec 2025 11:13:57 -0800 (PST)
+X-Forwarded-Encrypted: i=5;
+ AJvYcCUt+3EOIZgY/iDkcAZhNNo+FksNqozZRCKxXKTQ2IVbo1w7+v0lxFmlMkoZ516H9lexZQWQ@marash.net
+X-Received: by 2002:a05:6830:3113:b0:7c7:5f8c:71a3 with SMTP id
+ 46e09a7af769-7c9707bd9eamr4686907a34.2.1765307637243;
+        Tue, 09 Dec 2025 11:13:57 -0800 (PST)
+ARC-Seal: i=4; a=rsa-sha256; t=1765307637; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=Cd4JdmRQlFQdRTD4nqQa+/hmCG8Bx30fF8c1zxFb3yiHqCusSHNbKOzn1kp0MVZOqj
+         lboSioEPU0uuZh8HcnxIVldcVVxE/5zEcNWaeRtu7Mb2QLrlHuH91IEahk2Cq0GaGlqJ
+         KlHL91W2BkmhtjaBAoEoBkVHrtkQ8rRL/534kwxFkmu8DzUlkTPmFZ/Odt+cl8cpk8YR
+         dChcsYTTydVfHr3MW870tyqPLiuEpZ20dCZQtBQPTBVLQozGAFasn7h5exEwFGm8WG7s
+         jNibfE0/CzcT/3TbocaVXwk2h03a08M1+veega1jLvgepeqPvI0YO8SgVPX/0RlC2gm7
+         uoag==
+ARC-Message-Signature: i=4; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20240605;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature:delivered-to;
+        bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+        fh=RtHeciiy55kpNPiUwV0Na/+kz808tbN92PZzedm40TA=;
+        b=gFVn+Xsjm7t2QQ3dmqGfP+lJprVx3e8HCOvdxqSpe2ygWiw75XkMsqkexSvKc5iS53
+         sVcMCwBO1m7uLG2TxUeVHyEanMiAO8tN2DJskXNbfaXIEjyCp949OvtvLzLpthHx5y8M
+         cskyS/zlFuVw0CKEmQR50Cyd0H/CoEL/0OaQk3dvAO4SXmpz8rqIwgh3PPEQmHbM8xdG
+         M1Jdv0RA40cJeimCATewAUZeOfknK+kXb/dFV6A6nEwkXnqh8DO1H4kD4ZMzBzPWIaag
+         uyjp77isGsPw6PaMlWbzyGt1KaXXGkENlo3K6a6z57KrhAUIcRdJWYWdjLm4qAPbHdBP
+         9OeQ==;
+        dara=google.com
+ARC-Authentication-Results: i=4; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="si/EhEKi";
+       arc=pass (i=3 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=servicecrm.onmicrosoft.com);
+       spf=none (google.com: tamar+caf_=adam=marash.net@marash.net does not
+ designate permitted sender hosts)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net";
+       dara=fail header.i=@marash.net
+Return-Path: <tamar+caf_=adam=marash.net@marash.net>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com.
+ [209.85.220.41])
+        by mx.google.com with SMTPS id
+ 46e09a7af769-7c95a6ad2edsor3764108a34.0.2025.12.09.11.13.56
+        for <adam@marash.net>
+        (Google Transport Security);
+        Tue, 09 Dec 2025 11:13:56 -0800 (PST)
+Received-SPF: none (google.com: tamar+caf_=adam=marash.net@marash.net does not
+ designate permitted sender hosts) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="si/EhEKi";
+       arc=pass (i=3 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=servicecrm.onmicrosoft.com);
+       spf=none (google.com: tamar+caf_=adam=marash.net@marash.net does not
+ designate permitted sender hosts)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net";
+       dara=fail header.i=@marash.net
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=theservice.co.il;
+ARC-Seal: i=3; a=rsa-sha256; t=1765307636; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=LiaJGBPy6R5u2tKGq1Hma3cIeby6ensxHWBoRbIXNcVkZjNsUHsKT62iI29hWOJ463
+         TEhVKJJ/V+GPBrhd2/CLgRFpOHGTda0q7O/mIP86dJ9UUNnGRACB6rjCosx19sheSJAU
+         gNClPRglIuMB+46aXTSBwn8UHuRrxx3jxNIYCQjvEA1+xfnqEMVYI9N7x4AJxBv+uq4N
+         tyZ7MtxMlidaGYSY85wKXGjHpCN+D/mwOTXUAC6HPPZpwGentAKdf75LwIBuno7w00fa
+         pyN8MEtSBDePYLry0I6m4xeQMH4GVmoZTjK6BZY7EeThyjckuisp9dpS/87uALp6+tLz
+         Uj0Q==
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20240605;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature:delivered-to;
+        bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+        fh=RtHeciiy55kpNPiUwV0Na/+kz808tbN92PZzedm40TA=;
+        b=P6GAnaLiijOJ4NdaBmnp7V+auQjRNuWKZoxcbAOG3IgkSYVEA0LVgMmBB3g+FXpXDI
+         Oiil7RcfdvFkuR++f+h0wTIBCNnJ7gm6daBB2SWWTXahYjmT7o+GzRhnxcZZsjSKjqhZ
+         XmsN9/x2UYbJJXqX6MwIyD7OrNcvi+HRkpn0tf/1IlDuQ7GCgk6yNYJ9JSlF4+i+Xddk
+         I4SfnZXtto7jRbQrUbuyxn5B9Rd9m1XEFMQVq+dV12Jl3INewOPRqNJqMFLTUlgRhthn
+         ZjXGIQ527bMo8/LEXKAckXZNL+Xpu1t+8HbXCRiLlPAU7kMmXwNUnpo78yf0xDjag4hx
+         zwjg==;
+        darn=marash.net
+ARC-Authentication-Results: i=3; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="si/EhEKi";
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f403:c201::1 as permitted sender)
+ smtp.mailfrom=eran@theservice.co.il
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1765307636; x=1765912436;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature:delivered-to:x-forwarded-for:x-forwarded-to
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+        b=qxKFjW28rTb3H+uPF546o/fpOlYW/Wq85r/JH7k1mDv5xSo/ceYiryup0rlF/aBRj6
+         wysL3BuTahMe/rR/eR1+CpTHkaQdK/QJvd0oR2FnKUSPJl+WE9BHct6+RN9aLWOQ7Mru
+         7lRmkW3Ra251HYVIKWFMiSHXarKEZirytf6uIMAbavZRYeoE2OKNtQRWP7/7gEYh/uIX
+         TFNxP6EGVdDAe5Bcv3e0dGsyytwvbka12pouJcL6Ll/4m23+S26RcLMPqTcu9R/Uxa44
+         MD0czdLAnVSR66V7zDIsMytFIteTj8mqlSWdQnUfrJGleyyh7dQuaxa252mlud8lauA0
+         TDzw==
+X-Forwarded-Encrypted: i=3;
+ AJvYcCVwJfYCb7Xk+i2aZLRL5lPvO6jade+TG2QLQyPa8tBd2llTHVGNTPucPMn8Maj0mELLkInK@marash.net
+X-Gm-Message-State: AOJu0YxzpP62UUl48zj7Pb0smxCOfVDxCtReThXp0aEL1g2Ms6aZKGaq
+	YPyeU7ANWZGIpbqBHCbJrRiP7ycrqB8PDuCyrqwuDhRlc6HuYBUZqi7joe8nsJlrdHLQ/iyIHTe
+	HP0RmyhnDNHZl9WQ5vpaFkWhOXugWfHrWcCMUkIIroCDbKeqVyzDRkBAggurUJRwrBipgY7+rB+
+	eR38NnPFA=
+X-Received: by 2002:a05:6830:4408:b0:7c7:731:7905 with SMTP id
+ 46e09a7af769-7c970861d47mr6252020a34.24.1765307636520;
+        Tue, 09 Dec 2025 11:13:56 -0800 (PST)
+X-Forwarded-To: adam@marash.net
+X-Forwarded-For: tamar@marash.net adam@marash.net
+Delivered-To: tamar@marash.net
+Received: by 2002:a17:504:819a:b0:1d70:2afa:dc00 with SMTP id
+ i26csp1817343njh;
+        Tue, 9 Dec 2025 11:13:55 -0800 (PST)
+X-Google-Smtp-Source: 
+ AGHT+IG9QrZr3CjQS0OCHqwfV1xHuwnh2NoCFkCHr58yGoaIDSD23ISZ3I5w27lxjHPw7gluxYtw
+X-Received: by 2002:a05:6a00:3923:b0:7ab:e844:1e76 with SMTP id
+ d2e1a72fcca58-7e8c25d15d9mr10233863b3a.5.1765307634967;
+        Tue, 09 Dec 2025 11:13:54 -0800 (PST)
+ARC-Seal: i=2; a=rsa-sha256; t=1765307634; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=QktA79AcZXeWCz8rUQesV06ThFNGJxF3moeQcf38dcsaNt0yQrQt4Gr0oyMoMqqGgQ
+         FVoVGiMPbJhNG9kYqwnKHAr/bgYT2zJX30twYbEKVMhGis6uEtsRAw1JeKc539nHeFEb
+         jOhU8mO7BLWELshhuXaUPujRQ7YhcXE/LQRpln6I491zoNhOH+PsvCAgGx3s6wSzuB3B
+         r66FaRMqA5hTSw9SXSCr89vuv/bqa4SnfreNEwENsr7QLkTWYbuBXjAtViLTvUcIN+T5
+         0eoWVdtoGIwoTpQiSet2QugqW8LpVBcn8EF0MbUQzXtXmsJo5JtYxMwwJT7OCmsyHcpC
+         8lUg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20240605;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+        fh=XV7/0LvFZzCAtwX5FR6Zg0NjQd2NIYU4zTEYN8cHbVc=;
+        b=YJ2SG9e0oekJxZecbgLXG9F7G8wD7TroHiNhYzMREJ4nd7d/+fhkA6gtssJw7nDIey
+         V1GdSU2gfKTA3nzkZ7RmJq55RphsKyuJ4V2WoAFKky5SdhEQJ+sE9zgftaaun8g0bUzz
+         4t1+W7EElNe09lDB1Zwx8GANc2uJyyYawF3wiZwsshvR2IvgGkcNNBPqrpty7Z9fRigu
+         UlUnfNt2YB5TEa9ZpWeG4++RLIn9gtST9FJ6r0BFuWNZoNMniZFj6V9gXd+G3kdmnQnv
+         6bmI468akUBdxOj88ZYKwla84JyZ1/HuEDaT3NPV5C399v7jDOt8mTA7Wqj8Cc0rMpa6
+         c+8A==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="si/EhEKi";
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f403:c201::1 as permitted sender)
+ smtp.mailfrom=eran@theservice.co.il
+Return-Path: <eran@theservice.co.il>
+Received: from AM0PR83CU005.outbound.protection.outlook.com
+ (mail-westeuropeazlp170100001.outbound.protection.outlook.com.
+ [2a01:111:f403:c201::1])
+        by mx.google.com with ESMTPS id
+ d2e1a72fcca58-7ee96f93ff2si10342985b3a.193.2025.12.09.11.13.53
+        for <tamar@marash.net>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Dec 2025 11:13:54 -0800 (PST)
+Received-SPF: pass (google.com: domain of eran@theservice.co.il designates
+ 2a01:111:f403:c201::1 as permitted sender) client-ip=2a01:111:f403:c201::1;
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=nMDZ4BRuwgBM40uHvvOPk8I68Ij/GWv6QXGife/iBh8LCedbBwMA7BjoOESNmXxdEhD0I4csJnTlX5X5ZKqw+VgdiWyl2EcX/U8B+rKVXXctMHAhnP1eN13tlQHRk+igSAD3Z2j4P1goa1tooYHWzhvAkrUfp29kKZyx/sUwx9sRkDvAS38/1frYkF8a4/WeJt8S5kWGc2XTmW56xdccHr5QdPT8wy8d3jIEyb1qsmp8cZgQ6EGSg42UUYZIln3tPKeLKrzMK+aEUxiFvJh0BLtsq42ffeh6dznue6hv41r6GmemuveXhaPeMjaeJG+RwLotbkN6PaeX1/bnYsv8IQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+ b=H/Xd0hgf09yiCkmAuEB2zubOflgtKuKVRNYInxD3LsALcAWGhuu/xUu5at14VxxKgB7a7w7awku4AW0KoOHrSpVaMPQoLF60Px2qvppTvAQTT3GbU7QUnsXlPizmsT6HBtdJH5k3IYe0CyyLyn6InVTnTaClUcCsefRdpKoboQfiaNWlTlaMklM2lzaoTpcH+umV0i7XSIf6nb+weUcvPBe+vBUy4WTuvGKgwVnLeRf7QfksX4wkQ9YZPrk8+ZiZOBstO05Rvwj4IwonzIZ+ysKRVu50o6gbVwEZvtZQIq6tUL//1Mh4L9m6pit4gJ9l5WLHN7PTo4tt9ag76IhKrQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=theservice.co.il; dmarc=pass action=none
+ header.from=theservice.co.il; dkim=pass header.d=theservice.co.il; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2/4TAXo53hdyYwdim8pk2Bc9uODmW0QEguwAyVsjWhw=;
+ b=si/EhEKi2xG8JIW/C20nX1OEDDl8wRaS3GXKM6HoE2TzX1Gr0abhNRfAUlB32bmu4cxPpSBEGrMiS/sTjKOY4MpEhtgWXv6iNhMy8vC2OKHYlNJ0/MXQna2MfSmSTIE6Yjt/9FuBjaMFEZ3FuF3U85fb73C24MfnpX06GlGwajM=
+Received: from AM8PR05MB7905.eurprd05.prod.outlook.com (2603:10a6:20b:356::12)
+ by VI1PR05MB10912.eurprd05.prod.outlook.com (2603:10a6:800:1d2::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9388.12; Tue, 9 Dec
+ 2025 19:13:48 +0000
+Received: from AM8PR05MB7905.eurprd05.prod.outlook.com
+ ([fe80::169c:759b:b1e0:25f5]) by AM8PR05MB7905.eurprd05.prod.outlook.com
+ ([fe80::169c:759b:b1e0:25f5%3]) with mapi id 15.20.9388.013; Tue, 9 Dec 2025
+ 19:13:48 +0000
+From: eran <eran@theservice.co.il>
+To: Tamar Marash <tamar@marash.net>
+Subject: =?windows-1255?B?UmU6IPru+CDu+PkgLSDi4PDoIOT59/Ll+g==?=
+Thread-Topic: =?windows-1255?B?+u74IO74+SAtIOLg8Ogg5Pn38uX6?=
+Thread-Index: AdxpElQbek+Pb8p3QWm1YrQP0xMYDgAAuUmAAAIblwAAAWbzgAAHCXSL
+Date: Tue, 9 Dec 2025 19:13:48 +0000
+Message-ID: 
+ <AM8PR05MB7905D7E26C7093F178FD5A61EFA3A@AM8PR05MB7905.eurprd05.prod.outlook.com>
+References: 
+ <AM8PR05MB79059AB26F7455CD47883BCEEFA3A@AM8PR05MB7905.eurprd05.prod.outlook.com>
+ <302E752E-2C80-4743-A356-2A00F9C565C6@marash.net>
+ <AM8PR05MB79056581393593155BD2ACEBEFA3A@AM8PR05MB7905.eurprd05.prod.outlook.com>
+ <EE41BAF7-466A-4629-A506-6426378BAA28@marash.net>
+In-Reply-To: <EE41BAF7-466A-4629-A506-6426378BAA28@marash.net>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-reactions: allow
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AM8PR05MB7905:EE_|VI1PR05MB10912:EE_
+x-ms-office365-filtering-correlation-id: 66d1d7b4-c076-4949-d857-08de375714d6
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: 
+ BCL:0;ARA:13230040|1800799024|376014|366016|8096899003|38070700021|7053199007;
+x-microsoft-antispam-message-info: 
+ =?windows-1255?Q?Gau7Xo6JQqK/mvQuNaGJrk3DLB1x3vnaXXt6d51k8o1qXxQcDimsQBW1?=
+ =?windows-1255?Q?hlkE1UeDxTHkvCd7ql5lm4CcZG/MrTEUWv+D1pMXPrOkRvjANzPwUKlj?=
+ =?windows-1255?Q?uHL7i4aXttbSpij/9EeP29Zdz+gbU+vyBM0JKBdFKHTN2fcycNA6KZXB?=
+ =?windows-1255?Q?jKt49eSetApdoBXQBKa24U/qJqxynBfcfqRj0G8DX10StQTx08PGbfFE?=
+ =?windows-1255?Q?hj+Tb/fRZcVRCY8kdBfP8S3HAWZeGWMG+ksZuMxyX7P80SfMAZ6Ht2CA?=
+ =?windows-1255?Q?+V3PtzySiyY32a32OpvBikQwRtwoYEugESMofmLyfkPOhxZh4qn0YIcg?=
+ =?windows-1255?Q?tZtXK1y6je8OTTEpivBnSqpZ/FWG1ApFZOnTTDrPXPFQXiZa3GJgdeql?=
+ =?windows-1255?Q?TtVHw1ASD32+xIGGRxjhUkTiBE6WYLk9QuyFfgu+jYrbr8es5Hr85jyX?=
+ =?windows-1255?Q?ZMuNofLTVDL5tjhShuqNAfpcu6VGmnO1DGNsO4StbbYtwMyvivhVQeL/?=
+ =?windows-1255?Q?1gFHlkGTGEftwXZCnjOhFUj6cVltFjLNlpO18KDeddj310ymQbHwRFzg?=
+ =?windows-1255?Q?LaXaN3G+CPtoVmjOfZuzS6vRDEGouXHG6HG4MHe99fklQWrCZ1anvEZ+?=
+ =?windows-1255?Q?dp8zLD/0BJBuVCyCmWXmfjMrqMYl5iRjCcvbMPwdzl12yzjmJ7TNZDVm?=
+ =?windows-1255?Q?jUjrL3VymjkDDEP/efTm09pMVLjKgNKxvCaKVYB/neMBtI6IOgcxJzMC?=
+ =?windows-1255?Q?+EVbcadRIvqCYX1yy+NdjU59fOJTXhchixniStXj9D4N7LSCwf+/99zS?=
+ =?windows-1255?Q?rqYcIhN9v7ON9Md/UPQixdMkJ/fJV8vl/z7/q9cMJGHtwHmJpSA0QUa6?=
+ =?windows-1255?Q?P6bwRjavRNM63t+x9VugHSCR03UoKp4Ry798AYUdgo5IPpAMUahCz/Cm?=
+ =?windows-1255?Q?e9cwrNAuoVM0sV057XMjHf+ZS+Hp0zANfWkFOWcjAPIMaye6Jyc8GWs8?=
+ =?windows-1255?Q?2eDPLLBmw21nD4gIp/xwfgqP7z7Y9fbHAwLK2LVmdfgP86cbowqAkZy9?=
+ =?windows-1255?Q?WvP9bZc79QpWAeaEpJmyl6+nc2auE6v95Uo3d+vHjk/Jb6Q+Q7/FqqHt?=
+ =?windows-1255?Q?VqgZHJx3OIx14+fCHdqjCHMPwifc1MfY16oFHRzIwebbiAaQnE8u4l0/?=
+ =?windows-1255?Q?/5PpKykMxKu3MQGuNvCTBiogV0v1KHT0SNEAvnWJ1FYYKDvtQ8UT0lZq?=
+ =?windows-1255?Q?TyG6pQa/lfk6RkMua8a5AvjvMrnzCB1ICyd3qMbYUatogUfGtlcmDj1/?=
+ =?windows-1255?Q?lNY1hTlH6GLn0ElKDG6aJkf7OXrLbGzm+ASFX9xBOfLCHzzNll+p5UaG?=
+ =?windows-1255?Q?PNZvaGvNDY0UU4vbzOCvn63N3tvHA/wDhZaeUA/vo8Jnh9gscR9up3Q6?=
+ =?windows-1255?Q?/ShwX+xZJtH2J1qG8SOVOp3FzyzqeY4g/zUTFPAqp42HWJxhUSpnUSF6?=
+ =?windows-1255?Q?HkRnE+/IBpVjiNW8IGdPd+HeHDLQSvxm+kXSerirSjBfgUjlLCj2JEmP?=
+ =?windows-1255?Q?KKDeWvRLWgw1cNMm?=
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR05MB7905.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(8096899003)(38070700021)(7053199007);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?uoahF4zCBPttb0hCxnGD9QObxO8KH7Ec5htPGsdk+ClW3p5wc7IiBoMn?=
+ =?windows-1255?Q?DjAyQgphsxo1Y5hm/zvt98dq3A5E10eGdBp3FQASQ+UVY9AhKVxl5P7i?=
+ =?windows-1255?Q?UQRGoCAm5I6zfBUKyNNvNXzh+l93hJLfa70R/P8UnmJS5FLkI9I3srkT?=
+ =?windows-1255?Q?C6JNp7NLSmsaY9Wyw9Obrdg3+WEQ+eQ8Zz6HrPtqDRVfyNTRNbmFFANg?=
+ =?windows-1255?Q?C+943e7i8ZBX3rMy2iJg4SRnYsfU9JKqvbGVHeLSa0Jk3fzE0TOUEwgJ?=
+ =?windows-1255?Q?23njA6uoquxy5fiZE7TSqd5z8XnSegRezfNuWQda5y7VMMwwGHXNLuC4?=
+ =?windows-1255?Q?JDmDW2I58G6YkFfuBuTmbatwuq3VzKETKOWw4sP5+sXe2oQvOptptGlP?=
+ =?windows-1255?Q?Ap5uZ3N8HZsFfEbguhvFRfscu/WQTOwWsJYLgYA3s3awHTtVzKOl8oM8?=
+ =?windows-1255?Q?AwCjwUqNTuw/8z7CUABfjCTh+eFWp9uC/HPiImvhwxTvQS7KImroRwzE?=
+ =?windows-1255?Q?NQBCXq3SxAtjJyvmtYEmOabMpOs9GVNRbLrxrzXD/Hkm9KANCIRe0hVC?=
+ =?windows-1255?Q?Zu2A3+TANukTac7C81wvZCfzz63HtQzPvwOwRArz45IYPS7ua/BbER6V?=
+ =?windows-1255?Q?IlCf/44SM2xTAGdfiVF6WGnHxW+oFAQBAzDomFL8GEWo0l+Lu9SAHEhy?=
+ =?windows-1255?Q?s8OWvCoEFPyVIxVu6AhfW8cXbfYIDirmyyGrRvMVm3kAK67eqM5wH/PT?=
+ =?windows-1255?Q?LE5UBhy7qfj1V5nAYM+7Klm7CihhDe7joSag8ocetTM0y6B42HuDmOKU?=
+ =?windows-1255?Q?WDvn9LK4fve2Ql4cc+gL4O1QKcOHxh3xP/CpX/3gCQ5o6TywWTNPjWFw?=
+ =?windows-1255?Q?2YxllC38NAwjMZnAkbixrUGbpkjUo77hxfywA+1qbteM9LncDytks/jE?=
+ =?windows-1255?Q?3Xjv8WUYomiUN6IM1/h5KtaEGu8NFcFUEDEyZgv/H3SGsLfzyNzdcj5C?=
+ =?windows-1255?Q?sdjGcGm5Cw2YKRjsIcIlTs2Mq1J6ja+P/ZvE2/HL5LDnRXbOpLcfaBBE?=
+ =?windows-1255?Q?ds8GCMWAigaMRamkszWQi+imwrHPVu4jaydqrV25JLmYJK5/XG+wzCLL?=
+ =?windows-1255?Q?/nB+wdfGS6Xcj5SNuAVJpxS+GNwKxkR1gRz98Db38veo3qTiH4BRjFvl?=
+ =?windows-1255?Q?/n7i2CkSzPL3rJ6nHu7yC12jGTd5uIjMGkzBQ0n3p/VT9LEiRGs94Xmm?=
+ =?windows-1255?Q?hzMYE4CvHIu0AjfO9k3S3tG6Bxqvj7dDemjHswLbv/M5sTOCfDx8ZdnY?=
+ =?windows-1255?Q?/0oo8yljjgctUt74PkGhbQQyNZW22/0joLCloxM5n24loByyOxw+Afh2?=
+ =?windows-1255?Q?2gZG9+ehpClOTx2H6wAfG7SW7aR/86tGPWd0LEDch0vSVaBFBROcEkan?=
+ =?windows-1255?Q?vopUHoEBHNAPWsukqX7aIX8Yw7cFaYTEwHVV9VnVi9KMDL44I60j6Blc?=
+ =?windows-1255?Q?q4mvhAfOIN8m2uchRj11fGcBdP7P3kVqpC0X99fZKDWTFgxQUhJU0Jrh?=
+ =?windows-1255?Q?NEleIXVGUcyqGz2faQDRPt7chT3xPQtA/yOmt9rMrXAQdbDoEB/Z0t+6?=
+ =?windows-1255?Q?AFtjT9gxIVy7egmPN8TY5ClLStcmeqtbvAfio2ERm3saFwKQ8srfeiGT?=
+ =?windows-1255?Q?mzDyJLff0zp6w6g13uqsXjjKzbZQpUma30CMm3s7HKAh4+A/o8Vb+A?=
+ =?windows-1255?Q?=3D=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_AM8PR05MB7905D7E26C7093F178FD5A61EFA3AAM8PR05MB7905eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: theservice.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM8PR05MB7905.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ 66d1d7b4-c076-4949-d857-08de375714d6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Dec 2025 19:13:48.4335
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ PS2VgZlXyCnUAR3JgNsJxkh8ofBTAEVrKIfGrSPTMk4K+Oeg0itle42hv865aENKD/2MsWiKa7NQFRK9bFTn7Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR05MB10912
+
+--_000_AM8PR05MB7905D7E26C7093F178FD5A61EFA3AAM8PR05MB7905eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+=F9=EC=E5=ED =FA=EE=F8.
+=E9=F9 =E1=F7=E5=E1=F5 =F9=E5=E5=E9 =F0=E5=EB=E7=E9, =E4=E7=E6=F8=E9=ED, =
+=EE=F9=E9=EB=E5=FA =E4=E7=E6=F8=E9=ED =E5=FA=F9=E5=E0=E4. =E0=F0=E0 =F0=F1=
+=E9 =EC=E2=EC=E5=EC =EC=EE=E8=E4.
+=EE=E7=F8 =E0=F2=E1=E5=F8 =E0=E9=FA=EA =F2=EC =E4=F7=E5=E1=F5.
+=E9=F9 =E2=ED =FA=F9=E5=E0=E5=FA =EE=FA=E7=E9=EC=FA =E4=F9=F7=F2=E5=FA.
+=E0=ED =FA=F8=F6=E9 =F4=E9=F8=E5=E8 =EE=F4=E5=F8=E8 =E2=ED =F2=EC 19-23 =F0=
+=F2=F9=E4 =E6=E0=FA =E1=F9=EE=E7=E4.
+=F9=E3=E9=E1=F8=F0=E5 =E8=EC=F4=E5=F0=E9=FA =E3=E9=E1=F8=FA =F2=EC =E4=F9=
+=F0=FA=E9=E9=ED =E4=E0=E7=F8=E5=F0=E5=FA =E5=EC=EB=EF =E1=F2=F7=F9=FA=E9 =
+=EE=E4=E0=F0=F9=E9=ED =F9=EC=E9 =E0=FA =E6=E4.
+=F0=F9=EE=E7 =EC=F2=F9=E5=FA =E2=ED =E0=FA =E4=F9=F0=E9=FA 19-23
+
+=F7=E1=EC =FEOutlook =F2=E1=E5=F8 Android=FE<https://aka.ms/AAb9ysg>
+________________________________
+From: Tamar Marash <tamar@marash.net>
+Sent: Tuesday, December 9, 2025 5:48:29 PM
+To: eran <eran@theservice.co.il>
+Subject: Re: =FA=EE=F8 =EE=F8=F9 - =E2=E0=F0=E8 =E4=F9=F7=F2=E5=FA
+
+=F2=F8=EF, =FA=E5=E3=E4 =F2=EC =E4=F7=E5=E1=F5.
+
+=E1=F7=E5=E1=F5 =E0=E9=EF =F0=FA=E5=F0=E9=ED =F2=EC =F9=E5=E5=E9 =F0=E5=EB=
+=E7=E9, =E4=E7=E6=F8=E9=ED/=E3=E9=E1=E9=E3=F0=E3=E9=ED/=F4=E3=E9=E5=F0=E5=
+=FA, =E0=E5 =FA=F9=E5=E0=E4. =F8=F7 =E4=FA=E7=E9=E9=E1=E5=E9=E5=FA =E5=E4=
+=E6=F8=EE=E5=FA.
+=EC=E0 =F0=E9=FA=EF =EC=E7=F9=E1 =F8=E5=E5=E7/=E4=F4=F1=E3 =E0=E5 =FA=F9=E5=
+=E0=E4 =E0=EE=E9=FA=E9=FA =EE=E4=EE=E9=E3=F2 =E4=E6=E4 =EC=E1=E3=E5. =E4=E0=
+=ED =E9=F9 =EC=EA =EE=E9=E3=F2 =EE=EC=E0 =F2=EC =E4=FA=E9=F7 =F9=EC=F0=E5?
+
+=E1=E1=F8=EB=E4,
+=FA=EE=F8
+
+
+
+
+
+On 9 Dec 2025, at 15:11, eran <eran@theservice.co.il> wrote:
+
+=EE=F6"=E1 =EC=E1=F7=F9=FA=EA
+
+From: Tamar Marash <tamar@marash.net>
+Sent: Tuesday, December 9, 2025 4:08 PM
+To: eran=FE <eran@theservice.co.il>
+Subject: Re: =FA=EE=F8 =EE=F8=F9 - =E2=E0=F0=E8 =E4=F9=F7=F2=E5=FA
+
+=FA=E5=E3=E4. =FA=E5=EB=EC =EC=F9=EC=E5=E7 =EBPDF =E1=E1=F7=F9=E4?
+
+
+On 9 Dec 2025, at 13:57, eran <eran@theservice.co.il<mailto:eran@theservice=
+.co.il>> wrote:
+
+=F9=EC=E5=ED =FA=EE=F8,
+
+=EC=F4=F0=E9 =F4=E2=E9=F9=FA=F0=E5 =EE=E7=F8, =EE=F6"=E1 =E2=E0=F0=E8 =E4=
+=F9=F7=F2=E5=FA =E5=FA=E6=F8=E9=EE=E9 =EE=E6=E5=EE=F0=E9=ED =EC=E1=F7=F9=FA=
+=EA.
+
+=E1=E1=F8=EB=E4,
+
+<image001.jpg>
+
+<=FA=EB=F0=E9=FA =F2=E1=E5=E3=E4 =EE=F8=F9 - 2026.xlsx>
+
+<=E2=E0=F0=E8 =F2=E1=E5=E3=E4 =EE=F8=F9.pdf>
+
+
+--_000_AM8PR05MB7905D7E26C7093F178FD5A61EFA3AAM8PR05MB7905eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+</head>
+<body>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=F9=EC=E5=ED =FA=EE=F8.</div>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=E9=F9 =E1=F7=E5=E1=F5 =F9=E5=E5=E9 =F0=E5=EB=E7=E9, =E4=E7=E6=F8=E9=ED, =
+=EE=F9=E9=EB=E5=FA =E4=E7=E6=F8=E9=ED =E5=FA=F9=E5=E0=E4. =E0=F0=E0 =F0=F1=
+=E9 =EC=E2=EC=E5=EC =EC=EE=E8=E4.</div>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=EE=E7=F8 =E0=F2=E1=E5=F8 =E0=E9=FA=EA =F2=EC =E4=F7=E5=E1=F5.</div>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=E9=F9 =E2=ED =FA=F9=E5=E0=E5=FA =EE=FA=E7=E9=EC=FA =E4=F9=F7=F2=E5=FA.</di=
+v>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=E0=ED =FA=F8=F6=E9 =F4=E9=F8=E5=E8 =EE=F4=E5=F8=E8 =E2=ED =F2=EC 19-23 =F0=
+=F2=F9=E4 =E6=E0=FA =E1=F9=EE=E7=E4.</div>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=F9=E3=E9=E1=F8=F0=E5 =E8=EC=F4=E5=F0=E9=FA =E3=E9=E1=F8=FA =F2=EC =E4=F9=
+=F0=FA=E9=E9=ED =E4=E0=E7=F8=E5=F0=E5=FA =E5=EC=EB=EF =E1=F2=F7=F9=FA=E9 =
+=EE=E4=E0=F0=F9=E9=ED =F9=EC=E9 =E0=FA =E6=E4.</div>
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt; color: rgb(33, 33, 33);" =
+dir=3D"rtl">
+=F0=F9=EE=E7 =EC=F2=F9=E5=FA =E2=ED =E0=FA =E4=F9=F0=E9=FA 19-23</div>
+<div id=3D"ms-outlook-mobile-body-separator-line" data-applydefaultfontstyl=
+es=3D"true" dir=3D"auto" style=3D"font-family: Aptos, Aptos_MSFontService, =
+-apple-system, Roboto, Arial, Helvetica, sans-serif; font-size: 12pt;">
+<div style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robot=
+o, Arial, Helvetica, sans-serif; font-size: 12pt;">
+<br>
+</div>
+</div>
+<div id=3D"ms-outlook-mobile-signature" dir=3D"auto" style=3D"font-family: =
+Aptos, Aptos_MSFontService, -apple-system, Roboto, Arial, Helvetica, sans-s=
+erif; font-size: 12pt;">
+<span style=3D"font-family: Aptos, Aptos_MSFontService, -apple-system, Robo=
+to, Arial, Helvetica, sans-serif; font-size: 12pt;">=F7=E1=EC
+</span><a href=3D"https://aka.ms/AAb9ysg" style=3D"font-family: Aptos, Apto=
+s_MSFontService, -apple-system, Roboto, Arial, Helvetica, sans-serif; font-=
+size: 12pt;">=FEOutlook =F2=E1=E5=F8 Android=FE</a></div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Tamar Marash &lt;tama=
+r@marash.net&gt;<br>
+<b>Sent:</b> Tuesday, December 9, 2025 5:48:29 PM<br>
+<b>To:</b> eran &lt;eran@theservice.co.il&gt;<br>
+<b>Subject:</b> Re: =FA=EE=F8 =EE=F8=F9 - =E2=E0=F0=E8 =E4=F9=F7=F2=E5=FA</=
+font>
+<div>&nbsp;</div>
+</div>
+<div style=3D"line-break:after-white-space; direction:rtl">=F2=F8=EF, =FA=
+=E5=E3=E4 =F2=EC =E4=F7=E5=E1=F5.
+<div><br>
+</div>
+<div>=E1=F7=E5=E1=F5&nbsp;<span data-start=3D"632" data-end=3D"696">=E0=E9=
+=EF =F0=FA=E5=F0=E9=ED =F2=EC =F9=E5=E5=E9 =F0=E5=EB=E7=E9, =E4=E7=E6=F8=E9=
+=ED/=E3=E9=E1=E9=E3=F0=E3=E9=ED/=F4=E3=E9=E5=F0=E5=FA, =E0=E5 =FA=F9=E5=E0=
+=E4</span>. =F8=F7 =E4=FA=E7=E9=E9=E1=E5=E9=E5=FA =E5=E4=E6=F8=EE=E5=FA.&nb=
+sp;
+<div>=EC=E0 =F0=E9=FA=EF =EC=E7=F9=E1 =F8=E5=E5=E7/=E4=F4=F1=E3 =E0=E5 =FA=
+=F9=E5=E0=E4 =E0=EE=E9=FA=E9=FA =EE=E4=EE=E9=E3=F2 =E4=E6=E4 =EC=E1=E3=E5. =
+=E4=E0=ED =E9=F9 =EC=EA =EE=E9=E3=F2 =EE=EC=E0 =F2=EC =E4=FA=E9=F7 =F9=EC=
+=F0=E5?</div>
+<div><br>
+</div>
+<div>=E1=E1=F8=EB=E4,</div>
+<div>=FA=EE=F8</div>
+<div><br>
+</div>
+<div><br>
+</div>
+<div><br>
+</div>
+<div><font face=3D"-webkit-standard" size=3D"3"><br id=3D"x_lineBreakAtBegi=
+nningOfMessage">
+</font>
+<div style=3D"direction:ltr"><br>
+<blockquote type=3D"cite">
+<div>On 9 Dec 2025, at 15:11, eran &lt;eran@theservice.co.il&gt; wrote:</di=
+v>
+<br class=3D"x_Apple-interchange-newline">
+<div style=3D"direction:rtl">
+<div class=3D"x_WordSection1" style=3D"font-family:ArialMT; font-size:14px;=
+ font-style:normal; font-variant-caps:normal; font-weight:400; letter-spaci=
+ng:normal; text-align:start; text-indent:0px; text-transform:none; white-sp=
+ace:normal; word-spacing:0px; text-decoration:none">
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right; direction:rtl; unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:Arial,sans-serif">=EE=F6&quot;=E1 =
+=EC=E1=F7=F9=FA=EA</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right; direction:rtl; unicode-bidi:embed">
+<span dir=3D"LTR">&nbsp;</span></div>
+<div>
+<div style=3D"border-width:1pt medium medium; border-style:solid none none;=
+ border-color:rgb(225,225,225) currentcolor currentcolor; padding:3pt 0cm 0=
+cm">
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+<b>From:</b><span class=3D"x_Apple-converted-space">&nbsp;</span>Tamar Mara=
+sh &lt;tamar@marash.net&gt;<span class=3D"x_Apple-converted-space">&nbsp;</=
+span><br>
+<b>Sent:</b><span class=3D"x_Apple-converted-space">&nbsp;</span>Tuesday, D=
+ecember 9, 2025 4:08 PM<br>
+<b>To:</b><span class=3D"x_Apple-converted-space">&nbsp;</span>eran<span di=
+r=3D"RTL"></span><span dir=3D"RTL"></span><span lang=3D"HE" dir=3D"RTL"><sp=
+an dir=3D"RTL"></span><span dir=3D"RTL"></span>=FE</span><span dir=3D"LTR">=
+</span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=3D"LTR">=
+</span><span class=3D"x_Apple-converted-space">&nbsp;</span>&lt;eran@theser=
+vice.co.il&gt;<br>
+<b>Subject:</b><span class=3D"x_Apple-converted-space">&nbsp;</span>Re:<spa=
+n class=3D"x_Apple-converted-space">&nbsp;</span><span lang=3D"HE" dir=3D"R=
+TL">=FA=EE=F8 =EE=F8=F9 - =E2=E0=F0=E8 =E4=F9=F7=F2=E5=FA</span></div>
+</div>
+</div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right; direction:rtl; unicode-bidi:embed">
+<span dir=3D"LTR">&nbsp;</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right; direction:rtl; unicode-bidi:embed">
+<span lang=3D"HE">=FA=E5=E3=E4. =FA=E5=EB=EC =EC=F9=EC=E5=E7 =EB</span><spa=
+n dir=3D"LTR">PDF</span><span dir=3D"RTL"></span><span dir=3D"RTL"></span><=
+span lang=3D"HE"><span dir=3D"RTL"></span><span dir=3D"RTL"></span><span cl=
+ass=3D"x_Apple-converted-space">&nbsp;</span>=E1=E1=F7=F9=E4?</span><span d=
+ir=3D"LTR"></span></div>
+<div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+<br>
+<br>
+<span lang=3D"HE" dir=3D"RTL"></span></div>
+<blockquote style=3D"margin-top:5pt; margin-bottom:5pt">
+<div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+On 9 Dec 2025, at 13:57, eran &lt;<a href=3D"mailto:eran@theservice.co.il" =
+style=3D"color:rgb(149,79,114); text-decoration:underline">eran@theservice.=
+co.il</a>&gt; wrote:</div>
+</div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+&nbsp;</div>
+<div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+<span lang=3D"HE" dir=3D"RTL" style=3D"font-family:Arial,sans-serif">=F9=EC=
+=E5=ED =FA=EE=F8,</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+<span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=3D"HE" dir=3D"=
+RTL" style=3D"font-family:Arial,sans-serif"><span dir=3D"RTL"></span><span =
+dir=3D"RTL"></span>&nbsp;</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+<span lang=3D"HE" dir=3D"RTL" style=3D"font-family:Arial,sans-serif">=EC=F4=
+=F0=E9 =F4=E2=E9=F9=FA=F0=E5 =EE=E7=F8, =EE=F6&quot;=E1 =E2=E0=F0=E8 =E4=F9=
+=F7=F2=E5=FA =E5=FA=E6=F8=E9=EE=E9 =EE=E6=E5=EE=F0=E9=ED =EC=E1=F7=F9=FA=EA=
+.</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+<span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=3D"HE" dir=3D"=
+RTL" style=3D"font-family:Arial,sans-serif"><span dir=3D"RTL"></span><span =
+dir=3D"RTL"></span>&nbsp;</span></div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+<span lang=3D"HE" dir=3D"RTL" style=3D"font-family:Arial,sans-serif">=E1=E1=
+=F8=EB=E4,</span></div>
+<div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+&nbsp;</div>
+</div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right">
+&lt;image001.jpg&gt;</div>
+<div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+&nbsp;</div>
+</div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif">
+&lt;<span lang=3D"HE" dir=3D"RTL">=FA=EB=F0=E9=FA =F2=E1=E5=E3=E4 =EE=F8=F9=
+ - 2026</span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=
+=3D"LTR"></span><span dir=3D"LTR"></span>.xlsx&gt;</div>
+</div>
+</blockquote>
+</div>
+<div style=3D"margin:0cm 0cm 0.0001pt; font-size:11pt; font-family:Calibri,=
+sans-serif; text-align:right; direction:rtl; unicode-bidi:embed">
+<span dir=3D"LTR">&nbsp;</span></div>
+</div>
+<span id=3D"x_cid:F8CF105A-8963-406F-BD32-DE8511039E88">&lt;=E2=E0=F0=E8 =
+=F2=E1=E5=E3=E4 =EE=F8=F9.pdf&gt;</span></div>
+</blockquote>
+</div>
+<br>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+--_000_AM8PR05MB7905D7E26C7093F178FD5A61EFA3AAM8PR05MB7905eurp_--

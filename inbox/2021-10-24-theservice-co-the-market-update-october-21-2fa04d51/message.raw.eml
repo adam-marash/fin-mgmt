@@ -1,0 +1,547 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a17:906:22c7:0:0:0:0 with SMTP id q7csp965765eja;
+        Sun, 24 Oct 2021 05:20:08 -0700 (PDT)
+X-Google-Smtp-Source: 
+ ABdhPJw7xYx4CUrnFu4eJrXvkiCuDn3z22ExYMRFrk7jwt6EljV6Nvp+QGQ9Ysq6iYYT5BlBkxTN
+X-Received: by 2002:a92:8e10:: with SMTP id c16mr6101942ild.74.1635078007618;
+        Sun, 24 Oct 2021 05:20:07 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1635078007; cv=none;
+        d=google.com; s=arc-20160816;
+        b=t5tiKMm3Eti96026gGAFzeZVxORDLFLge7PF5kQyvOHhtnwDOZpq4Stx4FaMToSvQL
+         uUCpyNlieVY7DS4K9ecDtdlU+SiwGJpPgCo/Or2IltNXFs3R2UAFSoSn4NuMJAvYdK/v
+         yIJXLU9VvIAMa7OnBGep8oJn2pevO2FERMbv04vC0/jk5D2fIKKr5S3bly7fW0huHgST
+         TIElfdGRiiwu4gCHnPgwKcPkfCvuP2JGwqel2gMsy3oCqCVpVWOJIxDBQXtsTtp934Pz
+         TmyzDM5+ChPSI+1AWRCjGmXx6OEV9q4uF0oxHcVqaES5Z3i3MfhsxjaZjPxUwJTSNtO2
+         gQYA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=to:reply-to:subject:message-id:mime-version:from:date
+         :dkim-signature;
+        bh=apOIeobooADW9AmPKrLwqSWs8/Ye/I7MdsAAARpxOAs=;
+        b=Q6H1kSlUa8hxCQ9TXyErenz6cvPXUMxeaMhp6Zj4k5L9kisY0l8DXtaZpQ0vlewOeg
+         zkRI6Vsto+2junH8/idaPPHab2r8Sj9OJQIt6EAXSFgV6q3NZoSV7MAcgY6ettEj2aRQ
+         k8sxl8dtXFtN51gPjTqTJQsnYakgApTyeAH1+FBziBxjrreLfE5fh723a6J+ei3dHNGa
+         tkkcM6+cTYZM0enNSrYV/6FPRPUYexZEhow1G3muzPFL9b0tYn4xLgrWMwHnLBtoyUDj
+         qIwMoOwY2Y8SokOlKy2RVN1dJxU8jzmXUNqQE3D53MoUXNpo6mVgYGW+bagVzTMlmnPC
+         fX2A==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=temperror (no key for signature) header.i=@theservice.co.il
+ header.s=s1 header.b=bazB1Sl+;
+       spf=pass (google.com: domain of
+ bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il designates
+ 149.72.120.24 as permitted sender)
+ smtp.mailfrom="bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il"
+Return-Path: <bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il>
+Received: from wrqvtvkv.outbound-mail.sendgrid.net
+ (wrqvtvkv.outbound-mail.sendgrid.net. [149.72.120.24])
+        by mx.google.com with ESMTPS id f5si4918459iow.102.2021.10.24.05.20.04
+        for <adam@marash.net>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 24 Oct 2021 05:20:07 -0700 (PDT)
+Received-SPF: pass (google.com: domain of
+ bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il designates
+ 149.72.120.24 as permitted sender) client-ip=149.72.120.24;
+Authentication-Results: mx.google.com;
+       dkim=temperror (no key for signature) header.i=@theservice.co.il
+ header.s=s1 header.b=bazB1Sl+;
+       spf=pass (google.com: domain of
+ bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il designates
+ 149.72.120.24 as permitted sender)
+ smtp.mailfrom="bounces+12316265-008b-adam=marash.net@em8291.theservice.co.il"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=theservice.co.il;
+	h=content-type:from:mime-version:subject:reply-to:to;
+	s=s1; bh=apOIeobooADW9AmPKrLwqSWs8/Ye/I7MdsAAARpxOAs=;
+	b=bazB1Sl+V3q4TkcFGsPEzNZbhWrpQgsOhKhov587gXY7kPBkjb545QB4H5hU2cpupMhN
+	+0cxTXvva3QnuA6sv7BsXVbJ5QJNEx4Ghr7PXdb9L60uu+cHh5Bzmw+ncBP5EfDP0uu6PU
+	75oScIu6Fj8/9KW2nM3lSAACHCi+VfPDYs50JNE3yjPYNG0aQ/1+/UtkDXnszW86eLLcdh
+	jSu5XH7Hx1cxaFrIr/HXYInHY42dd7K2yjyBzHPWPyeeOmIWV8W+gm4V8EWRVulkiyX1ab
+	+4yu9DqUuG4AsHDzAKFa90im1Ykwe7IUk4JK0+OJ8iWyUS9XVuq5dkh00unSxlUw==
+Received: by filterdrecv-7bf5c69d5-plqrp with SMTP id
+ filterdrecv-7bf5c69d5-plqrp-1-61754F6F-B
+        2021-10-24 12:20:00.557030819 +0000 UTC m=+4543149.153944554
+Received: from MTIzMTYyNjU (unknown)
+	by geopod-ismtpd-4-3 (SG) with HTTP
+	id kOlAdTloTmuSJLMGiGXEBg
+	Sun, 24 Oct 2021 12:19:59.082 +0000 (UTC)
+Content-Type: multipart/mixed;
+ boundary=c9a6137b197dc335d1e993641218cffcd7fa31782a90001536bc366f2413
+Date: Sun, 24 Oct 2021 12:20:03 +0000 (UTC)
+From: The Service <yuvalb@theservice.co.il>
+Mime-Version: 1.0
+Message-ID: <kOlAdTloTmuSJLMGiGXEBg@geopod-ismtpd-4-3>
+Subject: The Service: The Market Update
+Reply-To: research@theservice.co.il
+X-SG-EID: 
+ =?us-ascii?Q?12A1JHUYRyxUFBhDPG+iEKTZsKrblmzdzvO8w3b8LtXg7Wi66aMDDDn63n83wo?=
+ =?us-ascii?Q?A1bc5XNs5A1H19nNQf8ojYA9bunWmkHy1FxWDC5?=
+ =?us-ascii?Q?vCp+GOC6tNtCQj5dyDqK17Amzb5M5PihO21cQRQ?=
+ =?us-ascii?Q?SzbUfOAzXp65Dg7DCRP2v+NWan8lbkdrI1I3zlX?=
+ =?us-ascii?Q?7a7fgDyn5orQzVaEH9Jp8zO8PcUgLjhiakeqV7S?=
+ =?us-ascii?Q?TIejm2xsVnuhDj+j0pWfsI8rdJQgU5QDOMOB9T?=
+To: =?iso-8859-8?b?4OPtIOnl8fMg7vj5?= <adam@marash.net>
+X-Entity-ID: 1/NgZ0v1rI3xxHCuCvvlEQ==
+
+--c9a6137b197dc335d1e993641218cffcd7fa31782a90001536bc366f2413
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=utf-8
+Mime-Version: 1.0
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www=
+.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns=3D"http://www.w3.org/1999/xhtml" xmlns:o=3D"urn:schemas-microso=
+ft-com:office:office" xmlns:v=3D"urn:schemas-microsoft-com:vml">
+  <head>
+    <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:Pixel=
+sPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+    <meta content=3D"width=3Ddevice-width" name=3D"viewport" />
+    <!--[if !mso]><!---->
+    <meta content=3D"IE=3Dedge" http-equiv=3D"X-UA-Compatible" />
+    <!--<![endif]-->
+    <title>
+    </title>
+    <!--[if !mso]><!---->
+    <link rel=3D"preconnect" href=3D"https://fonts.googleapis.com" />
+    <link rel=3D"preconnect" href=3D"https://fonts.gstatic.com" />
+    <link href=3D"https://fonts.googleapis.com/css2?family=3DHeebo:wght@100=
+;200;300;400;500;600;700;800&display=3Dswap" rel=3D"stylesheet" type=3D"tex=
+t/css" />
+    <!--<![endif]-->
+    <style type=3D"text/css">
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      table,
+      td,
+      tr {
+        vertical-align: top;
+        border-collapse: collapse;
+      }
+      * {
+        line-height: inherit;
+      }
+      a[x-apple-data-detectors=3Dtrue] {
+        color: inherit !important;
+        text-decoration: none !important;
+      }
+    </style>
+    <style id=3D"media-query" type=3D"text/css">
+      @media (max-width: 920px) {
+        .block-grid,
+        .col {
+          min-width: 320px !important;
+          max-width: 100% !important;
+          display: block !important;
+        }
+        .block-grid {
+          width: 100% !important;
+        }
+        .col {
+          width: 100% !important;
+        }
+        .col_cont {
+          margin: 0 auto;
+        }
+        img.fullwidth,
+        img.fullwidthOnMobile {
+          max-width: 100% !important;
+        }
+        .no-stack .col {
+          min-width: 0 !important;
+          display: table-cell !important;
+        }
+        .no-stack.two-up .col {
+          width: 50% !important;
+        }
+        .no-stack .col.num2 {
+          width: 16.6% !important;
+        }
+        .no-stack .col.num3 {
+          width: 25% !important;
+        }
+        .no-stack .col.num4 {
+          width: 33% !important;
+        }
+        .no-stack .col.num5 {
+          width: 41.6% !important;
+        }
+        .no-stack .col.num6 {
+          width: 50% !important;
+        }
+        .no-stack .col.num7 {
+          width: 58.3% !important;
+        }
+        .no-stack .col.num8 {
+          width: 66.6% !important;
+        }
+        .no-stack .col.num9 {
+          width: 75% !important;
+        }
+        .no-stack .col.num10 {
+          width: 83.3% !important;
+        }
+        .video-block {
+          max-width: none !important;
+        }
+        .mobile_hide {
+          min-height: 0px;
+          max-height: 0px;
+          max-width: 0px;
+          display: none;
+          overflow: hidden;
+          font-size: 0px;
+        }
+        .desktop_hide {
+          display: block !important;
+          max-height: none !important;
+        }
+      }
+    </style>
+    <style id=3D"icon-media-query" type=3D"text/css">
+      @media (max-width: 920px) {
+        .icons-inner {
+          text-align: center;
+        }
+        .icons-inner td {
+          margin: 0 auto;
+        }
+      }
+    </style>
+  </head>
+  <body dir=3D"rtl" class=3D"clean-body" style=3D"margin: 0; padding: 0; -w=
+ebkit-text-size-adjust: 100%; background-color: #FFFFFF;">
+    <!--[if IE]><div class=3D"ie-browser"><![endif]-->
+    <table bgcolor=3D"#FFFFFF" cellpadding=3D"0" cellspacing=3D"0" class=3D=
+"nl-container" role=3D"presentation" style=3D"table-layout: fixed; vertical=
+-align: top; min-width: 320px; border-spacing: 0; border-collapse: collapse=
+; mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #FFFFFF; =
+width: 100%;" valign=3D"top" width=3D"100%">
+      <tbody>
+        <tr style=3D"vertical-align: top;" valign=3D"top">
+          <td style=3D"word-break: break-word; vertical-align: top;" valign=
+=3D"top">
+            <!--[if (mso)|(IE)]><table width=3D"100%" cellpadding=3D"0" cel=
+lspacing=3D"0" border=3D"0"><tr><td align=3D"center" style=3D"background-co=
+lor:#FFFFFF"><![endif]-->
+            <div style=3D"background-color:transparent;">
+              <div class=3D"block-grid" style=3D"min-width: 320px; max-widt=
+h: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: brea=
+k-word; Margin: 0 auto; background-color: transparent;">
+                <div style=3D"border-collapse: collapse;display: table;widt=
+h: 100%;background-color:transparent;">
+                  <!--[if (mso)|(IE)]><table width=3D"100%" cellpadding=3D"=
+0" cellspacing=3D"0" border=3D"0" style=3D"background-color:transparent;"><=
+tr><td align=3D"center"><table cellpadding=3D"0" cellspacing=3D"0" border=
+=3D"0" style=3D"width:100%"><tr class=3D"layout-full-width" style=3D"backgr=
+ound-color:transparent"><![endif]-->
+                  <!--[if (mso)|(IE)]><td align=3D"center" width=3D"900" st=
+yle=3D"background-color:transparent;width:100%; border-top: 0px solid trans=
+parent; border-left: 0px solid transparent; border-bottom: 0px solid transp=
+arent; border-right: 0px solid transparent;" valign=3D"top"><table width=3D=
+"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0"><tr><td style=3D"pa=
+dding-right: 0px; padding-left: 0px; padding-top:10px; padding-bottom:10px;=
+"><![endif]-->
+                  <div class=3D"col num12" style=3D"min-width: 320px; max-w=
+idth: 100%; display: table-cell; vertical-align: top; width: 100%;">
+                    <div class=3D"col_cont" style=3D"width:100% !important;=
+">
+                      <!--[if (!mso)&(!IE)]><!---->
+                      <div style=3D"border-top:0px solid transparent; borde=
+r-left:0px solid transparent; border-bottom:0px solid transparent; border-r=
+ight:0px solid transparent; padding-top:10px; padding-bottom:10px; padding-=
+right: 0px; padding-left: 0px;">
+                        <!--<![endif]-->
+                        <!--[if mso]><table width=3D"100%" cellpadding=3D"0=
+" cellspacing=3D"0" border=3D"0"><tr><td style=3D"padding-right: 10px; padd=
+ing-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial=
+, sans-serif"><![endif]-->
+                        <div style=3D"color:#080b28;font-family:'Heebo', sa=
+ns-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom=
+:10px;padding-left:10px;">
+                          <div class=3D"txtTinyMce-wrapper" style=3D"font-s=
+ize: 14px; line-height: 1.2; font-family: 'Heebo', sans-serif; color: #080b=
+28; mso-line-height-alt: 17px;">
+                            <p dir=3D"rtl" style=3D"margin: 0; font-size: 1=
+6px; line-height: 1.2; word-break: break-word; text-align: right; mso-line-=
+height-alt: 19px; margin-top: 0; margin-bottom: 0;">
+                              <span style=3D"font-size: 16px;">=D7=A9=D7=9C=
+=D7=95=D7=9D =D7=A8=D7=91,
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">=D7=9B=D7=9E=
+=D7=93=D7=99 =D7=A8=D7=91=D7=A2=D7=95=D7=9F =D7=90=D7=A0=D7=99 =D7=A9=D7=9E=
+=D7=97 =D7=9C=D7=A9=D7=9C=D7=95=D7=97 =D7=9C=D7=9A =D7=90=D7=AA =D7=94=D7=
+=A0=D7=99=D7=95=D7=96=D7=9C=D7=98=D7=A8 =D7=A9=D7=9C=D7=A0=D7=95 : "The Mar=
+ket Update"
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">The Market U=
+pdate =D7=A0=D7=95=D7=A2=D7=93 =D7=A2=D7=91=D7=95=D7=A8=D7=9A =D7=A2=D7=9C =
+=D7=9E=D7=A0=D7=AA =D7=9C=D7=94=D7=AA=D7=A2=D7=93=D7=9B=D7=9F =D7=91=D7=9E=
+=D7=A6=D7=91 =D7=95=D7=91=D7=9E=D7=92=D7=9E=D7=95=D7=AA =D7=94=D7=9E=D7=A9=
+=D7=A4=D7=99=D7=A2=D7=95=D7=AA =D7=A2=D7=9C =D7=94=D7=9B=D7=9C=D7=9B=D7=9C=
+=D7=94 =D7=94=D7=A2=D7=95=D7=9C=D7=9E=D7=99=D7=AA.
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">=D7=91=D7=97=
+=D7=A8=D7=A0=D7=95 =D7=94=D7=A4=D7=A2=D7=9D =D7=9C=D7=A9=D7=99=D7=9D =D7=96=
+=D7=A8=D7=A7=D7=95=D7=A8 =D7=A2=D7=9C =D7=AA=D7=A2=D7=A9=D7=99=D7=99=D7=AA =
+=D7=94=D7=97=D7=9C=D7=9C =D7=95=D7=9B=D7=9C=D7=9B=D7=9C=D7=AA =D7=A1=D7=99=
+=D7=9F, =D7=91=D7=A2=D7=A7=D7=91=D7=95=D7=AA =D7=94=D7=AA=D7=A4=D7=AA=D7=97=
+=D7=95=D7=AA =D7=90=D7=99=D7=A8=D7=95=D7=A2=D7=99=D7=9D =D7=9E=D7=A2=D7=A0=
+=D7=99=D7=99=D7=A0=D7=99=D7=9D =D7=90=D7=A9=D7=A8 =D7=AA=D7=A4=D7=A1=D7=95 =
+=D7=90=D7=AA =D7=AA=D7=A9=D7=95=D7=9E=D7=AA =D7=94=D7=9C=D7=91 =D7=A9=D7=9C=
+ =D7=94=D7=9E=D7=A9=D7=A7=D7=99=D7=A2=D7=99=D7=9D =D7=91=D7=AA=D7=A7=D7=95=
+=D7=A4=D7=94 =D7=94=D7=90=D7=97=D7=A8=D7=95=D7=A0=D7=94.
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">=D7=A0=D7=93=
+=D7=92=D7=99=D7=A9 =D7=9B=D7=99 =D7=90=D7=99=D7=9F =D7=91=D7=9B=D7=95=D7=95=
+=D7=A0=D7=AA=D7=A0=D7=95 =D7=9C=D7=97=D7=96=D7=95=D7=AA =D7=91=D7=99=D7=A6=
+=D7=95=D7=A2=D7=99 =D7=A0=D7=9B=D7=A1=D7=99=D7=9D =D7=90=D7=95 =D7=90=D7=AA=
+ =D7=9B=D7=99=D7=95=D7=95=D7=A0=D7=99 =D7=94=D7=A9=D7=95=D7=95=D7=A7=D7=99=
+=D7=9D, =D7=9E=D7=98=D7=A8=D7=AA=D7=A0=D7=95 =D7=9C=D7=A1=D7=A4=D7=A7 =D7=
+=9E=D7=99=D7=93=D7=A2 =D7=91=D7=A2=D7=9C =D7=A2=D7=A8=D7=9A =D7=9C=D7=90=D7=
+=A4=D7=99=D7=A7=D7=99 =D7=94=D7=A9=D7=A7=D7=A2=D7=94 =D7=99=D7=A6=D7=99=D7=
+=A8=D7=AA=D7=99=D7=99=D7=9D =D7=95=D7=9E=D7=A2=D7=A0=D7=99=D7=99=D7=A0=D7=
+=99=D7=9D, =D7=95=D7=9C=D7=A9=D7=A4=D7=A8 =D7=90=D7=AA =D7=90=D7=99=D7=9B=
+=D7=95=D7=AA =D7=94=D7=A4=D7=99=D7=96=D7=95=D7=A8 =D7=91=D7=AA=D7=99=D7=A7 =
+=D7=94=D7=94=D7=A9=D7=A7=D7=A2=D7=95=D7=AA.
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">=D7=90=D7=A0=
+=D7=99 =D7=9E=D7=96=D7=9E=D7=99=D7=9F =D7=90=D7=95=D7=AA=D7=9A =D7=9C=D7=A4=
+=D7=A0=D7=95=D7=AA =D7=90=D7=9C =D7=9E=D7=A0=D7=94=D7=9C =D7=94=D7=A2=D7=95=
+=D7=A9=D7=A8 =D7=A9=D7=9C=D7=9A =D7=91=D7=9B=D7=9C =D7=A0=D7=95=D7=A9=D7=90=
+ =D7=A1=D7=A4=D7=A6=D7=99=D7=A4=D7=99 =D7=A2=D7=9C =D7=9E=D7=A0=D7=AA =D7=
+=9C=D7=A7=D7=91=D7=9C =D7=9E=D7=99=D7=93=D7=A2 =D7=A0=D7=95=D7=A1=D7=A3 =D7=
+=95=D7=9E=D7=97=D7=9C=D7=A7=D7=AA =D7=94=D7=9E=D7=97=D7=A7=D7=A8 =D7=95=D7=
+=90=D7=A0=D7=9C=D7=99=D7=96=D7=94 =D7=A9=D7=9C=D7=A0=D7=95 =D7=AA=D7=95=D7=
+=9B=D7=9C =D7=9C=D7=98=D7=A4=D7=9C =D7=91=D7=9B=D7=9A.
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <!--[if mso]></td></tr></table><![endif]-->
+                        <div align=3D"right" class=3D"button-container" sty=
+le=3D"padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:=
+10px;">
+                          <!--[if mso]><table width=3D"100%" cellpadding=3D=
+"0" cellspacing=3D"0" border=3D"0" style=3D"border-spacing: 0; border-colla=
+pse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"><tr><td style=
+=3D"padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-l=
+eft: 10px" align=3D"right"><v:roundrect xmlns:v=3D"urn:schemas-microsoft-co=
+m:vml" xmlns:w=3D"urn:schemas-microsoft-com=F0=9F=8F=A2word" href=3D"https:=
+//marketing.plan-t.org.il/r/7e547afe7b139750dfa56e589?ct=3DYTo1OntzOjY6InNv=
+dXJjZSI7YToyOntpOjA7czo1OiJlbWFpbCI7aToxO2k6MTA3O31zOjU6ImVtYWlsIjtpOjEwNzt=
+zOjQ6InN0YXQiO3M6MjI6IjYxNzU0ZjZkZTNjYjQ2ODI1MDIzOTYiO3M6NDoibGVhZCI7czozOi=
+IzMDUiO3M6NzoiY2hhbm5lbCI7YToxOntzOjU6ImVtYWlsIjtpOjEwNzt9fQ%3D%3D&utm_sour=
+ce=3Dams&utm_medium=3Demail&utm_campaign=3Dmarket-update&utm_content=3Dq3" =
+style=3D"height:31.5pt;width:167.25pt;v-text-anchor:middle;" arcsize=3D"143=
+%" stroke=3D"false" fillcolor=3D"#080b28"><w:anchorlock/><v:textbox inset=
+=3D"0,0,0,0"><center style=3D"color:#ffffff; font-family:Arial, sans-serif;=
+ font-size:16px"><![endif]-->
+                          <a href=3D"http://url9463.theservice.co.il/ls/cli=
+ck?upn=3DVQn7TmtDWsDdXdaUbuB8UVFJTrHDxyjEm0ZfOxVmjKK5Zjv6P9Lp-2FYUZIBetjXT-=
+2BcFew4Xd6G3qzXI-2BJVGG3e7HKKUAGhuDFi4Q7-2BUG0fYoNKj7qa2hIQRH5AdeGumm-2BBIj=
+sqjpof1Eyd0yAYqCT8n9xaX9gAKmCMrtzFyOpyds4SFG2-2Bt5kkDIA7styrTeAlgekLxVvdu-2=
+BSmhrROYdYcEDRJiaR33YSeFbkoFRmgjyWmfW6S1LQn2Uv0CkezDZtTEhRDAdsmeOKdMRefi0El=
+hWZSz8vWMgxupnYr8ghQ-2FtkSglyRjAMwUfGy4zDlPGj2THvnNXcT9A9-2BXddrAtCtk1UrHs2=
+5uhYjVErtEavUeabvvkvGpVO-2FqkWPJ0sl-2BabjqsWYY5e3vIlLUDziPZZ2RciTIxgHD34hUJ=
+duj9JTPP8-2Bdz4NcnctFReMhyEh4xG8QLfS6-2BsWUHGy1Bciq9sbLeq34IbnBRd4bnp-2FuwF=
+tLPiUwraRhj0zHmrh5PyuCSsOTd8_o3DunmNaS8UO9oHz51H3Fve9b-2B7rRnOfnYBgafV-2Bs2=
+9ejeeom2K2iTTvZ9QsncLXJlY94pAlKF-2F8aU38t2wrQgxJiLT3cIFlRP34fMv4AQNzA8jkFUC=
+k2m8qWaJrj-2FEuIL5jmtSDxGURqh8lRCWl7ngpW5c43R-2Becrq17vprbMA23Y03cTw5i7Yc8N=
+fbJxvy5-2FQ6OB57zXp8GW8gR6Jcug-3D-3D" style=3D"-webkit-text-size-adjust: no=
+ne; text-decoration: none; display: inline-block; color: #ffffff; backgroun=
+d-color: #080b28; border-radius: 60px; -webkit-border-radius: 60px; -moz-bo=
+rder-radius: 60px; width: auto; width: auto; border-top: 1px solid #080b28;=
+ border-right: 1px solid #080b28; border-bottom: 1px solid #080b28; border-=
+left: 1px solid #080b28; padding-top: 5px; padding-bottom: 5px; font-family=
+: 'Heebo', sans-serif; text-align: center; mso-border-alt: none; word-break=
+: keep-all;" target=3D"_blank">
+                            <span style=3D"padding-left:20px;padding-right:=
+20px;font-size:16px;display:inline-block;letter-spacing:undefined;">
+                              <span style=3D"font-size: 16px; line-height: =
+2; word-break: break-word; mso-line-height-alt: 32px;">The Market Update
+                              </span>
+                            </span>
+                          </a>
+                          <!--[if mso]></center></v:textbox></v:roundrect><=
+/td></tr></table><![endif]-->
+                        </div>
+                        <!--[if mso]><table width=3D"100%" cellpadding=3D"0=
+" cellspacing=3D"0" border=3D"0"><tr><td style=3D"padding-right: 10px; padd=
+ing-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial=
+, sans-serif"><![endif]-->
+                        <div style=3D"color:#080b28;font-family:'Heebo', sa=
+ns-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom=
+:10px;padding-left:10px;">
+                          <div class=3D"txtTinyMce-wrapper" style=3D"font-s=
+ize: 14px; line-height: 1.2; font-family: 'Heebo', sans-serif; color: #080b=
+28; mso-line-height-alt: 17px;">
+                            <p dir=3D"rtl" style=3D"margin: 0; font-size: 1=
+6px; line-height: 1.2; word-break: break-word; text-align: right; mso-line-=
+height-alt: 19px; margin-top: 0; margin-bottom: 0;">
+                              <span style=3D"font-size: 16px;">=D7=91=D7=91=
+=D7=A8=D7=9B=D7=94,
+                              </span><br /><br />
+                              <span style=3D"font-size: 16px;">=D7=99=D7=95=
+=D7=91=D7=9C =D7=91=D7=A0=D7=A1=D7=9C
+                              </span><br />
+                              <span style=3D"font-size: 16px;">=D7=97=D7=98=
+=D7=99=D7=91=D7=AA =D7=9E=D7=97=D7=A7=D7=A8 =D7=95=D7=90=D7=A0=D7=9C=D7=99=
+=D7=96=D7=94
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <!--[if mso]></td></tr></table><![endif]-->
+                        <div align=3D"right" class=3D"img-container right a=
+utowidth" style=3D"padding-right: 0px;padding-left: 0px;">
+                          <!--[if mso]><table width=3D"100%" cellpadding=3D=
+"0" cellspacing=3D"0" border=3D"0"><tr style=3D"line-height:0px"><td style=
+=3D"padding-right: 0px;padding-left: 0px;" align=3D"right"><![endif]-->
+                          <img align=3D"right" border=3D"0" class=3D"right =
+autowidth" src=3D"https://marketing.plan-t.org.il/media/images/the_service/=
+sigs/theservice-yuval-sig-300x135.jpg" style=3D"text-decoration: none; -ms-=
+interpolation-mode: bicubic; height: auto; border: 0; width: 100%; max-widt=
+h: 300px; float: none; display: block;" width=3D"300" />
+                          <!--[if mso]></td></tr></table><![endif]-->
+                        </div>
+                        <!--[if (!mso)&(!IE)]><!---->
+                      </div>
+                      <!--<![endif]-->
+                    </div>
+                  </div>
+                  <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+                  <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><=
+![endif]-->
+                </div>
+              </div>
+            </div>
+            <div style=3D"background-color:transparent;">
+              <div class=3D"block-grid" style=3D"min-width: 320px; max-widt=
+h: 100%; overflow-wrap: break-word; word-wrap: break-word; word-break: brea=
+k-word; Margin: 0 auto; background-color: transparent;">
+                <div style=3D"border-collapse: collapse;display: table;widt=
+h: 100%;background-color:transparent;">
+                  <!--[if (mso)|(IE)]><table width=3D"100%" cellpadding=3D"=
+0" cellspacing=3D"0" border=3D"0" style=3D"background-color:transparent;"><=
+tr><td align=3D"center"><table cellpadding=3D"0" cellspacing=3D"0" border=
+=3D"0" style=3D"width:100%"><tr class=3D"layout-full-width" style=3D"backgr=
+ound-color:transparent"><![endif]-->
+                  <!--[if (mso)|(IE)]><td align=3D"center" width=3D"900" st=
+yle=3D"background-color:transparent;width:100%; border-top: 0px solid trans=
+parent; border-left: 0px solid transparent; border-bottom: 0px solid transp=
+arent; border-right: 0px solid transparent;" valign=3D"top"><table width=3D=
+"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0"><tr><td style=3D"pa=
+dding-right: 0px; padding-left: 0px; padding-top:10px; padding-bottom:10px;=
+"><![endif]-->
+                  <div class=3D"col num12" style=3D"min-width: 320px; max-w=
+idth: 100%; display: table-cell; vertical-align: top; width: 100%;">
+                    <div class=3D"col_cont" style=3D"width:100% !important;=
+">
+                      <!--[if (!mso)&(!IE)]><!---->
+                      <div style=3D"border-top:0px solid transparent; borde=
+r-left:0px solid transparent; border-bottom:0px solid transparent; border-r=
+ight:0px solid transparent; padding-top:10px; padding-bottom:10px; padding-=
+right: 0px; padding-left: 0px;">
+                        <!--<![endif]-->
+                        <!--[if mso]><table width=3D"100%" cellpadding=3D"0=
+" cellspacing=3D"0" border=3D"0"><tr><td style=3D"padding-right: 10px; padd=
+ing-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial=
+, sans-serif"><![endif]-->
+                        <div style=3D"color:#080b28;font-family:'Heebo', sa=
+ns-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom=
+:10px;padding-left:10px;">
+                          <div class=3D"txtTinyMce-wrapper" style=3D"font-s=
+ize: 14px; line-height: 1.2; font-family: 'Heebo', sans-serif; color: #080b=
+28; mso-line-height-alt: 17px;">
+                            <p dir=3D"rtl" style=3D"margin: 0; font-size: 1=
+2px; line-height: 1.2; word-break: break-word; text-align: center; mso-line=
+-height-alt: 14px; margin-top: 0; margin-bottom: 0;">
+                              <span style=3D"font-size: 12px;">
+                                <a href=3D"http://url9463.theservice.co.il/=
+ls/click?upn=3DVQn7TmtDWsDdXdaUbuB8UVFJTrHDxyjEm0ZfOxVmjKK4hXrGc7Nyfx3a-2BH=
+hmUtE1TmyL68pVh0G3HCR-2Fe6P4Dt7UreTP-2FuhaUGK6HkyZvOI-3DEpms_o3DunmNaS8UO9o=
+Hz51H3Fve9b-2B7rRnOfnYBgafV-2Bs29ejeeom2K2iTTvZ9QsncLX7ZxKHUHr5HT71HgSoIk9n=
+Ff-2F7YcyfLKSJNSl7bvkhaQSiYMfFOeh24DSeU1rzcV1KghmilgozYhxx7x0JYnRl-2FdHK-2F=
+Mpp0GyreLNH82JNyj39NCnb0EVtb7WlSqoDAh0W-2Fb1yEQbxgNi4E3sfPoObA-3D-3D" rel=
+=3D"noopener" style=3D"text-decoration: none; color: #0068A5;" target=3D"_b=
+lank">=D7=90=D7=9D =D7=94=D7=A7=D7=99=D7=A9=D7=95=D7=A8 =D7=9C=D7=A6=D7=A4=
+=D7=99=D7=99=D7=94 =D7=90=D7=99=D7=A0=D7=95 =D7=9E=D7=95=D7=A6=D7=92 =D7=9B=
+=D7=A8=D7=90=D7=95=D7=99 - =D7=90=D7=A0=D7=90 =D7=9C=D7=97=D7=A5 =D7=9B=D7=
+=90=D7=9F
+                                </a>=C2=A0|=C2=A0
+                                <a href=3D"mailto:research@theservice.co.il=
+" rel=3D"noopener" style=3D"text-decoration: none; color: #0068A5;" target=
+=3D"_blank">=D7=A6=D7=95=D7=A8 =D7=A7=D7=A9=D7=A8
+                                </a>=C2=A0|=C2=A0
+                                <a href=3D"http://url9463.theservice.co.il/=
+ls/click?upn=3DVQn7TmtDWsDdXdaUbuB8UVFJTrHDxyjEm0ZfOxVmjKKMxCdTAMveLBVMuDhV=
+Pz-2BHGuEhDJfxDspCrbXzVr8p-2BDc-2BVSuKdeS5pfUqA-2BsbkmbpPxSZH2WzPL5RyLAJJng=
+AB2fn_o3DunmNaS8UO9oHz51H3Fve9b-2B7rRnOfnYBgafV-2Bs29ejeeom2K2iTTvZ9QsncLXL=
+x17sy6DWjw3-2BKAlzwkvuHY6-2FUCBAREjhuwsaft9HLGFDxas-2Fe4uf2KG2fAt9Bvpkiidrs=
+MycRxDHQHLjgu2-2FvKtkMkVoUh7w3eCJSUb7y7d65PeXh-2BNxuMC0COE1P43LSQaWjiwa0L3a=
+YHRXHszxQ-3D-3D" rel=3D"noopener" style=3D"text-decoration: none; color: #0=
+068A5;" target=3D"_blank">=D7=94=D7=A1=D7=A8=D7=94 =D7=9E=D7=A8=D7=A9=D7=99=
+=D7=9E=D7=AA =D7=AA=D7=A4=D7=95=D7=A6=D7=94
+                                </a>
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <!--[if mso]></td></tr></table><![endif]-->
+                        <!--[if mso]><table width=3D"100%" cellpadding=3D"0=
+" cellspacing=3D"0" border=3D"0"><tr><td style=3D"padding-right: 10px; padd=
+ing-left: 10px; padding-top: 10px; padding-bottom: 10px; font-family: Arial=
+, sans-serif"><![endif]-->
+                        <div style=3D"color:#080b28;font-family:'Heebo', sa=
+ns-serif;line-height:1.2;padding-top:10px;padding-right:10px;padding-bottom=
+:10px;padding-left:10px;">
+                          <div class=3D"txtTinyMce-wrapper" style=3D"font-s=
+ize: 14px; line-height: 1.2; font-family: 'Heebo', sans-serif; color: #080b=
+28; mso-line-height-alt: 17px;">
+                            <p style=3D"margin: 0; text-align: center; line=
+-height: 1.2; word-break: break-word; font-size: 12px; mso-line-height-alt:=
+ 14px; margin-top: 0; margin-bottom: 0;">
+                              <span style=3D"font-size: 12px;">=C2=A9 2021 =
+THESERVICE - ALL RIGHTS RESERVED
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <!--[if mso]></td></tr></table><![endif]-->
+                        <!--[if (!mso)&(!IE)]><!---->
+                      </div>
+                      <!--<![endif]-->
+                    </div>
+                  </div>
+                  <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+                  <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><=
+![endif]-->
+                </div>
+              </div>
+            </div>
+            <!--[if (mso)|(IE)]></td></tr></table><![endif]-->
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--[if (IE)]></div><![endif]-->
+  <img height=3D"1" width=3D"1" src=3D"https://marketing.plan-t.org.il/emai=
+l/61754f6de3cb4682502396.gif" alt=3D"" /><img src=3D"http://url9463.theserv=
+ice.co.il/wf/open?upn=3Dl0c6yCtI8DuGbFhgYe8Hv9nMExzV4bmgmh9h-2BWGUQmzmSn6FU=
+R8e4JU1M4vfciZBb493bO-2FFH2DIBaiX5hpO8WDpu8w0jguaO0tgD2ADC5d9MwgYFudvDxDUO-=
+2FAOM-2BVB6w8Src3vctI2VpeH8IrjyCS2ijOpsVwBf3KQis68aPWq5w5NE2xCno26o-2B-2Fu2=
+FS-2BPPNBv3XYvVmtDlEQu8KLsg-3D-3D" alt=3D"" width=3D"1" height=3D"1" border=
+=3D"0" style=3D"height:1px !important;width:1px !important;border-width:0 !=
+important;margin-top:0 !important;margin-bottom:0 !important;margin-right:0=
+ !important;margin-left:0 !important;padding-top:0 !important;padding-botto=
+m:0 !important;padding-right:0 !important;padding-left:0 !important;"/></bo=
+dy>
+</html>
+--c9a6137b197dc335d1e993641218cffcd7fa31782a90001536bc366f2413
+Content-Disposition: attachment; filename="The Market Update October 21.pdf"
+Content-Type: application/pdf; name="The Market Update October 21.pdf"
+
+[attachment stripped]
+--c9a6137b197dc335d1e993641218cffcd7fa31782a90001536bc366f2413--

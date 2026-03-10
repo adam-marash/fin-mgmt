@@ -1,0 +1,256 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a37:c248:0:0:0:0:0 with SMTP id j8csp224092qkm;
+        Thu, 11 Aug 2022 00:08:32 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AA6agR6dNSo4N/DOe/oTgC2Vw9ydlZc9C4CUG55tF2ffCZzx8jw3W0cjobFey6so7Ampt7/2r0Gj
+X-Received: by 2002:a05:6402:34c7:b0:43e:4237:e57c with SMTP id
+ w7-20020a05640234c700b0043e4237e57cmr29771107edc.171.1660201711889;
+        Thu, 11 Aug 2022 00:08:31 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1660201711; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=eH36dfPYsyC7M22KAwojncdJl82Nv9qTrmIlABmk7hZtw75FQLo+Jgm/gRqo6loH6W
+         6RL6NhE7vNolSV/EdQOObSw1sMYT73DpCb0bT3rShaqL0v9HO769qna2w31wRLR+yzqc
+         F6+X6eJ5gtcfvRIybGrJmSkkeT+Xktg403N/igtsQo01Ooda/nlDNGe74wolrEqT5VEn
+         fDwl3sh6uk45JF647PYejIfx7PgHSvbsoOsAnnhlARWh9tWyr5VTkMCBtzgsWgRlfujZ
+         sOLwusSqN8I3DZyAiymnK4XxZr4PgMZSKTc0j6ZvluNG2CDas3bQBppW9EMa7oBJTUB1
+         I5Wg==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=lblzk5so4dLYADfq5bLM/ODOtTjDoHaSYXOzXzvm3Bs=;
+        b=xuUBjSya+88nlEhyv0WEw7x9z179WhM/KpzG+9pbLeX4lhprR39Pbia/7mG8nIJPDQ
+         uM57oDiwShjhziAT+F8s9T8rgpl8ohKQhQKW8PHYfLJmvtftdEjRP2t0PgKXY32AbH09
+         tS0CeO8OUI1g2e4ZIbyPQBBr7dsGvd3PVOMknVNMenARcvDkCSGB0UgigMEjUGefJe8i
+         HJ3mY/uORVqWfHuU4N0A0FQ1Srknb74cilAYtkEj0G0xZFMyG7ZZZxEujO/2Ja0IZCl8
+         OdO123xT0l+rw1k99LPz+7NkWGm3I8R/BdQK/y+pjtiX+YZq0mqCZW/bSfTXXrX3QUdm
+         VLeA==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=A7SX3Dwe;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.2.97 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+Return-Path: <eran@theservice.co.il>
+Received: from EUR02-VE1-obe.outbound.protection.outlook.com
+ (mail-eopbgr20097.outbound.protection.outlook.com. [40.107.2.97])
+        by mx.google.com with ESMTPS id
+ y7-20020a056402358700b0043e6a689b4bsi14359527edc.536.2022.08.11.00.08.31
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 11 Aug 2022 00:08:31 -0700 (PDT)
+Received-SPF: pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.2.97 as permitted sender) client-ip=40.107.2.97;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=A7SX3Dwe;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.2.97 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QNibBomUyTz/XvlozCqEHT1ihn5uyQFk7IKuDmPNUH2VY7d+RpWYWFonXRNE1VP1WzPA1O65i0MqWAUjuDg9jknIM9jzm/Ni14aGplAyQd3UkGo20mabMyvUbDyov4zdua9WljmSSvFUwqdtQs9MYMoy54L+MyGEAboVbjLmRJkdlsagjAaVK0YD3vf2f0mqk0uSIW829B4mVEZjO4p+WAMEjzTQ/Q2E//mV5dUHZT9HKFr7eoDoSYgYYqjvOaKcn2GFvKaA5Qk7r/X7/DhCZCX8vqG/+BL3qqhSW256CXipjbmHqvrIkssLDoo1qhfj9exVZZQYXY6GTPDONbFN+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lblzk5so4dLYADfq5bLM/ODOtTjDoHaSYXOzXzvm3Bs=;
+ b=ASYl29Jo4LI7XiI3QZBLGrN5a9UAqqk/5tzSVzoJl2J1wadrQRWwLl2wB/OLtmyY8ckq4EqkTnQtp285Pbnp1j+TZ3JKK4tW8dyPt5n8Vmolh/tSiSNJRWgTduAFCaLTH/0mKsJeD5ouqAbuH5UY/5EZJz/9IRSjf05e5vrCIg6Eg2zKcR29KbgUsq7wZ3lQsHE39RPfhiThbWKSEdlwuJk+4tZ2hi7t+4PPFxyNluIpvSYoTfxYD6kgZ3ntKdZRRWVsV2TKIpoLqeZ96/UMcw3Dhw4Li5uU16cVMPKaBoFdjJUDNpjnvjN4ONTzcSsNQKbx9w80bJ38kb5ReT5/yA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=theservice.co.il; dmarc=pass action=none
+ header.from=theservice.co.il; dkim=pass header.d=theservice.co.il; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lblzk5so4dLYADfq5bLM/ODOtTjDoHaSYXOzXzvm3Bs=;
+ b=A7SX3DweX4ORTQkNp3GxQGfr039/1z36Gl5TACeC+o5ScOosWQkXEOIKFs7KpHUyOOeSP7oHxoCZt8JGjUd3D7bKVaSVKw6t3x1WqSynmK4/veCQtEGR5EB1plaVa/RN+CUvemLJBu6g+3NVoq8WuNh/4UPbvu4M8AZ+VJ7jcPU=
+Received: from AM8PR05MB7905.eurprd05.prod.outlook.com (2603:10a6:20b:356::12)
+ by PR3PR05MB7322.eurprd05.prod.outlook.com (2603:10a6:102:92::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5525.11; Thu, 11 Aug
+ 2022 07:08:30 +0000
+Received: from AM8PR05MB7905.eurprd05.prod.outlook.com
+ ([fe80::40ed:8ba6:64d8:10e9]) by AM8PR05MB7905.eurprd05.prod.outlook.com
+ ([fe80::40ed:8ba6:64d8:10e9%4]) with mapi id 15.20.5525.010; Thu, 11 Aug 2022
+ 07:08:30 +0000
+From: eran <eran@theservice.co.il>
+To: Adam Marash <adam@marash.net>
+Subject: =?windows-1255?B?UmU6IPjr6fn6IOHp+iDh6fn44OwgLSD66/Dl7yDk9/bg5A==?=
+Thread-Topic: =?windows-1255?B?+Ovp+fog4en6IOHp+fjg7CAtIPrr8OXvIOT39uDk?=
+Thread-Index: AQHYb2K9JE/PHDijCUS99UOPOLqBdq0uAeXngAAFA4CAe7eFAIAABQ2/
+Date: Thu, 11 Aug 2022 07:08:30 +0000
+Message-ID: 
+ <AM8PR05MB790546F1EF6D72C578E564E0EF649@AM8PR05MB7905.eurprd05.prod.outlook.com>
+References: 
+ <CABgnYtLBWe8fbaj2ifmoMNLY-L5pnoq=PLjT0nzpn-FCDOdWYg@mail.gmail.com>
+ <AM6PR05MB53492DDA9D647A21DD55E814EFD79@AM6PR05MB5349.eurprd05.prod.outlook.com>
+ <CABgnYt+oALS4rSG9K6QepybbKuhp2uAnS6x5_8hiftsJPmX0PQ@mail.gmail.com>
+ <CABgnYtJ6fD1G+TyUDgrzwPZv-DH1BB2vbM9sLexE3_rQGVYBhg@mail.gmail.com>
+In-Reply-To: 
+ <CABgnYtJ6fD1G+TyUDgrzwPZv-DH1BB2vbM9sLexE3_rQGVYBhg@mail.gmail.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=theservice.co.il;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: ff477131-c371-40d4-2b3c-08da7b684ba8
+x-ms-traffictypediagnostic: PR3PR05MB7322:EE_
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ zFJatsXUuXlFUDmlOP9wYdv8ha8Gkk6EZQkY+GF03jKHGGRNwKYf4s5qTpDabdtYmHUDWUdLmmkFOOOZT0F3DNZjw037uPb77HPf22YQebXOo3sW76et9R6lZQOJcxhQsCNdDKWsKOaSgEi71FE4TvfSWCz5QIsdkXyIyQmkr29/9znTvUfYElbPPVLipsJF7w5Bh+4zGldNhENNjG3ZGgeGWqH0GwFgxpmNr9956AjM4N5DWKy/hZoqodaz67noL7XSVK6ew5z62mpHfKBSjmxX1BcwbeHXGBUYTx/UBVfziculhqlhXqVgkq266shDmjCngF8Gc7v+KlXVk7p+kwNqDuDycR7zRnldiRSCmJX1iYkDhAoEvYbljLZuOhowrCv3NNQ++HFSMpsocH3oCdSjXXbtKSWNS/l0R7gz3FUnJ35DMboNtpLIVJeUAUAlK4gL1sh2kN/miU/LFKbcE/q//YftY2/pHcCgMVqhSFqm+FOcl16nM50SZE9+ZPOt/sg2Gr/hZaxNx6CEdICPri8uMsGFIEycyEMuE/qfL2LwYUF4gbeV4KiiPdu236AoFex4JQuJ8Gb4bcFY+EMS3sYhTLIJddus2rDgXpKT4IUJbx1VE1U8Ql912yWF+xKKqAWNB/8Ee1cjCPh2UN/ZVSYWz53b11F1dvfmYvcifqreCjd6P3Wa3/FfOA+tkwK0LwSyuoxywbvYo3Vqc1rQUR7mYBVty/QfRL/jSKWvIJbWoQK/rBhSvyGlpsLqrBQZBQBzgDhnjScTKWw0KX6iZF4ELbA1pWkcV8piBrFWapGEnwL1bkBnCTv2tD8yhCz03b9eyo079s6vXim4uEvubQ==
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR05MB7905.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(376002)(136003)(39840400004)(366004)(396003)(346002)(224303003)(38070700005)(33656002)(71200400001)(41300700001)(478600001)(6506007)(26005)(9686003)(7696005)(86362001)(166002)(53546011)(186003)(45080400002)(55016003)(91956017)(5660300002)(66476007)(66946007)(66556008)(64756008)(66446008)(76116006)(6916009)(316002)(38100700002)(122000001)(52536014)(4744005)(8936002)(2906002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?c5tDa9ekTkzgBKnYqPxDJAM0NWTVRioE6SP8rGOHYMbSxAgzgis4SuaT?=
+ =?windows-1255?Q?/K6b6Gmlp/QOKDVOE4UgpBplSvadR/eLRbt2hFSx1zcrm5tCHMdx1qcJ?=
+ =?windows-1255?Q?1jLaoHw0YrkWcpq4Y1WHEm2PUofFpbQb3N5DXYeSltE4g/QQ3anQvL84?=
+ =?windows-1255?Q?jYt7UnPNiSDVhCvpy1yYP4Pfp3Krs2G/4zdu6BzNrtRNwtOMqxA2Jf1p?=
+ =?windows-1255?Q?5FQEBPv3kGTpfDmwhkf3O4SnJWXlwPEwYOsga2pmKStyX8gjqlKMwkS/?=
+ =?windows-1255?Q?Ls13cKWh5P3kcCpnfNP1zjG9m4rSGPgYp4q6Yde3XJvLKO+zzRmRPsW6?=
+ =?windows-1255?Q?BXzT7mFSZPBWD4AVzP7aX1xWOU+QTNuUOr3rck/8ma7BvkvDGzy5kihC?=
+ =?windows-1255?Q?28L7yvEmIU97c+g5Cuyq/l6Q2EYrXdSjS8sV/Np0PfHjyD1N4p7w4LdT?=
+ =?windows-1255?Q?pVB9wjcmBYezLESUkQttuR7FcSHbmJFsZzfhnpgJk8MB2f0jtVkLHXWF?=
+ =?windows-1255?Q?aKw5PfnVFOoH6+1ocolFjFqzslWpd/53DDgEE7hwS1xRlaj7tV5UyYie?=
+ =?windows-1255?Q?CNxLgnHeSLNNH+VbXb5+YJj7WXr8ftZmekosVPcaXtKq+8qEfoIO3cFh?=
+ =?windows-1255?Q?rpnBeZUyjER5Hwf7p0oLNBl6U/1bg3REnzGYi4JleG9rXWPdP+rfbGI7?=
+ =?windows-1255?Q?Uva21HpJDFOuB1rxTU+hQJxmRnZEyoYtzjfX238qDILFIq/yBPLjYyZ5?=
+ =?windows-1255?Q?torHuJCJ//OdHlWzANsxIXyOPcpUJePd7+oKq/l5c7ycZeUjNW9cXTt5?=
+ =?windows-1255?Q?UeENdSaxIL8j9tFAR9SZklLoJbVDM4fkk4ylIERGBZByihdP6hEao8kO?=
+ =?windows-1255?Q?HA9CFvPSWOoGE10+4d/1yfpw1xnlBcGRgW4o7qNIbPnFosYjgK01muBI?=
+ =?windows-1255?Q?RgU89HT1AqUHDt77bxUsfn/FwGEA/PAK5/UyP3TxV4dCnhV8Eat17Mmb?=
+ =?windows-1255?Q?ikXo/3bRGLw2P6YTg/M6Kocm8x/4ty5EQwUG/0JhY80R6m94teIKQdg8?=
+ =?windows-1255?Q?Dm+KvX/xBAqRRxx39Q3q6J8vxNbBZ/CgUtI8dBaY2PPqKycTHdsMpi6J?=
+ =?windows-1255?Q?qRU4UwpdGzh/k3E0Vya9I4NDsCKfVK1vmKLMNrod6LfLHaKcqoNJsYi+?=
+ =?windows-1255?Q?yVa0KoNNhODe0UzWVDHvkRIv6RAt2K/AoQcsVz2UV+NqDNKffjWOdUxM?=
+ =?windows-1255?Q?hgf/M8GcJwtF6EwfGliiZ088RTS/jJqD0FZLtghNBXBd1rlNisD+vqrW?=
+ =?windows-1255?Q?51CF2Cm9CigN7iGiwD+HlNw6YaTZNMUf/rIiIbY5BrEl+kwLVSxlFSFY?=
+ =?windows-1255?Q?DTMo7CUIgnmxB5onGEASKueIu6oiWLCaiY7AQwTD5gyh0j5jrHmd9ydg?=
+ =?windows-1255?Q?q4G6WZJTIoGFUF9mX+2V4+BorrplnDm3Zyfkoe/gMumVJf2BrCG/R+C4?=
+ =?windows-1255?Q?rtRpEhH46lei/OKvdAE+UtZVx4bkdr+v556PjCDMTw/X8JxPdNKATt90?=
+ =?windows-1255?Q?+1okpfyIHLgu4aWiAL/orSAtohYey/VfBsj2CzUojCf42WKBmp/cZjAt?=
+ =?windows-1255?Q?NAwN7M9nYgWLqeUBG+TfMUT4+8BNQBM6cxQozHBN7QISazO2DDgPxcxx?=
+ =?windows-1255?Q?d/qRcFLHyupxvjzRqOINQ5peyWJJVff1ZMkErgW3OiGSXzkyIRR8oQ?=
+ =?windows-1255?Q?=3D=3D?=
+Content-Type: multipart/alternative;
+	boundary="_000_AM8PR05MB790546F1EF6D72C578E564E0EF649AM8PR05MB7905eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: theservice.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM8PR05MB7905.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ ff477131-c371-40d4-2b3c-08da7b684ba8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Aug 2022 07:08:30.2005
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ Fs3UG/tTUTL9b4nFJCMFEzIvuYZK5QLveHUEgN1hbmroH98MHibiuLEX0hCOONTYN/oJ8UeMNlgZt8JYj5+b9A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR3PR05MB7322
+
+--_000_AM8PR05MB790546F1EF6D72C578E564E0EF649AM8PR05MB7905eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+=EC=EE=FA=E9 =F6=F8=E9=EA =E0=FA =E4=EB=F1=F3 =E5=EB=EE=E4 =F6=F8=E9=EA?
+
+=F7=E1=EC =FEOutlook =F2=E1=E5=F8 Android=FE<https://aka.ms/AAb9ysg>
+________________________________
+From: Adam Marash <adam@marash.net>
+Sent: Thursday, August 11, 2022 9:50:10 AM
+To: eran <eran@theservice.co.il>
+Subject: Re: =F8=EB=E9=F9=FA =E1=E9=FA =E1=E9=F9=F8=E0=EC - =FA=EB=F0=E5=EF=
+ =E4=F7=F6=E0=E4
+
+=F2=F8=EF,
+
+=E4=E2=E9=F9=E4 =F9=EE=FA=E2=E1=F9=FA =EC=E9 =EB=F8=E2=F2 =E4=E9=E0:
+
+  1.  =EC=E0 =EC=F7=E7=FA =EB=F1=F3 (=F0=F7=E9 =EE=EE=F1) =EE=E2'=F8=E6=E9 =
+=EC=F8=EB=E9=F9=FA =E1=E9=FA =EC=E9=F9=F8=E0=EC.
+  2.  =F2"=F4 =E4=EE=EC=F6=FA=EA, =EC=E4=FA=F0=E9=F2 $2M (=EE=FA=E5=EA 2.8)=
+ =EE=E4=EB=F1=F3 =F9=E1=E2=F8=E6'=E9. =F2"=F4 =E4=F0=E7=E9=E9=FA =EE=E5=EE=
+=E7=E4 =EE=F1 =E1=F8=E9=E8=E9, =F8=F6=E5=E9 =EC=E4=F9=F7=E9=F2 =E1=E0=F4=E9=
+=F7=E9=ED =F9=EE=F0=EB=E9=ED =E1=EE=F7=E5=F8 =E1=E0=F0=E2=EC=E9=E4. =E4=E9=
+=E5=ED =E9=F9 =EC=E9 =F9=E9=E7=E4 =F2=ED =F0=F6=E9=E2 =E4=E1=F0=F7 =EC=E4=
+=E1=E9=EF =E0=E9=EA =F2=E5=F9=E9=ED =E0=FA =E6=E4 =E8=EB=F0=E9=FA.
+  3.  =EC=F7=E7=FA $3M =EC=F8=EB=E9=F9=FA =E1=E9=FA =E1=E9=F9=F8=E0=EC =EE=
+=FA=E9=F7 =E4=E4=F9=F7=F2=E5=FA, =EE=E4 =F9=E9=F7=E8=E9=EF =E0=E5=FA=E5 =EC=
+=EB- $4.6M.
+
+=E0=ED =E0=E9=F0=EA =EE=E6=E4=E4 =E1=F2=E9=E4, =E0=E5=E3=E4 =EC=EA =E0=ED =
+=FA=E5=EB=EC =EC=E4=F0=E7=E5=FA =E0=FA =EE=F0=E4=EC=E9 =E4=FA=E9=F7=E9=ED =
+=EC=E4=F0=E6=E9=EC =EB=F8=E2=F2 $750K =EB=EC =E0=E7=E3 =EE=FA=E9=F7=E5.
+
+=E0=E3=ED
+
+--_000_AM8PR05MB790546F1EF6D72C578E564E0EF649AM8PR05MB7905eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+</head>
+<body>
+=EC=EE=FA=E9 =F6=F8=E9=EA =E0=FA =E4=EB=F1=F3 =E5=EB=EE=E4 =F6=F8=E9=EA?
+<div><br>
+</div>
+<div id=3D"ms-outlook-mobile-signature" dir=3D"rtl">=F7=E1=EC <a href=3D"ht=
+tps://aka.ms/AAb9ysg">
+=FEOutlook =F2=E1=E5=F8 Android=FE</a></div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Adam Marash &lt;adam@=
+marash.net&gt;<br>
+<b>Sent:</b> Thursday, August 11, 2022 9:50:10 AM<br>
+<b>To:</b> eran &lt;eran@theservice.co.il&gt;<br>
+<b>Subject:</b> Re: =F8=EB=E9=F9=FA =E1=E9=FA =E1=E9=F9=F8=E0=EC - =FA=EB=
+=F0=E5=EF =E4=F7=F6=E0=E4</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div dir=3D"ltr">
+<div>
+<div dir=3D"ltr">
+<div dir=3D"rtl">=F2=F8=EF,</div>
+<div dir=3D"rtl"><br>
+</div>
+<div dir=3D"rtl">=E4=E2=E9=F9=E4 =F9=EE=FA=E2=E1=F9=FA =EC=E9 =EB=F8=E2=F2 =
+=E4=E9=E0:</div>
+<div dir=3D"rtl">
+<ol>
+<li>=EC=E0 =EC=F7=E7=FA =EB=F1=F3 (=F0=F7=E9 =EE=EE=F1) =EE=E2'=F8=E6=E9 =
+=EC=F8=EB=E9=F9=FA =E1=E9=FA =EC=E9=F9=F8=E0=EC.</li><li>=F2&quot;=F4 =E4=
+=EE=EC=F6=FA=EA, =EC=E4=FA=F0=E9=F2&nbsp;$2M (=EE=FA=E5=EA 2.8) =EE=E4=EB=
+=F1=F3 =F9=E1=E2=F8=E6'=E9. =F2&quot;=F4 =E4=F0=E7=E9=E9=FA =EE=E5=EE=E7=E4=
+ =EE=F1 =E1=F8=E9=E8=E9, =F8=F6=E5=E9 =EC=E4=F9=F7=E9=F2 =E1=E0=F4=E9=F7=E9=
+=ED =F9=EE=F0=EB=E9=ED =E1=EE=F7=E5=F8 =E1=E0=F0=E2=EC=E9=E4. =E4=E9=E5=ED =
+=E9=F9 =EC=E9 =F9=E9=E7=E4 =F2=ED =F0=F6=E9=E2 =E4=E1=F0=F7 =EC=E4=E1=E9=EF=
+ =E0=E9=EA =F2=E5=F9=E9=ED =E0=FA =E6=E4 =E8=EB=F0=E9=FA.&nbsp;</li><li>=EC=
+=F7=E7=FA $3M =EC=F8=EB=E9=F9=FA =E1=E9=FA =E1=E9=F9=F8=E0=EC =EE=FA=E9=F7 =
+=E4=E4=F9=F7=F2=E5=FA, =EE=E4 =F9=E9=F7=E8=E9=EF =E0=E5=FA=E5 =EC=EB- $4.6M=
+.</li></ol>
+<div>=E0=ED =E0=E9=F0=EA =EE=E6=E4=E4 =E1=F2=E9=E4, =E0=E5=E3=E4 =EC=EA =E0=
+=ED =FA=E5=EB=EC =EC=E4=F0=E7=E5=FA =E0=FA =EE=F0=E4=EC=E9 =E4=FA=E9=F7=E9=
+=ED =EC=E4=F0=E6=E9=EC =EB=F8=E2=F2 $750K =EB=EC =E0=E7=E3 =EE=FA=E9=F7=E5.=
+</div>
+<div><br>
+</div>
+<div>=E0=E3=ED</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+--_000_AM8PR05MB790546F1EF6D72C578E564E0EF649AM8PR05MB7905eurp_--

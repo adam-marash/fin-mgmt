@@ -1,0 +1,679 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a0c:f990:0:0:0:0:0 with SMTP id t16csp1361839qvn;
+        Thu, 20 Aug 2020 05:03:44 -0700 (PDT)
+X-Google-Smtp-Source: 
+ ABdhPJzsYkaNUbPC6QtPlLM+SAp2smpxkwyseKEcm73QwPZUAjT9OFQ4bTjQol0VvgMH2P1zwnVe
+X-Received: by 2002:a17:907:94ca:: with SMTP id
+ dn10mr2910526ejc.110.1597925024787;
+        Thu, 20 Aug 2020 05:03:44 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1597925024; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=Kt5tcbN9pllVGxS2QWD+GO2UYTYXaGW4SeJ/h2XEg5RkXCj4dz0DrZqO2ot4kOdwGc
+         moSE6nL+05tyPTfCOipU6W7td89HjtpDEIoPTqybwV5VswcKzZF597dW+WREkxRl+Qrq
+         28CN0/1hUr2cD5tCdwZo3eASfrjpEWqF2EK5dWrxa24HSbFFItuk/4QsVui9DHNY80h8
+         ksnFWbpU4hgewfSkQww/cL8uqsT7TZOSLhbfjqkiHbpYQ/toK1yIYlKymdBpSBu/RPRu
+         LfRJfvMQ88aZquDW0yau7JOwzV8JEN4P6+22/vZ6X+LJQoFxdWXdc8HpzOvqkHv9yKlO
+         TJ2w==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=5q2RfaNR7oi90Zx5qGkn/w68gHsMlupiXkU+AamRmEY=;
+        b=iYxhYois+Yd0cnC5tZSEpgc3lCQPpxvDbCdZnDJ0LXAyKB1z/n5eV7pTZlLa81hANL
+         z9EilKt5sPMZaYpjcNBcoziZZ4yXIiuPLhvVymdq4eEbOd3DvoLmEypy2wRc8dW8odCZ
+         /BbmdxcIVXDbuFomGXUU3OSEVoYYTMAw0XRiJaFCe0JpbLx2V6jFus9AJCed3/pyS88I
+         mTIBXdlMbj4mdNXuD9NOO6GkBxFOdvPzI1hEP2NOSw88xaHljp+QCDwsKSYLmf/PlEOs
+         FuIkPrmL/TNuFi5FcOw1YDtOXiXJvJH/omdI3rBOwUj9dZuvGlbuWJej3C36XGYp25G2
+         OaHA==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=BDoHbCmJ;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.5.103 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+Return-Path: <eran@theservice.co.il>
+Received: from EUR03-VE1-obe.outbound.protection.outlook.com
+ (mail-eopbgr50103.outbound.protection.outlook.com. [40.107.5.103])
+        by mx.google.com with ESMTPS id
+ g13si1286301edv.263.2020.08.20.05.03.43
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 20 Aug 2020 05:03:44 -0700 (PDT)
+Received-SPF: pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.5.103 as permitted sender) client-ip=40.107.5.103;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=BDoHbCmJ;
+       arc=pass (i=1 spf=pass spfdomain=theservice.co.il dkim=pass
+ dkdomain=theservice.co.il dmarc=pass fromdomain=theservice.co.il);
+       spf=pass (google.com: domain of eran@theservice.co.il designates
+ 40.107.5.103 as permitted sender) smtp.mailfrom=eran@theservice.co.il
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dMgaMz59ymir4s+gjVdf6aD5YJoGfIS1Lsxa3forC8Ul5Yjt1Wd8JtqCRGipVMBqAmtSXhfJxmPMdebw8XLc+k++/7xzpsBYzsB6VY3tw+4Ih8qZr78vtMdZG8MTy06BvTBorpOD+YbSwzELezHCPlzpNRbDGuzMWLui1utALyZMRXPZjflmTVzeLsqJbqihWMvcy7jLLz4ExmjKN0n71ZwqyznMBuAGesjMUGmEWOfC5YuA0M4DuylWIvsmrGI07N5OTdoQI8071eXuu4YVxNRCZE5avMCXZrUY0AY2wM/Z269vs1fZAtLon2UWUQCcg9irvUD9d1zstxrmDVyRMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5q2RfaNR7oi90Zx5qGkn/w68gHsMlupiXkU+AamRmEY=;
+ b=knZuMEkrkVVnVMONkq3Y7P4buGZzR5sDJSKbfJ+OO3KfXU6khFUA5pO+DLoeqXPZShbt5hxTucHeRkbn5aFQyQNEd50CyoS20i5U13w5kdoIrTI7DDGZ6UZitmNpmHh1/SgFGQKygYBvc4sUtV0YbqWOWEEq3oa5Fqfe/aAvxWiU0x5J9ZfafVlIAX5wEPhom5h1g8R5idOqOO/o/hZj9NYZmWzFkeynw4NTOSjFTLxAC0kW4DiaXmRW77Ri1mftwmub55Fgl7iBD/3vOLtn1P+UwutvYBotpcFrr93Ey26aAaLIqiLpkv3cZGeMh/ft4anfP2xWhO+M2FRhQIUWBg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=theservice.co.il; dmarc=pass action=none
+ header.from=theservice.co.il; dkim=pass header.d=theservice.co.il; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5q2RfaNR7oi90Zx5qGkn/w68gHsMlupiXkU+AamRmEY=;
+ b=BDoHbCmJw3nLQFt986290XZK/Hg4pKMw31XZ4WxkZUFVcWadx6UdgeE1jTne9Mh0Vg9NOHkUy0eeJs7rVNYP19fccyA96RrEJUSTxSvbzOEI2R2wVBVxYnMg7rjCu5EqBfBCbfy3cpYDuQFbnJB3zSKCaHSHJOM/5aJNUeVMp80=
+Received: from HE1PR0501MB2650.eurprd05.prod.outlook.com (2603:10a6:3:c0::7)
+ by HE1PR05MB3131.eurprd05.prod.outlook.com (2603:10a6:7:32::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3283.22; Thu, 20 Aug
+ 2020 12:03:28 +0000
+Received: from HE1PR0501MB2650.eurprd05.prod.outlook.com
+ ([fe80::bcfc:aa55:ce4:871c]) by HE1PR0501MB2650.eurprd05.prod.outlook.com
+ ([fe80::bcfc:aa55:ce4:871c%5]) with mapi id 15.20.3283.028; Thu, 20 Aug 2020
+ 12:03:28 +0000
+From: eran <eran@theservice.co.il>
+To: Adam Marash <adam@marash.net>
+Subject: Re: Leverage on portfolio?
+Thread-Topic: Leverage on portfolio?
+Thread-Index: AQHWdsmqecU6WX0X0kqkgizuWPugv6lA5jj1
+Date: Thu, 20 Aug 2020 12:03:28 +0000
+Message-ID: 
+ <HE1PR0501MB2650FEB1905733569C3370C2EF5A0@HE1PR0501MB2650.eurprd05.prod.outlook.com>
+References: 
+ <CABgnYt+ZMF8oOwcG0gJWm+ScDimo+KCQggJYznobkPdp4UNFMQ@mail.gmail.com>
+ <26763_1597905989_5F3E1C45_26763_1123_1_8803eb92541545f48eeea96d09d5be3a@vontobel.com>,<CABgnYtLrEJxEff9HOAqKX8Gii6TG0G+TN0AetU2Av1=-FLVVqg@mail.gmail.com>
+In-Reply-To: 
+ <CABgnYtLrEJxEff9HOAqKX8Gii6TG0G+TN0AetU2Av1=-FLVVqg@mail.gmail.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: marash.net; dkim=none (message not signed)
+ header.d=none;marash.net; dmarc=none action=none
+ header.from=theservice.co.il;
+x-originating-ip: [46.19.85.241]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 2b0afa5c-11ba-4e04-e48a-08d845010cc8
+x-ms-traffictypediagnostic: HE1PR05MB3131:
+x-microsoft-antispam-prvs: 
+ <HE1PR05MB313102D32D8BBD2BCA959796EF5A0@HE1PR05MB3131.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:1284;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ FKbE92hm+0WDwn7LcfX4J3AX2sy3YqjHspcmpsdjiXaLHVEDiJT4BFU8mpafosbXMSIS96rWhLhF8gsINQ7O19Cef6WGuVqb/M8MG/hlJXSzgt406WPZENoMJe5GlO/V5QIzUd6IPmhvM2+5KOokar2jsvW5hXMw3DpsLdYyrc1Q7Cz7X/bJQH7bYD2zLWu1OQiAE1Eeu9CrqhOlDOf6zoH0VNNLqYjBFbKLGiL2NuRXindx7fQCmqeGgJxM0EAUYN/VyB8Ig26FnDbUq2Y5mPVWqVsUbk1oC3GGKC891b4yI1a0COeuoKmDzgwbVQEDFKL3H1y+X1BmoCX4ud7uSUKNcOsFPzglW72ShWYMPjDnMTSE/zejeQIAiGKzPzWGNoSalmsyugIJhUjw/wTsIw==
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:HE1PR0501MB2650.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(346002)(136003)(396003)(376002)(39830400003)(33656002)(86362001)(6506007)(6916009)(52536014)(5660300002)(3480700007)(316002)(15974865002)(83380400001)(478600001)(9686003)(55016002)(8936002)(53546011)(66476007)(66556008)(166002)(66946007)(8676002)(66446008)(26005)(64756008)(76116006)(71200400001)(7116003)(186003)(45080400002)(2906002)(91956017)(7696005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: 
+ OSMwR6Js3ec3NwWVejKiC91OKpzpD9O/ig+opEP2fX2gzCppQpU0LYio6QM6TD623K0jZ0J40cqgOWrSyH5wMGLaaH25Ep/aZRLwy0LEKYiEoRecGew96TczZaMXyOLyNSfKv2uBid8kLUyumCcxptIgK8Sl3X3LoPS+Lh/x2bPi3DygVpYaWDIDf6T51MomzK74Vl3p123v/Isyb/r0S5fOqta5pM6bR3CBX89sPbArr7oxOrrkQi74kLW4XBuu6rw5LltWC5WlgkdtPxBrAEd3+EMnEaZK631KYmBGIhSpUrtXhr5PMWmEbGewg2xcArmhB0PeeW+6n82kR32sLY8iQ8cW3X/9XWoOiWL3Nyd7R5o3Z0wjjT7aYItuMcnuaXXiXkUp+2Kwr2n+z8uP9Mh9GpwQeIuFfW7/hyDfpSnBQcCo3r8bRQ+ggu2w+eROjkjvL8AC7aclTYcLnTD155t7gC7vP8tuvz2D5LpEuQgl2x2/vSACbwppRpH/RDMB7XhoWOIekcKZ6Kbt7O90AJVvLSjvb47KjjEQ8CI6CUpxh8vRDdNKfPbhs9Qra58RmcOi05Vx4MiqxmgQ4KvSrMm+8WneDzQZFFlQTltqtDa5zH/Ip8R4s505pfa5yt6xhn9dFNcGt2wFZhDNAeZadQ==
+x-ms-exchange-transport-forked: True
+Content-Type: multipart/alternative;
+	boundary="_000_HE1PR0501MB2650FEB1905733569C3370C2EF5A0HE1PR0501MB2650_"
+MIME-Version: 1.0
+X-OriginatorOrg: theservice.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: 
+ HE1PR0501MB2650.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ 2b0afa5c-11ba-4e04-e48a-08d845010cc8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Aug 2020 12:03:28.3721
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ HPb9x+2gN7wu0BCtwbS1Lz7DT5jo3bi4MNtTK3SUf3DJTzO2p4IsljZN+sZiCtth8Oe0VsDGXG5m1cpkQ7ktRg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR05MB3131
+
+--_000_HE1PR0501MB2650FEB1905733569C3370C2EF5A0HE1PR0501MB2650_
+Content-Type: text/plain; charset="iso-8859-8-i"
+Content-Transfer-Encoding: quoted-printable
+
+=E9=E5=FA=F8 =EE=EE=F2=F0=E9=E9=EF
+
+=E4=F9=E2 =E0=FA Outlook =F2=E1=E5=F8 Android<https://aka.ms/ghei36>
+
+________________________________
+From: Adam Marash <adam@marash.net>
+Sent: Thursday, August 20, 2020 11:12:19 AM
+To: eran <eran@theservice.co.il>
+Subject: Fwd: Leverage on portfolio?
+
+=EE=F2=F0=E9=E9=EF, =EC=E0?
+
+---------- Forwarded message ---------
+From: Fankhauser-Fieramonte Maya H. <maya.fankhauser@vontobel.com<mailto:ma=
+ya.fankhauser@vontobel.com>>
+Date: Thu, 20 Aug 2020 at 09:05
+Subject: RE: Leverage on portfolio?
+To: tamar@marash.net<mailto:tamar@marash.net> <tamar@marash.net<mailto:tama=
+r@marash.net>>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi Tamar
+
+
+I refer to the email of Adam
+
+Yes it is possible to take out a loan for the existing portfolio and do the=
+ investment in the same portfolio with the same
+strategy Focus Mandate CHF.
+
+
+We double the existing investment from CHF 1,3 Mio. to CHF 2,6 Mio.
+
+For this we would make a loan for 6 months (roll-over) for the terms condit=
+ion of 0.6% p.a. (normal is 1%) and the loan
+will be in a sup. Account for performance reasons.
+
+
+Should you wish to do this we need the following documents sign and from yo=
+u and we need to have the original by post.
+
+
+Look forward to a positive information and have a good day.
+
+
+Best regards,
+
+
+Maya
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+From: Adam Marash <adam@marash.net<mailto:adam@marash.net>>
+
+
+
+
+Sent: Mittwoch, 19. August 2020 18:17
+
+
+To: Fankhauser-Fieramonte Maya H. <maya.fankhauser@vontobel.com<mailto:maya=
+.fankhauser@vontobel.com>>
+
+
+Subject: Leverage on portfolio?
+
+
+
+
+
+
+
+
+
+Maya Hello,
+
+
+
+
+
+
+
+
+
+
+
+
+
+I hope you had a good vacation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Based on our current outlook, we'd like to review our options with debt. To=
+ get an idea about this, can you tell me: if we were to take out a loan aga=
+inst the existing portfolio and put the loaned funds into the same
+
+portfolio, how much leverage could we achieve and at what terms?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Thanks,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Adam
+
+
+
+
+
+
+
+
+
+
+
+____________________________________________________
+
+
+
+Please consider the environment before printing this e-mail.
+
+
+
+Bitte denken Sie an die Umwelt, bevor Sie dieses E-Mail drucken.
+
+
+Important Notice
+
+This message is intended only for the individual named. It may contain conf=
+idential or privileged information. If you are not the named addressee you =
+should in particular not disseminate, distribute, modify or copy this e-mai=
+l. Please notify the sender immediately by e-mail, if you have received thi=
+s message by mistake and delete it from your system.
+Without prejudice to any contractual agreements between you and us which sh=
+all prevail in any case, we take it as your authorization to correspond wit=
+h you by e-mail if you send us messages by e-mail. However, we reserve the =
+right not to execute orders and instructions transmitted by e-mail at any t=
+ime and without further explanation.
+E-mail transmission may not be secure or error-free as information could be=
+ intercepted, corrupted, lost, destroyed, arrive late or incomplete. Also p=
+rocessing of incoming e-mails cannot be guaranteed. All liability of Vontob=
+el Holding Ltd. and any of its affiliates (hereinafter collectively referre=
+d to as "Vontobel Group") for any damages resulting from e-mail use is excl=
+uded. You are advised that urgent and time sensitive messages should not be=
+ sent by e-mail and if verification is required please request a printed ve=
+rsion.
+Please note that all e-mail communications to and from the Vontobel Group a=
+re subject to electronic storage and review by Vontobel Group. Unless state=
+d to the contrary and without prejudice to any contractual agreements betwe=
+en you and Vontobel Group which shall prevail in any case, e-mail-communica=
+tion is for informational purposes only and is not intended as an offer or =
+solicitation for the purchase or sale of any financial instrument or as an =
+official confirmation of any transaction.
+The legal basis for the processing of your personal data is the legitimate =
+interest to develop a commercial relationship with you, as well as your con=
+sent to forward you commercial communications. You can exercise, at any tim=
+e and under the terms established under current regulation, your rights. If=
+ you prefer not to receive any further communications, please contact your =
+client relationship manager if you are a client of Vontobel Group or notify=
+ the sender.
+Please note for an exact reference to the affected group entity the corpora=
+te e-mail signature.
+For further information about data privacy at Vontobel Group please consult=
+ www.vontobel.com<http://www.vontobel.com>.
+
+
+
+
+
+--_000_HE1PR0501MB2650FEB1905733569C3370C2EF5A0HE1PR0501MB2650_
+Content-Type: text/html; charset="iso-8859-8-i"
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+8-i">
+</head>
+<body>
+<div dir=3D"auto" style=3D"direction: rtl; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+=E9=E5=FA=F8 =EE=EE=F2=F0=E9=E9=EF<span id=3D"ms-outlook-android-cursor"></=
+span><br>
+<br>
+</div>
+<div dir=3D"auto" style=3D"direction: ltr; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+<span id=3D"OutlookSignature">
+<div dir=3D"auto" style=3D"direction: rtl; margin: 0; padding: 0; font-fami=
+ly: sans-serif; font-size: 11pt; color: black; ">
+=E4=F9=E2 =E0=FA <a href=3D"https://aka.ms/ghei36">Outlook =F2=E1=E5=F8 And=
+roid</a></div>
+</span><br>
+</div>
+<hr style=3D"display:inline-block;width:98%" tabindex=3D"-1">
+<div id=3D"divRplyFwdMsg" dir=3D"ltr"><font face=3D"Calibri, sans-serif" st=
+yle=3D"font-size:11pt" color=3D"#000000"><b>From:</b> Adam Marash &lt;adam@=
+marash.net&gt;<br>
+<b>Sent:</b> Thursday, August 20, 2020 11:12:19 AM<br>
+<b>To:</b> eran &lt;eran@theservice.co.il&gt;<br>
+<b>Subject:</b> Fwd: Leverage on portfolio?</font>
+<div>&nbsp;</div>
+</div>
+<div>
+<div>
+<div dir=3D"auto">=EE=F2=F0=E9=E9=EF, =EC=E0?</div>
+</div>
+<div><br>
+<div class=3D"x_gmail_quote">
+<div dir=3D"ltr" class=3D"x_gmail_attr">---------- Forwarded message ------=
+---<br>
+From: <strong class=3D"x_gmail_sendername" dir=3D"auto">Fankhauser-Fieramon=
+te Maya H.</strong>
+<span dir=3D"auto">&lt;<a href=3D"mailto:maya.fankhauser@vontobel.com">maya=
+.fankhauser@vontobel.com</a>&gt;</span><br>
+Date: Thu, 20 Aug 2020 at 09:05<br>
+Subject: RE: Leverage on portfolio?<br>
+To: <a href=3D"mailto:tamar@marash.net">tamar@marash.net</a> &lt;<a href=3D=
+"mailto:tamar@marash.net">tamar@marash.net</a>&gt;<br>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div lang=3D"DE-CH"><br>
+<br>
+<div class=3D"x_m_-8273805836177972847WordSection1"><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a">Hi Tamar</span></p>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a">I refer to the email=
+ of Adam</span></p>
+<p class=3D"x_MsoNormal"><span style=3D"color:rgb(68,84,106); font-family:A=
+rial,sans-serif; font-size:10pt">Yes it is possible to take out a loan for =
+the existing portfolio and do the investment in the same portfolio with the=
+ same<br>
+strategy Focus Mandate CHF.</span><br>
+</p>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a">We double the existi=
+ng investment from CHF 1,3 Mio. to CHF 2,6 Mio.</span></p>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a">For this we would ma=
+ke a loan for 6 months (roll-over) for the terms condition of 0.6% p.a. (no=
+rmal is 1%) and the loan<br>
+will be in a sup. Account for performance reasons.<u></u><u></u></span></p>
+<br>
+<p class=3D"x_MsoNormal"><span style=3D"color:rgb(68,84,106); font-family:A=
+rial,sans-serif; font-size:10pt">Should you wish to do this we need the fol=
+lowing documents sign and from you and we need to have the original by post=
+.</span></p>
+<br>
+<p class=3D"x_MsoNormal"><span style=3D"color:rgb(68,84,106); font-family:A=
+rial,sans-serif; font-size:10pt">Look forward to a positive information and=
+ have a good day.</span></p>
+<br>
+<p class=3D"x_MsoNormal"><span style=3D"color:rgb(68,84,106); font-family:A=
+rial,sans-serif; font-size:10pt">Best regards,</span></p>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a">Maya<u></u><u></u></=
+span></p>
+</div>
+</div>
+<div lang=3D"DE-CH">
+<div class=3D"x_m_-8273805836177972847WordSection1"><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a"><u></u>&nbsp;<u></u>=
+</span></p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a"><u></u>&nbsp;<u></u>=
+</span></p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.0pt; fo=
+nt-family:&quot;Arial&quot;,sans-serif; color:#44546a"><u></u>&nbsp;<u></u>=
+</span></p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><b><span lang=3D"EN-US" style=3D"font-size:11.0pt;=
+ font-family:&quot;Calibri&quot;,sans-serif">From:</span></b><span lang=3D"=
+EN-US" style=3D"font-size:11.0pt; font-family:&quot;Calibri&quot;,sans-seri=
+f"> Adam Marash &lt;<a href=3D"mailto:adam@marash.net" target=3D"_blank">ad=
+am@marash.net</a>&gt;<br>
+<br>
+<br>
+<br>
+<br>
+<b>Sent:</b> Mittwoch, 19. August 2020 18:17<br>
+<br>
+<br>
+<b>To:</b> Fankhauser-Fieramonte Maya H. &lt;<a href=3D"mailto:maya.fankhau=
+ser@vontobel.com" target=3D"_blank">maya.fankhauser@vontobel.com</a>&gt;<br=
+>
+<br>
+<br>
+<b>Subject:</b> Leverage on portfolio?<u></u><u></u></span></p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US"><u></u>&nbsp;<u></u></span></=
+p>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US">Maya Hello,<u></u><u></u></sp=
+an></p>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US"><u></u>&nbsp;<u></u></span></=
+p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US">I hope you had a good vacatio=
+n.<u></u><u></u></span></p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US"><u></u>&nbsp;<u></u></span></=
+p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US">Based on our current outlook,=
+ we'd like to review our options with debt. To get an idea about this, can =
+you tell me: if we were to take out a loan against the existing portfolio a=
+nd put the loaned funds into the same<br>
+<br>
+portfolio, how much leverage could we achieve and at what terms?<u></u><u><=
+/u></span></p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US"><u></u>&nbsp;<u></u></span></=
+p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal">Thanks,<u></u><u></u></p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal"><u></u>&nbsp;<u></u></p>
+<br>
+<br>
+</div>
+<br>
+<br>
+<div><br>
+<br>
+<p class=3D"x_MsoNormal">Adam<u></u><u></u></p>
+<br>
+<br>
+</div>
+<br>
+<br>
+</div>
+<br>
+<br>
+</div>
+</div>
+<div lang=3D"DE-CH">
+<div class=3D"x_m_-8273805836177972847WordSection1"></div>
+<br>
+<br>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"color:green">_______=
+_____________________________________________<u></u><u></u></span></p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span lang=3D"EN-US" style=3D"color:green">Please =
+consider the environment before printing this e-mail.<u></u><u></u></span><=
+/p>
+<br>
+<br>
+<p class=3D"x_MsoNormal"><span style=3D"color:green">Bitte denken Sie an di=
+e Umwelt, bevor Sie dieses E-Mail drucken.</span><span style=3D"color:green=
+"><u></u><u></u></span></p>
+<br>
+<br>
+Important Notice<br>
+<br>
+This message is intended only for the individual named. It may contain conf=
+idential or privileged information. If you are not the named addressee you =
+should in particular not disseminate, distribute, modify or copy this e-mai=
+l. Please notify the sender immediately
+ by e-mail, if you have received this message by mistake and delete it from=
+ your system.<br>
+Without prejudice to any contractual agreements between you and us which sh=
+all prevail in any case, we take it as your authorization to correspond wit=
+h you by e-mail if you send us messages by e-mail. However, we reserve the =
+right not to execute orders and
+ instructions transmitted by e-mail at any time and without further explana=
+tion.<br>
+E-mail transmission may not be secure or error-free as information could be=
+ intercepted, corrupted, lost, destroyed, arrive late or incomplete. Also p=
+rocessing of incoming e-mails cannot be guaranteed. All liability of Vontob=
+el Holding Ltd. and any of its affiliates
+ (hereinafter collectively referred to as &quot;Vontobel Group&quot;) for a=
+ny damages resulting from e-mail use is excluded. You are advised that urge=
+nt and time sensitive messages should not be sent by e-mail and if verifica=
+tion is required please request a printed
+ version.<br>
+Please note that all e-mail communications to and from the Vontobel Group a=
+re subject to electronic storage and review by Vontobel Group. Unless state=
+d to the contrary and without prejudice to any contractual agreements betwe=
+en you and Vontobel Group which
+ shall prevail in any case, e-mail-communication is for informational purpo=
+ses only and is not intended as an offer or solicitation for the purchase o=
+r sale of any financial instrument or as an official confirmation of any tr=
+ansaction.<br>
+The legal basis for the processing of your personal data is the legitimate =
+interest to develop a commercial relationship with you, as well as your con=
+sent to forward you commercial communications. You can exercise, at any tim=
+e and under the terms established
+ under current regulation, your rights. If you prefer not to receive any fu=
+rther communications, please contact your client relationship manager if yo=
+u are a client of Vontobel Group or notify the sender.<br>
+Please note for an exact reference to the affected group entity the corpora=
+te e-mail signature.<br>
+For further information about data privacy at Vontobel Group please consult=
+ <a href=3D"http://www.vontobel.com" target=3D"_blank">
+www.vontobel.com</a>.<br>
+</div>
+<br>
+<br>
+<br>
+<br>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+--_000_HE1PR0501MB2650FEB1905733569C3370C2EF5A0HE1PR0501MB2650_--

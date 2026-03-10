@@ -1,0 +1,827 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:620a:2087:0:0:0:0 with SMTP id e7csp4283341qka;
+        Mon, 9 May 2022 01:19:16 -0700 (PDT)
+X-Received: by 2002:a5b:803:0:b0:633:749f:9acd with SMTP id
+ x3-20020a5b0803000000b00633749f9acdmr12248234ybp.236.1652084349604;
+        Mon, 09 May 2022 01:19:09 -0700 (PDT)
+Return-Path: <tamar+caf_=adam=marash.net@marash.net>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com.
+ [209.85.220.41])
+        by mx.google.com with SMTPS id
+ h7-20020a056902008700b00649203d0b2fsor4916126ybs.120.2022.05.09.01.19.08
+        for <adam@marash.net>
+        (Google Transport Security);
+        Mon, 09 May 2022 01:19:08 -0700 (PDT)
+Received-SPF: neutral (google.com: 209.85.220.41 is neither permitted nor
+ denied by best guess record for domain of
+ tamar+caf_=adam=marash.net@marash.net) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@harel-finance.co.il header.s=harel
+ header.b=DfR+da2a;
+       dkim=neutral (body hash did not verify)
+ header.i=@Harelgroup.onmicrosoft.com
+ header.s=selector1-Harelgroup-onmicrosoft-com header.b=VEbDbDr0;
+       arc=fail (body hash mismatch);
+       spf=neutral (google.com: 209.85.220.41 is neither permitted nor denied
+ by best guess record for domain of tamar+caf_=adam=marash.net@marash.net)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net"
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=harel-finance.co.il;
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:delivered-to:dkim-signature:ironport-sdr
+         :dkim-signature:from:subject:thread-topic:thread-index:date
+         :message-id:references:in-reply-to:accept-language:content-language
+         :mime-version:to;
+        bh=Hu0XdAX+YYwDgSKk/WeeXiFp3NUywyp99KgJbQPg3og=;
+        b=Ad/qYtMkmCQlowe5hoBVEUb8xTFcFD0V23+xkszLtHn/qa9E5ZHEYYIdjZLvQBvfW7
+         /f5d4YrUZNs69zZKRmySi1BBRL3T1q1XPvRH7Xl9az42qb8SsIZtTr9jafj2LzV0dD7n
+         pm25N2cHIrGmJY0zZ2The3z/eIw5kItLpv/YAEn0InehfE8kH+lYsjj1fVgMa2b3Ps42
+         uyBAl8vktKS9AB563y6h78gNwq0fIAhILSegHozwRZM3HlY0ge0T56xqW69H9TKbDEsZ
+         FYxbcjjaOooQq7ILTsMc7Fy+9XhvfimOUNImTjcUhKNO352yOhEwAuhoSyi98NcUnS42
+         nmwA==
+X-Gm-Message-State: AOAM5320IcYRzmwnHcm6mADxAhTZHw7GRkHBSZd+aKnRD26KLvl9272B
+	L1/o6s07ZnXeMxkFfa34Bf00ACrUBOklUROwvJhXPr/Bkc04wOoBN+HEL7M=
+X-Received: by 2002:a25:7d86:0:b0:64a:5665:fb48 with SMTP id
+ y128-20020a257d86000000b0064a5665fb48mr12462514ybc.614.1652084346738;
+        Mon, 09 May 2022 01:19:06 -0700 (PDT)
+X-Forwarded-To: adam@marash.net
+X-Forwarded-For: tamar@marash.net adam@marash.net
+Delivered-To: tamar@marash.net
+Received: by 2002:a05:7110:202d:b0:179:9ee8:376c with SMTP id x13csp487262gea;
+        Mon, 9 May 2022 01:19:03 -0700 (PDT)
+X-Google-Smtp-Source: 
+ ABdhPJws+An2ad6blNSIPF2NtN1jNOBMcRreOLouREePhACdkcA9eCV3bsQLGHIcQx/UyFVuuywL
+X-Received: by 2002:a05:6402:2c4:b0:427:f4a3:2e94 with SMTP id
+ b4-20020a05640202c400b00427f4a32e94mr15911249edx.138.1652084341179;
+        Mon, 09 May 2022 01:19:01 -0700 (PDT)
+Return-Path: <prvs=121171271=Harel-Alternative@harel-finance.co.il>
+Received: from mail1.harel-ins.co.il (mail.4me.co.il. [193.34.56.34])
+        by mx.google.com with ESMTPS id
+ l30-20020a50d6de000000b0041d864def44si11339286edj.125.2022.05.09.01.18.51
+        for <tamar@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 09 May 2022 01:19:00 -0700 (PDT)
+Received-SPF: pass (google.com: domain of
+ prvs=121171271=harel-alternative@harel-finance.co.il designates 193.34.56.34
+ as permitted sender) client-ip=193.34.56.34;
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=harel-finance.co.il; i=@harel-finance.co.il;
+  q=dns/txt; s=harel; t=1652084333; x=1683620333;
+  h=from:subject:date:message-id:references:in-reply-to:
+   mime-version:to;
+  bh=EBZfbR/7AA7bQRoJvHriMi6FpQ0JmijqjM8Bwgquwb8=;
+  b=DfR+da2aNxdM506EJFfDFpePasS2tIuUlEuzb7+8Te7+EmRAAFjpq1JA
+   Jkyw2+ym9d5LFBI4C6lW933EwcalJjux0flqIfzWW7Pao/kMserkJutv/
+   63G9qiQxR2nuCCvePb60ww61h/vgqHTOlZhmmDXEbm0liGf3YJR7mDP//
+   8=;
+IronPort-SDR: 
+ mQjXKIv7oiIaLYXfQsSPE4seZSqMLu+a38YjRjiRRxPoKBWmq176Z9N0VwqtE9xmPGSlaaj6mN
+ OEfflW0RkJqx4cii3tKUK5N243IrO+QhxkybxsxsVeleycCbXEcEWzbSjmooVBSRd+x2v2Izd/
+ LWnfgQ/zK9zbH1tUUim0NVY9LMSkM4W7rNu963PF2xWx4ir/dG/NI+IFO9FCfqOgx5qRhEDqvy
+ bc+tkiWI9+iidJK8wJKBdD1Fgh9ITsCeJ5jFSuKpkmawX86PFYFaW4DN1FXB3IRK3IcUjukDVl
+ 5r4=
+X-IronPort-AV: E=Sophos;i="5.91,210,1647295200";
+   d="jpg'145?scan'145,208,145,217";a="15989494"
+Received: from unknown (HELO PAMEWBSCAP01.harel-office.com) ([10.40.76.1])
+  by mail1.harel-ins.co.il with ESMTP; 09 May 2022 11:18:45 +0300
+Received: from PAMEWBSCAP01.harel-office.com (PAMEWBSCAP01.harel-office.com
+ [127.0.0.1])
+	by PAMEWBSCAP01.harel-office.com (Service) with ESMTP id 2064B21168E5;
+	Mon,  9 May 2022 11:18:39 +0300 (IDT)
+Received: from PWGDEXCHAP05.harel-office.com (unknown [10.40.14.17])
+	by PAMEWBSCAP01.harel-office.com (Service) with ESMTP id 405B421168E1;
+	Mon,  9 May 2022 11:18:25 +0300 (IDT)
+Received: from PWGDEXCHAP02.harel-office.com (10.40.14.104) by
+ PWGDEXCHAP05.harel-office.com (10.40.14.110) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.14; Mon, 9 May 2022 11:18:18 +0300
+Received: from PWGDEXCHED02.Harel-EXT.com (10.40.14.220) by
+ PWGDEXCHAP02.harel-office.com (10.40.14.104) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.14 via Frontend Transport; Mon, 9 May 2022 11:18:18 +0300
+Received: from EUR01-DB5-obe.outbound.protection.outlook.com (104.47.2.53) by
+ PWGDEXCHED02.Harel-EXT.com (10.40.72.28) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2176.14; Mon, 9 May 2022 11:18:15 +0300
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WJAKUDn8u14s/v1BZfwc4+lGGqQTYAic9851uu77WE9cX/DQC03pPhpQXwJVGGr2zVpFuCAMP0ExYet/Lek+76So/nqevH551jxZARsAX8/Z5DRnOZGMpPeW8MWviPFucUHo6HCn6dUy/X6fxqfe8Efr5W/4V8t62k/QRqOzhT8Z6HnTtkREQIxXe4Qz4yGdikH1JvGHXeO09SZLVBkGtOmYWCxWbkR02ODV6huYG9u5EiilEYrPWMjHyjSYKp1ogyEzR2uoW568qZ0pV4IZizAGjzaXM9e4St4dNmTwBC+1rhr+ZlahDt0ggFXbnekXgN+1zT4/zn2pujQNvru6XQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Lr+Na4m/9RtNXqaTT0assqzoDu9sMDUdOJIKqL5Y+l4=;
+ b=JTzDZ94JkOS7U6oepEo7PzQuW/ZZ36AqdPhlkfXxA0Kgybg1RYm+dEKUprblEpe1Zip5hWy4DQIRWQQbNascUVY5Tqin/zIcH+3nP744vBmx2Zs8OBEb1HCHnIDpnUW78jf4yWAzOM4nWF75P4evvTYOGje3n1xPeYYZSWeGwmwe5AHxtgflFQ9CBXr5ZqR4EoWZ8Z8Y9RkFUEvVWtQOASGzAOFATdp5K+aynXKLM2jr9VJe0BksRjORUAkMiXoQ3oKz5MSWDAa6PQuhujuAlY4CzXer+FJEzBGUobbCov1lF/YH9EDlX81T6r2C2a4Dp/PSqw+DoLGGrq2v9l/mqQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=harel-finance.co.il; dmarc=pass action=none
+ header.from=harel-finance.co.il; dkim=pass header.d=harel-finance.co.il;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=Harelgroup.onmicrosoft.com; s=selector1-Harelgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Lr+Na4m/9RtNXqaTT0assqzoDu9sMDUdOJIKqL5Y+l4=;
+ b=VEbDbDr0YgTwMp3e2Filqj+PFcmWJRKZxD02qWMTAo5wk6MOaYNNs2d2bzQcI6sEsfSNQx3rbQMqwOKd+CbDr/wO537kmqC72hlw/6JnbKmavEckP7v1AK77y7WBeXQ9WjWgaiwmsQR4trFsJYINWY5GQO+bjMY+eBANU3rAzdE=
+Received: from DU2PR02MB7672.eurprd02.prod.outlook.com (2603:10a6:10:2df::9)
+ by PAXPR02MB7534.eurprd02.prod.outlook.com (2603:10a6:102:215::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5227.23; Mon, 9 May
+ 2022 08:18:07 +0000
+Received: from DU2PR02MB7672.eurprd02.prod.outlook.com
+ ([fe80::15e6:9179:a05:f90]) by DU2PR02MB7672.eurprd02.prod.outlook.com
+ ([fe80::15e6:9179:a05:f90%7]) with mapi id 15.20.5227.023; Mon, 9 May 2022
+ 08:18:07 +0000
+From: Alternative <Harel-Alternative@harel-finance.co.il>
+Subject: 
+ =?windows-1255?B?5Pjg7CDk7uLvIOD45CLhIC0g4+nl5ecg+OHy5fDpIC0g+OHy5e8gMSAy?=
+ =?windows-1255?B?MDIyICsg4+nl5ecg5+Xj+ekg7Ofl4/kg7vj1IDIwMjI=?=
+Thread-Topic: 
+ =?windows-1255?B?5Pjg7CDk7uLvIOD45CLhIC0g4+nl5ecg+OHy5fDpIC0g+OHy5e8gMSAy?=
+ =?windows-1255?B?MDIyICsg4+nl5ecg5+Xj+ekg7Ofl4/kg7vj1IDIwMjI=?=
+Thread-Index: Adhje6Sobco/fYxiShSq0x11mY0kYgAAOKnw
+Date: Mon, 9 May 2022 08:18:06 +0000
+Message-ID: 
+ <DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69@DU2PR02MB7672.eurprd02.prod.outlook.com>
+References: 
+ <DU2PR02MB767216A5C63D5DD651D7298CA4C69@DU2PR02MB7672.eurprd02.prod.outlook.com>
+In-Reply-To: 
+ <DU2PR02MB767216A5C63D5DD651D7298CA4C69@DU2PR02MB7672.eurprd02.prod.outlook.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: eeef8c38-081e-423d-1e93-08da31947250
+x-ms-traffictypediagnostic: PAXPR02MB7534:EE_
+x-ld-processed: 7499966a-4a31-4c79-96c7-f9fbfa15f196,ExtAddr
+x-microsoft-antispam-prvs: 
+ <PAXPR02MB75342E7D7D8AAD879C53AF74F4C69@PAXPR02MB7534.eurprd02.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ CGlCW7hYL54uZ9u6LuBGv1ZtIFahp5zgIhw8ilRyiU1aEnqWcoTnQ4ZyLGusT4otctf6cESMc52RWmT8gkxP3DuhxAJfti398RraFGvAKLsBYRon+R6fUjevD7Yiq0GhDIEvBAB1yI6va6f2Pvv/jEpftFHjiRUjlTEpESgtmhFfrdJhS5911oDJoD4hoQNHlU010Qui/u7KPLoJvc5Ln55GwPVsbPBQkQWeFEY0S/oNzO/ppLCEL+6ugchJrlQHln9qD0oY/W2ZeBMSjcfe8x2uJT3FPk9fq3G9W6HaxjjLBAawvWDu11yQxiu7kocjVZ66IRx8NfUwnU311JRHpqlad1+2OF0g7i6RSTPQVAOqOHAaV/3jIxGSAinyxIzdP6c6IE8ebmWrDMw7CA9J/yme47acC4gF1+DaWLDAQHXU32A+1o7pTk4tF8kjQLLrP895opRZdAW7MNiTMIwxb4vfXRcfQkmygY5D9oIvOdgt5Gaq+ewVH31pJH/ZiokZ4gdDScqxmJHAhDlC4KNyXJc1MYnc8cVAwEZwWwSZclGd73ggek1GP3oO3TMJa0wir2x1TcbaVahSGxvpcQgdjQp0M/tXxGeqvAxBOdQQlR/yiCjp1sCjYKm3hKXFqHiIYZD48QudAM1FvZAY7D/CzOIiRFyMv9HdnPxSdCxLNE6KZWNDxUuDczEX2w/IBt0Jhgj4ftpLCUC6Mz6O/nWTu632A05aoSIr3m7m4Xl7TNJexqpIfyR8RyYsW7snRtQs
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DU2PR02MB7672.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(166002)(224303003)(26005)(316002)(66446008)(99936003)(122000001)(71200400001)(38070700005)(38100700002)(55016003)(66476007)(64756008)(76116006)(6506007)(76576003)(9686003)(65686005)(2906002)(88732003)(52536014)(86362001)(4744005)(8936002)(7416002)(186003)(508600001)(7696005)(5660300002)(7366002)(2940100002)(109986005)(33656002)(7406005)(7276002)(7336002)(66556008)(66946007);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?Lvm7qN78CxOrVi1tDND2QIew2jhZNmSYW3J4ZDFlQR/aaQBMq49AdZaJ?=
+ =?windows-1255?Q?GuhqoKJWQ+m1Z/f3OU+uPa7yiUjARH5e4p9IS9/f68fkzMux0f+at1Tv?=
+ =?windows-1255?Q?jXF7SsYB8kIxLAHoXfLfpgF2BdMVejGSUDoK8pLKgGnsA8Cq32cBMbcx?=
+ =?windows-1255?Q?lSRFrqil99POTK+VuXd70ErNN+0ZkakRYWOe8EwM3H2o4bIQAchfX76Y?=
+ =?windows-1255?Q?eCBbKdhYbqGLxG1n0VlVHiyinjaMn9jOaeKtATwAExbXGNIfiqE7b80E?=
+ =?windows-1255?Q?8HvfmFeSyip2q3/SSekUrhr+/Qpa3ZKsD8v6gKMf3kzq3RcCJaM4Oc7I?=
+ =?windows-1255?Q?pTaXQQ+wrEQ+gw3rhwdzRGWXuSPhmo5YEzifmbontkqWiDQJLhts490n?=
+ =?windows-1255?Q?Eqt8vqwrSfMUVVi8CesNQfOf2ISXgRgPw5dzrUXUZ1yrPcJ1KhraHvPY?=
+ =?windows-1255?Q?vaCPet39c/i4uE44TbpQdOsr+UTZvqmxmoRx6KrpFBgVQyaXHwTJ9WpY?=
+ =?windows-1255?Q?HdkMi4EDg6L/5IP1uH5B56o+FPPj2wtKOg9EcM1bl1fzK3LNcscQDKeZ?=
+ =?windows-1255?Q?CC0FjJ98wnZMUqBEi5s6tYSX4+gDwhQK9qKOv8lZiZi4Qce1+o2Ggyan?=
+ =?windows-1255?Q?u7H/I8Mm0Vj8ss8RiYdFBh4nQzN5ofh8fzGvL8E0qjyZ7zG4emkUll1F?=
+ =?windows-1255?Q?eMYz4h+TS0Toxh3GGFqpZxqC1rEbWFIUQ+xKUPC4W1/SS+QdKr/pCZss?=
+ =?windows-1255?Q?nW4+GXkEvbIOH1mMZmXR20hgvCykWUR1YhL9Tx7MzeDkFVhVkXnU7xB6?=
+ =?windows-1255?Q?V1+UeeG3BxEsaz7wFa5Z7C0A5CgkEQF1y731ZwSwcK0kqQR5GPrUkVHH?=
+ =?windows-1255?Q?5PtbBsug9fAswSIC8eWq61GTiqbgWfxiwCca2khmezA9nYykcBS5+XJA?=
+ =?windows-1255?Q?YfVQWA0hz82+vbm55vwScNXag7AbfHio61YwukdzJhByVu9OA48gxYPK?=
+ =?windows-1255?Q?HwlArmyUnOtzC9hQNliWJvEUjj2ld8PPcWt2D8ASNvaNo7XN0xWFSKjo?=
+ =?windows-1255?Q?FiB1bLlIQXxAQonhzbuczqOlrdQUcbq9SfvagpIELmYDIz5oWQxqZBAX?=
+ =?windows-1255?Q?+1605tNuAuY2JNPZwGkt9pAUqiwoqMYuAZ0p48rPj/HEGGhoDmyrfvQC?=
+ =?windows-1255?Q?x04n69xIcxgiq+i1gt5M17OTmeKggZDZfDoYKEODvZGwrN8kU6twagB2?=
+ =?windows-1255?Q?wiL0zjkU+KZzjrl95MFGZZIXltvKVDhDikmEbEOWVXgL2ufrI3hfUx5L?=
+ =?windows-1255?Q?a5c67ql6fvY+ehlle8wppljgZOCDBwQhU4T9srPZSxWKYpRpk17IOjid?=
+ =?windows-1255?Q?i5z8/avI0WGPxiPpo/nsY1XZXfHNnA6NewR6NTAS8W2vNauCrArpks3v?=
+ =?windows-1255?Q?yMHmXBhGeMUAUlozO2vUWUMhBGdkvwc3+zOrYMcoo86Oc0YkMndK32i/?=
+ =?windows-1255?Q?vr/cNajPbTVZHgTVkTzWtyb+mKcIDbHgsMDE31tV0YFBWxeq+KymC1/A?=
+ =?windows-1255?Q?ELz8jVvJmPA5RP2JNd6wjKrtpTC1iq7TaCadjjx5SI/SlmzkQC6JABBe?=
+ =?windows-1255?Q?3/QnRORGXZgy77a9R8xXhzL4buJtrEejL4AUZR/VdvqzVuuuCkSG1GYM?=
+ =?windows-1255?Q?pH6G2EwypdkmhlB6qWzHWfcQNUlCAmGo42K7KGIywqHGrD9cBe57sqSQ?=
+ =?windows-1255?Q?YDiIv/QfhcQdTY2nGyN6kZI4uGCG8LTvF6qUkTUSpoD1tmZVeoHiE/SZ?=
+ =?windows-1255?Q?v9LyZAisgu7R9m9n8SWl8mj+U+5v/5JjyaHij2WdeB+SFb8/7ASQdC6S?=
+ =?windows-1255?Q?ofJoDNBs4pRqww=3D=3D?=
+Content-Type: multipart/mixed;
+	boundary="_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_"
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DU2PR02MB7672.eurprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ eeef8c38-081e-423d-1e93-08da31947250
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 May 2022 08:18:06.8495
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 7499966a-4a31-4c79-96c7-f9fbfa15f196
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ /MmDnCVDxYy+sfj2t+URTu/KWWxm5KXKHaCEnYd3OPMLTzHbY+mz8Ltv6W2p6WdBvI/i14myxNFaVvtNyyfWjnVJryZ5B86HdMTKZjcsQEI=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR02MB7534
+To: Undisclosed recipients:;
+X-TM-SNTS-SMTP: 
+	DA27FFBD57E0896BC245615C180E8102F9C196AA172097542BBA095D51E8BDFC2000:8
+X-TM-SMEX-DTAS-HEADER-WTP-UUID: F443433E1946950DDB1AB5E026EE15BEE4B4A56F
+
+--_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: multipart/related;
+	boundary="_006_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_";
+	type="multipart/alternative"
+
+--_006_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: multipart/alternative;
+	boundary="_000_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_"
+
+--_000_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+
+=EE=F9=F7=E9=F2 =E9=F7=F8,
+=E1=E4=EE=F9=EA =EC=E4=F9=F7=F2=FA=EA =E1=F7=F8=EF =E4=EC=E5=E5=E0=E5=FA =
+=EE=E2=E5=E1=E5=FA =F0=E3=EC"=EF =F9=EC =E4=F8=E0=EC =F4=E9=F0=F0=F1=E9=ED =
+=E0=EC=E8=F8=F0=E8=E9=E1 =E1=F2"=EE:
+Harel Finance Alternative Hamagen L.P.
+=E0=F0=E5 =EE=FA=EB=E1=E3=E9=ED =EC=F6=F8=F3 =E1=E6=E0=FA =E0=FA =E4=E3=E5=
+=E7 =E4=F8=E1=F2=E5=F0=E9 =F9=EC =E4=F7=F8=EF =E5=E4=E3=E5=E7 =EC=E7=E5=E3=
+=F9 =EE=F8=F5 2022.
+=E0=F0=E5 =EE=E5=E3=E9=ED =F2=EC =E4=E0=EE=E5=EF =F9=F0=FA=FA =E1=F0=E5, =
+=E5=F2=E5=EE=E3=E9=ED =EC=F8=F9=E5=FA=EA =EC=EB=EC =F9=E0=EC=E4.
+
+
+[cid:image001.jpg@01D7E6CA.C8B5F830]<https://eur04.safelinks.protection.out=
+look.com/?url=3Dhttp%3A%2F%2Fwww.harel-group.co.il%2F&data=3D05%7C01%7Clizi=
+v%40harel-finance.co.il%7C4bdc1b2d03284a0558b408da31935b4c%7C7499966a4a314c=
+7996c7f9fbfa15f196%7C0%7C0%7C637876806500918120%7CUnknown%7CTWFpbGZsb3d8eyJ=
+WIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7=
+C%7C&sdata=3D5zfMxFaGHVGrXeicjxTgd%2FWTWHLaryHNenJ9MuX12Mg%3D&reserved=3D0>
+
+Lizi Marziano
+Operations Manager | Harel Finance Alternative Ltd
+M.A.H Building, 12 Hachilazon St., Ramat Gan 5252276, Israel
+Tel. +972-3-7546099  Cell. +972-50-4443486
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[cid:admailBnr192.jpg]<https://open.spotify.com/show/06SrMoHu8mZLNaQSgrAUBy=
+>
+________________________________
+
+powered by admail<http://www.admail.co.il>
+
+
+--_000_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:David;
+	panose-1:2 14 5 2 6 4 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:right;
+	direction:rtl;
+	unicode-bidi:embed;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle18
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle19
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR" style=3D"font-size:14.=
+0pt;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"line-height:150%;text-autospace=
+:none"><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;font=
+-family:&quot;David&quot;,sans-serif;color:#06377A">=EE=F9=F7=E9=F2 =E9=F7=
+=F8</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span di=
+r=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Davi=
+d&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR=
+"></span>,<o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"line-height:150%;text-autospace=
+:none"><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;font=
+-family:&quot;David&quot;,sans-serif;color:#06377A">=E1=E4=EE=F9=EA</span><=
+/b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" d=
+ir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Dav=
+id&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LT=
+R"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EC=E4=F9=F7=F2=FA=
+=EA</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E1=F7=F8=EF</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=EC=E5=E5=E0=E5=
+=FA</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EE=E2=E5=E1=E5=FA<=
+/span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=
+=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:=
+&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span =
+dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F0=E3=EC</span></b=
+><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span dir=3D"LTR" sty=
+le=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-=
+serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>&quo=
+t;</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150=
+%;font-family:&quot;David&quot;,sans-serif;color:#06377A">=EF</span></b><sp=
+an dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D"=
+LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quo=
+t;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></s=
+pan>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F9=EC</span></b><s=
+pan dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D=
+"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&qu=
+ot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=F8=E0=EC</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F4=E9=F0=F0=F1=E9=
+=ED</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E0=EC=E8=F8=F0=E8=
+=E9=E1</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span=
+ lang=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-fa=
+mily:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><=
+span dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E1=F2</span></b><s=
+pan dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span dir=3D"LTR" style=
+=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-se=
+rif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>&quot;=
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EE</span></b><span=
+ dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span dir=3D"LTR" style=3D"=
+font-size:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-serif;=
+color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>:<o:p></o:=
+p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"line-height:150%;text-autospace=
+:none"><b><span dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font=
+-family:&quot;David&quot;,sans-serif;color:#06377A">Harel Finance Alternati=
+ve Hamagen L.P</span></b><span dir=3D"RTL"></span><span dir=3D"RTL"></span>=
+<b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;font-family=
+:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"RTL"></span><span=
+ dir=3D"RTL"></span>.</span></b><b><span dir=3D"LTR" style=3D"font-size:16.=
+0pt;line-height:150%;font-family:&quot;David&quot;,sans-serif;color:#06377A=
+"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"line-height:150%;text-autospace=
+:none"><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;font=
+-family:&quot;David&quot;,sans-serif;color:#06377A">=E0=F0=E5</span></b><sp=
+an dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D"=
+LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quo=
+t;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></s=
+pan>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EE=FA=EB=E1=E3=E9=
+=ED</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EC=F6=F8=F3</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E1=E6=E0=FA</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E0=FA</span></b><s=
+pan dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D=
+"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&qu=
+ot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=E3=E5=E7</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=F8=E1=F2=E5=F0=
+=E9</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F9=EC</span></b><s=
+pan dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D=
+"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&qu=
+ot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=F7=F8=EF</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E5=E4=E3=E5=E7 =EC=
+=E7=E5=E3=F9 =EE=F8=F5 2022.</span></b><b><span dir=3D"LTR" style=3D"font-s=
+ize:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-serif;color:=
+#06377A"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"line-height:150%"><b><span lang=
+=3D"HE" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&=
+quot;,sans-serif;color:#06377A">=E0=F0=E5</span></b><span dir=3D"LTR"></spa=
+n><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D"LTR" style=3D"font-s=
+ize:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-serif;color:=
+#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EE=E5=E3=E9=ED</sp=
+an></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"H=
+E" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot=
+;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=
+=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F2=EC</span></b><s=
+pan dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=3D=
+"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&qu=
+ot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E4=E0=EE=E5=EF</sp=
+an></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"H=
+E" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot=
+;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=
+=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F9=F0=FA=FA</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" =
+dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;Da=
+vid&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"L=
+TR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E1=F0=E5</span></b=
+><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span dir=3D"LTR" sty=
+le=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quot;,sans-=
+serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>,
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=E5=F2=E5=EE=E3=E9=
+=ED</span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span la=
+ng=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-famil=
+y:&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><spa=
+n dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EC=F8=F9=E5=FA=EA<=
+/span></b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=
+=3D"HE" dir=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:=
+&quot;David&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span =
+dir=3D"LTR"></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=EC=EB=EC</span></b=
+><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span lang=3D"HE" dir=
+=3D"LTR" style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David=
+&quot;,sans-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"=
+></span>
+</span></b><b><span lang=3D"HE" style=3D"font-size:16.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif;color:#06377A">=F9=E0=EC=E4</span>=
+</b><span dir=3D"LTR"></span><span dir=3D"LTR"></span><b><span dir=3D"LTR" =
+style=3D"font-size:16.0pt;line-height:150%;font-family:&quot;David&quot;,sa=
+ns-serif;color:#06377A"><span dir=3D"LTR"></span><span dir=3D"LTR"></span>.=
+</span></b><b><span dir=3D"LTR" style=3D"font-size:14.0pt;line-height:150%;=
+font-family:&quot;David&quot;,sans-serif"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-size:14.=
+0pt"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR" style=3D"font-size:14.=
+0pt"><o:p>&nbsp;</o:p></span></p>
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0" align=3D"left" width=3D"486" style=3D"width:364.7pt;margin-bottom:1.=
+25pt">
+<tbody>
+<tr style=3D"height:13.25pt">
+<td width=3D"159" rowspan=3D"2" valign=3D"top" style=3D"width:119.55pt;padd=
+ing:0cm 0cm 0cm 0cm;height:13.25pt">
+<p class=3D"MsoNormal" align=3D"center" style=3D"text-align:center;directio=
+n:ltr;unicode-bidi:embed;mso-element:frame;mso-element-frame-hspace:2.25pt;=
+mso-element-wrap:around;mso-element-anchor-vertical:paragraph;mso-element-a=
+nchor-horizontal:column;mso-height-rule:exactly">
+<a href=3D"https://eur04.safelinks.protection.outlook.com/?url=3Dhttp%3A%2F=
+%2Fwww.harel-group.co.il%2F&amp;data=3D05%7C01%7Cliziv%40harel-finance.co.i=
+l%7C4bdc1b2d03284a0558b408da31935b4c%7C7499966a4a314c7996c7f9fbfa15f196%7C0=
+%7C0%7C637876806500918120%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQI=
+joiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&amp;sdata=3D5zfMx=
+FaGHVGrXeicjxTgd%2FWTWHLaryHNenJ9MuX12Mg%3D&amp;reserved=3D0"><span style=
+=3D"font-size:12.0pt;font-family:&quot;Times New Roman&quot;,serif;color:bl=
+ue;text-decoration:none"><img border=3D"0" width=3D"118" height=3D"84" styl=
+e=3D"width:1.2291in;height:.875in" id=3D"Picture_x0020_2" src=3D"cid:image0=
+01.jpg@01D86395.3F811250" alt=3D"cid:image001.jpg@01D7E6CA.C8B5F830"></span=
+></a><span style=3D"font-size:12.0pt;font-family:&quot;Times New Roman&quot=
+;,serif;color:#1F497D"><o:p></o:p></span></p>
+</td>
+<td style=3D"padding:0cm 0cm 0cm 0cm;height:13.25pt"></td>
+</tr>
+<tr style=3D"height:116.45pt">
+<td width=3D"327" valign=3D"top" style=3D"width:245.15pt;padding:0cm 0cm 0c=
+m 0cm;height:116.45pt">
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed;mso-element:frame;mso-element-frame-hspace:2.25pt;ms=
+o-element-wrap:around;mso-element-anchor-vertical:paragraph;mso-element-anc=
+hor-horizontal:column;mso-height-rule:exactly">
+<b><span style=3D"color:#2C2C2C">Lizi Marziano</span></b><b><span style=3D"=
+font-size:10.0pt;line-height:115%;color:#2C2C2C">
+<br>
+</span></b><span style=3D"font-size:10.0pt;line-height:115%;color:#2C2C2C">=
+Operations Manager | Harel Finance Alternative Ltd</span><span style=3D"fon=
+t-size:10.0pt;line-height:115%;color:#1F497D"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed;mso-element:frame;mso-element-frame-hspace:2.25pt;ms=
+o-element-wrap:around;mso-element-anchor-vertical:paragraph;mso-element-anc=
+hor-horizontal:column;mso-height-rule:exactly">
+<b><span style=3D"font-size:8.0pt;line-height:115%;color:gray">M.A.H Buildi=
+ng, 12 Hachilazon St.,</span></b><span style=3D"font-size:8.0pt;line-height=
+:115%;color:#1F497D">
+</span><b><span style=3D"font-size:8.0pt;line-height:115%;color:gray">Ramat=
+ Gan 5252276, Israel</span></b><b><span style=3D"font-size:9.0pt;line-heigh=
+t:115%;color:#244061"><br>
+</span></b><b><span style=3D"font-size:8.0pt;line-height:115%;color:#585E5E=
+">Tel</span></b><span style=3D"font-size:8.0pt;line-height:115%;color:#585E=
+5E">. +972-3-7546099&nbsp;
+<b>Cell</b>. +972-50-4443486</span><span style=3D"color:#1F497D"><o:p></o:p=
+></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE"><o:p>&nbsp;</o:p></spa=
+n></p>
+</div>
+<br/><br/><table align=3D'center'><tr><td><table><tr><td align=3D"center"><=
+a href=3D'https://open.spotify.com/show/06SrMoHu8mZLNaQSgrAUBy' target=3D'_=
+blank'><img src=3D'cid:admailBnr192.jpg' border=3D'0' id=3D'_x05ea__x05de__=
+x05d5__x05e0__x05d4__x0020_1' alt=3D'' ></a></td></tr><tr><td><hr style=3D"=
+color: white;"/></td></tr><tr><td align=3D"center"><a name=3D"28FCE90E-9FBC=
+-44da-BBF7-D3997DC20E83" href=3D"http://www.admail.co.il"><i><font face=3D"=
+Arial" color=3D"Gray" size=3D"1" style=3D"TEXT-DECORATION: none">powered by=
+ admail</font></i></a></td></tr></table></td></tr></table></body>
+</html>
+<div id=3D'28FCE90E-9FBC-44da-BBF7-D3997DC20E83'></div>
+
+--_000_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_--
+
+--_006_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: image/jpeg; name="image001.jpg"
+Content-Description: image001.jpg
+Content-Disposition: inline; filename="image001.jpg"; size=6299;
+	creation-date="Mon, 09 May 2022 08:10:17 GMT";
+	modification-date="Mon, 09 May 2022 08:18:05 GMT"
+Content-ID: <image001.jpg@01D86395.3F811250>
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEASABIAAD/4QaHRXhpZgAATU0AKgAAAAgAAAAAAA4AAgIBAAQAAAABAAAA
+LAICAAQAAAABAAAGUwAAAAD/2P/gABBKRklGAAEBAAABAAEAAP/bAEMACAYGBwYFCAcHBwkJCAoM
+FA0MCwsMGRITDxQdGh8eHRocHCAkLicgIiwjHBwoNyksMDE0NDQfJzk9ODI8LjM0Mv/bAEMBCQkJ
+DAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy
+MjIyMv/AABEIADsAVAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/
+xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKC
+CQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaH
+iImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp
+6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAME
+BwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYn
+KCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeY
+mZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/
+2gAMAwEAAhEDEQA/APZfEXiWz8O2ZmuAXc/djU4Jrh7L4weZebbvSttsTjfFJlgPXB61q+LtEi1H
+UFlv3cxFsJEpwCB3J/pTJPAvh240NZ1RbSYKW3rIccdiCavD47Ae3eFndzSu30X9XOTFUcby+1pW
+UfzOo0zX7bULloEkDZAeNx/GpGR+hrYryHRGa38TWkNqzFNyxpnuBXpUXiPRpxdGLUbd/sgJuMN/
+qwDg5rmo1Y1Obl2T09C8PVlUj726NSis+HXNLuNMk1KG+heyjzvnDfKuOvNGna5pmrxyvp99DcrF
+/rDG2dv1rY6DQorBHjXwyX2f23Z7s4wZMVZvvE2iaa0S3mp20JlQSR7n+8p6Ee1AGrRWKvi/w89r
+Jcrq9qYI2Cu4fgE5wP0NatvcRXVvHcQSLJFIoZHXowPegCWiooZo7mBJom3RuNynGMiigCpqumrq
+MKjOHXoawZNAvJYTbO7Kn8LLzj8K66iuGtl9GrV9ttLy6+pr7Z+z9nLVHPaF4TtdIn+1vI091jAZ
+hgJ9BXjkGrTadc+KYI7KS4W7MkbumcRDefmPFfQleYaT4M1e3j8UF1gI1GN1tysoOSXJ59OtddOn
+GnHlirIwjBRVonOx3/2T4MmBWw93qBiAHccMf5frWp4FX+wfGOq6KT8s1mrj/eCBv5M1Qn4d+Ip9
+I0zTJY4FhhuHkmYTDgMVGR68A1pRfDq+0PxdZXminzLFMCUzSjdzkNxj0NWM85gmsk0XVYprB5bu
+SWPyLkD5YcE7gT7itbX4FtD4WjnC3qCxRmSJs7wZGO0H8cV1Fj4G1i08La5pk4tlutQlhNsvnD59
+jEn9Kp3Hg3X5v7GFg1mbvTYfLcfaFO1xIzdPxFAEGvHT5PAt3JY6DPpP+mwqyzE5k+V+Rn0r1Pwp
+/wAilpX/AF6p/KuI1XQPHOv6BcWWqtaSSedG8IVlUcbt2SB7iuj8EWXiXTrWS011oDbwxolqsRUk
+AZzkj8OtAze0T/kB2X/XFf5UUaJ/yA7L/riv8qKAL9FFFABXOy+Fg/mbL6ZC7BuB0wVOMZ9j+ddF
+RQBzsvhczJchtQm3SltrbfuA7eBz6L+ppx8MDjF9OCWdmbuS2eRzwRnGfSugooAw/wDhHsJpIF5J
+u09ywYrnfnqOenGR9DTpfDkEokHnSr5kjyPz13MGx7dMVtUUAc/F4X2TPK+o3DsW3DttPHPXrgYq
+xpWhf2ZcLN9rklxAIdpGB97OcZrYooAoaJ/yA7L/AK4r/KijRP8AkB2X/XFf5UUAX6KKKACiiigA
+ooooAKKKKACiiigChon/ACA7L/riv8qKuoixoERQqgYAAwBRQB//2f/bAEMAAQEBAQEBAQEBAQEB
+AQICAwICAgICBAMDAgMFBAUFBQQEBAUGBwYFBQcGBAQGCQYHCAgICAgFBgkKCQgKBwgICP/bAEMB
+AQEBAgICBAICBAgFBAUICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI
+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
+
+--_006_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_--
+
+--_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: application/pdf;
+	name="=?windows-1255?B?5Pjg7CDk7uLvIOD45OEgLSDj6eXl5yD44fLl8OkgLSD44fLl7yAxICAy?=
+ =?windows-1255?Q?022.pdf?="
+Content-Description: 
+ =?windows-1255?B?5Pjg7CDk7uLvIOD45OEgLSDj6eXl5yD44fLl8OkgLSD44fLl7yAxICAy?=
+ =?windows-1255?Q?022.pdf?=
+Content-Disposition: attachment;
+	filename="=?windows-1255?B?5Pjg7CDk7uLvIOD45OEgLSDj6eXl5yD44fLl8OkgLSD44fLl7yAxICAy?=
+ =?windows-1255?Q?022.pdf?="; size=3990154;
+	creation-date="Mon, 09 May 2022 06:40:21 GMT";
+	modification-date="Mon, 09 May 2022 08:17:53 GMT"
+
+[attachment stripped]
+--_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Type: application/pdf;
+	name="=?windows-1255?B?5Pjg7CD06fDw8entIODs6Pjw6OnhIOTu4u8g4Pjk4SAtIO749SAyMi5w?=
+ =?windows-1255?Q?df?="
+Content-Description: 
+ =?windows-1255?B?5Pjg7CD06fDw8entIODs6Pjw6OnhIOTu4u8g4Pjk4SAtIO749SAyMi5w?=
+ =?windows-1255?Q?df?=
+Content-Disposition: attachment;
+	filename="=?windows-1255?B?5Pjg7CD06fDw8entIODs6Pjw6OnhIOTu4u8g4Pjk4SAtIO749SAyMi5w?=
+ =?windows-1255?Q?df?="; size=1197625;
+	creation-date="Sun, 01 May 2022 08:15:46 GMT";
+	modification-date="Mon, 09 May 2022 08:18:04 GMT"
+
+[attachment stripped]
+--_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_
+Content-Description: admailBnr192.jpg
+Content-Type: image/jpg
+Content-Disposition: attachment; filename="admailBnr192.jpg"
+
+[attachment stripped]
+--_007_DU2PR02MB7672CD34A3EEEDF7DCB8A24CA4C69DU2PR02MB7672eurp_--

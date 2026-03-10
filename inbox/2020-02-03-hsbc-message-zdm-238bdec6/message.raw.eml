@@ -1,0 +1,600 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a0c:e9c8:0:0:0:0:0 with SMTP id q8csp2825304qvo;
+        Mon, 3 Feb 2020 08:36:47 -0800 (PST)
+X-Google-Smtp-Source: 
+ APXvYqwnj1HPmhw4kQ1Gjj3+LB9Id83DCcp/iSX6c9WFUaGtOvRcnOP/2DzsngGPP0u3mCEVyeA1
+X-Received: by 2002:adf:d4c7:: with SMTP id w7mr16739390wrk.101.1580747807412;
+        Mon, 03 Feb 2020 08:36:47 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1580747807; cv=none;
+        d=google.com; s=arc-20160816;
+        b=gLYhffS5Z9bQLNZrWLZ/ovBea4uIO36b/0391L8Ihb8RjNlAowm6spk90revGQJVcp
+         StjCFjdWInc9ysS3oWTthvkmSdmulkc0IuRs9UQXZBS6blu/Ivmxnvo/PVXPgRoG6mbl
+         +K/uQzUhgMJ6C7mamIV0RxK4h83u3ZR/kCNavR/CT4j5XnXFBirJFz7o3KtRMGEiOaHc
+         P0b9Med+4M8iW3I4dmnfNbw4lYSV5c/BJa7+LSC+3476ekLHzUwM1fe8kVoXKDhIc6L6
+         Oh2jmD0yxqbE74fcmcNz6wXn5tcvh5cfpOVfFdIlEQY7V6fYHPR+2iJfJL1Pu2pMxBRj
+         041w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=com.voltage.fbl:mime-version:subject:message-id:to:reply-to:from
+         :date:dkim-signature;
+        bh=INGKKx7Zh94nhW72dEkccNwwO7rn2qlH7tfA8bt8Qrk=;
+        b=m4HscyAyCCSYarDf+s7EflCKKZq+8fL9ZzOeWaThlg65Q+ptHuZFh6421JgfrsR/4U
+         A7+VX7TwUrxfjOHPtzQ/ddAa86JtLSJ+cANQTxQ3BbJEwxYJnCIZBwLtSxktZ+L9d3mC
+         UyibGCRTJbSoAMCkBuZXuo6EPN/ysf7QRYcoj4TLNomvmew7/sj3er4Fd6QiMjL5gY27
+         eMYi3wZ85igqVxmtYIf15990w6cNpj/tM1MCs2wvH5zpSJA6Ehcu4D6MwIu1KHRFIlw/
+         Y6fzG22HCLF+RymlnSzou1M/eM/9anD9UDx6sKuu+PsETAdUKnWWCjuQ5oY7ebpJCL2e
+         FMig==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@hsbc.com header.s=20160807hsbc header.b=CeDXCKHf;
+       spf=pass (google.com: domain of secure.email@hsbc.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=secure.email@hsbc.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com
+Return-Path: <secure.email@hsbc.com>
+Received: from mta29.mail.hsbc.co.uk (nwmailserver.hsbc.co.uk. [91.214.7.40])
+        by mx.google.com with ESMTPS id
+ c185si15295177wme.49.2020.02.03.08.36.47
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 03 Feb 2020 08:36:47 -0800 (PST)
+Received-SPF: pass (google.com: domain of secure.email@hsbc.com designates
+ 91.214.7.40 as permitted sender) client-ip=91.214.7.40;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@hsbc.com header.s=20160807hsbc header.b=CeDXCKHf;
+       spf=pass (google.com: domain of secure.email@hsbc.com designates
+ 91.214.7.40 as permitted sender) smtp.mailfrom=secure.email@hsbc.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com
+Received: from pps.filterd (gbv00846.hbeu.adroot.hsbc [127.0.0.1])
+	by gbv00846.hbeu.adroot.hsbc (8.16.0.27/8.16.0.27) with SMTP id
+ 013GZdZd011511
+	for <adam@marash.net>; Mon, 3 Feb 2020 16:36:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hsbc.com;
+ h=date : from : reply-to
+ : to : message-id : subject : mime-version : content-type; s=20160807hsbc;
+ bh=INGKKx7Zh94nhW72dEkccNwwO7rn2qlH7tfA8bt8Qrk=;
+ b=CeDXCKHfDcYpZeN1cZiWOqoLcHN/5EqNmTE5XGatlDrc8ZoM/zmG1KApIzzMXej5hRX8
+ kKD9Ekbr/b/qQNqr3LJ+cMJQhBkfldIHi7n++uif8EhOq+GT2QPLufK1fkMh6gSMCpkR
+ q4H+mDb3RNedRb1tNnMsNQBZuzG1PXGGGhk=
+Received: from voltagemail.systems.uk.hsbc
+ (gbl07015-fe-virtual2.systems.uk.hsbc [10.203.180.164])
+	by gbv00846.hbeu.adroot.hsbc with ESMTP id 2xw2t2m8k2-1
+	(version=TLSv1 cipher=AES256-SHA bits=256 verify=NO)
+	for <adam@marash.net>; Mon, 03 Feb 2020 16:36:46 +0000
+Received: from gbl07015.systems.uk.hsbc (voltagemail.systems.uk.hsbc
+ [10.203.180.164])
+	by voltagemail.systems.uk.hsbc (8.14.4/8.14.4) with ESMTP id 013Ga3cv003648
+	for <adam@marash.net>; Mon, 3 Feb 2020 16:36:03 GMT
+Date: Mon, 3 Feb 2020 16:35:22 +0000 (GMT)
+From: "adam@marash.net via SecureMail" <secure.email@hsbc.com>
+Reply-To: adam@marash.net
+To: terry.chaplin@hsbcpb.com
+Message-ID: 
+ <23297748.23419.1580747763592.JavaMail.root@gbl07015.systems.uk.hsbc>
+Subject: [Copy: HSBC SecureMail] RE: EXTERNAL: Re: IBI- Standing Order
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_23418_26159041.1580747763584"
+X-IBE-Encrypted: class=SecureMail; version=3
+X-IBE-Encrypted-Signer-District: hsbc.com#1279635299
+X-IBE-Encrypted-Agent: vendor=Voltage; product=ZDM; version=6.3.1
+X-IBE-Encrypted-Locale: language=en; country=US
+X-IBE-Encrypted-Brand: UK_HSBC_EN
+com.voltage.fbl: adam@marash.net
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501
+ malwarescore=0 suspectscore=7 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=704 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1911140001 definitions=main-2002030123
+
+------=_Part_23418_26159041.1580747763584
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;charset="UTF-8"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+
+<!--
+    Copyright 2002-2016 Voltage Security, Inc. All rights reserved.
+-->
+
+
+
+
+
+
+<html>
+
+  <head>
+=20=20
+      <meta http-equiv=3D"content-type" content=3D"text/html;charset=3DUTF-=
+8">
+=20=20=20=20
+    <meta name=3D"description" content=3D"SecureMail">
+    <meta name=3D"robots" content=3D"noindex, nofollow"/>
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=
+=3D1.0, maximum-scale=3D1.0">
+
+=20=20=20
+    <title>Secure Email by HSBC Holdings plc</title>
+=20=20=20=20
+    <style type=3D"text/css">
+
+=20=20=20=20=20=20
+      a {color: #338ac1 !important; text-decoration: none !important;}=20=20
+      a:hover { text-decoration: none !important; }
+      .logo { max-width: 400px!important; height: auto; -ms-interpolation-m=
+ode: bicubic;}
+=20=20=20=20=20=20
+      /* Media Queries
+       ***********************/
+      @media only screen and (max-device-width: 550px) {
+=20=20=20=20=20=20
+        body {-webkit-text-size-adjust: none;}
+        table[class=3D"wrapper"] {background: none!important; width: 100%!i=
+mportant; margin: 0!important;padding: 0!important;}
+        td[class=3D"inner-wrapper"]  {padding: 0 !important;}
+        table[class=3D"footer"]  {background: none!important; width: 100%!i=
+mportant; margin: 0!important;}
+        table[class=3D"footer-inner"] {background: none!important; width: 1=
+00%!important; margin: 0!important; -webkit-border-radius: 0!important; -mo=
+z-border-radius: 0!important; -o-border-radius: 0!important; border-radius:=
+ 0!important;}
+        table[class=3D"header"] {width: 100%!important; margin: 0!important=
+;-webkit-border-radius: 0!important; -moz-border-radius: 0!important; -o-bo=
+rder-radius: 0!important; border-radius: 0!important;}
+        img[class=3D"logo"] {max-width: 400px!important; height: auto; -ms-=
+interpolation-mode: bicubic;}
+        table[class=3D"box"] {width: auto !important; margin: 0 10px !impor=
+tant;}
+        table[class=3D"box"] h2 {font-size: 16px !important;}
+        td[class=3D"icon"] {display: none;}
+        td[class=3D"main-message"] h2 { margin: 0 !important; text-align: l=
+eft!important;}
+        td[class=3D"copyright"] {padding: 15px 0 !important;}
+        td[class=3D"instruction"] {padding: 0 0 12px !important; background=
+: none !important;}
+        td[class=3D"mail"] {width: auto!important; float: left!important;}
+        td[class=3D"tops"] h2 {padding: 15px 0 12px !important;}
+        table[class=3D"main"] { border:0 !important;}
+        table[class=3D"footer-inner"] { border:0 !important;}
+        td[class=3D"personal"] {width: auto!important; float: left!importan=
+t;padding-right: 5px!important;}
+      }
+=20=20=20=20=20=20
+      @media screen and (max-device-width: 525px) {
+           img[class=3D"logo"] { max-width: 375px!important; height: auto; =
+-ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20=20
+       @media screen and (max-device-width: 500px) {
+           img[class=3D"logo"] { max-width: 350px!important; height: auto; =
+-ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20=20
+       @media screen and (max-device-width: 475px) {
+                  img[class=3D"logo"] { max-width: 325px!important; height:=
+ auto; -ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20=20
+       @media screen and (max-device-width: 450px) {
+          img[class=3D"logo"] { max-width: 300px!important; height: auto; -=
+ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20=20
+       @media screen and (max-device-width: 425px) {
+           img[class=3D"logo"] { max-width: 290px!important; height: auto; =
+-ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20=20
+       @media screen and (max-device-width: 400px) {
+                 img[class=3D"logo"] { max-width: 250px!important; height: =
+auto; -ms-interpolation-mode: bicubic;}
+       }
+=20=20=20=20=20=20
+    </style>
+
+
+  </head>
+=20=20
+  <body style=3D"background: #fbfafb; font-family: 'Helvetica', 'Arial', sa=
+ns-serif; font-size: 62.5%; -webkit-text-size-adjust: 100%;">
+=20=20
+      <!-------BEGIN VOLTAGE MESSAGE BLOCK V3------->
+
+    <table class=3D"wrapper" cellspacing=3D"0" cellpadding=3D"0" align=3D"c=
+enter" style=3D"width: 566px; margin: 20px auto 0; background-image: url(ht=
+tps://securemail.hsbc.com/brand/br/UK_HSBC_EN/rv/6c65f/resources/common/bg_=
+main.png);">
+      <tr>
+        <td class=3D"inner-wrapper" style=3D"max-width:550px; padding: 6px =
+8px 0;">
+=20=20=20=20=20=20=20=20=20=20
+          <!-- MAIN -->
+          <table class=3D"main" width=3D"100%"  cellpadding=3D"0" cellspaci=
+ng=3D"0" align=3D"center" style=3D"background-color: #FFFFFF; border-top: 1=
+px solid #D7D7D7; border-left: 1px solid #D7D7D7; border-right: 1px solid #=
+D7D7D7; -webkit-border-radius: 5px 5px 0 0; -moz-border-radius: 5px 5px 0 0=
+; -o-border-radius: 5px 5px 0 0; border-radius: 5px 5px 0 0;"  >
+            <tr>
+              <td style=3D"padding: 0; background-color: #FFFFFF; -webkit-b=
+order-radius: 5px 5px 0 0; -moz-border-radius: 5px 5px 0 0; -o-border-radiu=
+s: 5px 5px 0 0; border-radius: 5px 5px 0 0;">
+                <table class=3D"header" width=3D"100%" border=3D"0" cellpad=
+ding=3D"0" cellspacing=3D"0" style=3D"height: 74px; padding: 7px 0 7px; mar=
+gin: 0; background-color: #ffffff; background: #ffffff url(https://securema=
+il.hsbc.com/brand/br/UK_HSBC_EN/rv/6c65f/resources/common/white15.png) repe=
+at-x scroll 0 50%; -webkit-border-radius: 5px 5px 0 0; -moz-border-radius: =
+5px 5px 0 0; -o-border-radius: 5px 5px 0 0; border-radius: 5px 5px 0 0;">
+                  <tr>
+                    <td align=3D"left" valign=3D"middle" style=3D"padding: =
+15px 0 15px 30px;" width=3D"100%">
+                      <img class=3D"logo" src=3D"https://securemail.hsbc.co=
+m/brand/br/UK_HSBC_EN/rv/6c65f/resources/zdm/logo_sm.gif" alt=3D"HSBC Holdi=
+ngs plc" />
+                    </td>
+                    <td border=3D"0" align=3D"center" nowrap=3D"nowrap" sty=
+le=3D"padding: 0 15px;">
+                      <table border=3D"0" cellpadding=3D"0" cellspacing=3D"=
+0">
+                        <tr>
+                          <td style=3D"padding: 5px 5px; top: 50%; right: 0=
+; margin: 0 0 0 10px; background: #ebebeb!important; color: #db0011!importa=
+nt; -webkit-box-shadow: 0 2px 2px rgba(0,0,0,.2); -moz-box-shadow: 0 2px 2p=
+x rgba(0,0,0,.2); -o-box-shadow: 0 2px 2px rgba(0,0,0,.2); box-shadow: inse=
+t 0 2px 2px rgba(0,0,0,.2); -webkit-border-radius: 4px ; -moz-border-radius=
+: 4px; -o-border-radius: 4px; border-radius: 4px;">
+                            <table border=3D"0" cellpadding=3D"0" cellspaci=
+ng=3D"0">
+                              <tr>
+                                <td style=3D"padding: 0 5px; top: 50%; righ=
+t: 0; margin: 0 0 0 10px; font-size: 12px; background: #ebebeb!important; c=
+olor: #db0011!important; -webkit-border-radius: 4px 0 0 4px; -moz-border-ra=
+dius: 4px 0 0 4px; -o-border-radius: 4px 0 0 4px; border-radius: 4px 0 0 4p=
+x;">
+                                  <a href=3D"https://securemail.hsbc.com/br=
+and/br/UK_HSBC_EN/rv/6c65f/zdm/troubleshooting.ftl" target=3D"help">
+                                    <img src=3D"https://securemail.hsbc.com=
+/brand/br/UK_HSBC_EN/rv/6c65f/resources/common/help2.gif" style=3D"border: =
+0;"/>
+                                  </a>
+                                </td>
+                                <td style=3D"padding: 0 5px 0 0; top: 50%; =
+right: 0; margin: 0 10px 0 0; font-size: 12px; background: #ebebeb!importan=
+t; color: #db0011!important; -webkit-border-radius: 0 4px 4px 0; -moz-borde=
+r-radius: 0 4px 4px 0; -o-border-radius: 0 4px 4px 0; border-radius: 0 4px =
+4px 0;">
+                                  <a href=3D"https://securemail.hsbc.com/br=
+and/br/UK_HSBC_EN/rv/6c65f/zdm/troubleshooting.ftl" target=3D"help">
+                                    <span style=3D"color: #db0011;">Help</s=
+pan>
+                                  </a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+            <tr>
+            <td width=3D"100%"  style=3D"margin: 0; padding: 0;">
+            <div style=3D"background: url(https://securemail.hsbc.com/brand=
+/br/UK_HSBC_EN/rv/6c65f/resources/common/bg_header_shadow.png);background-r=
+epeat: repeat-x; height: 13px; padding: 0; margin 0; background-color: #FFF=
+FFF;"/>
+            </td>
+            </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+            <tr>
+              <td align=3D"center" valign=3D"top" style=3D"padding: 20px 0 =
+0; font-family: 'Helvetica', 'Arial', sans-serif;" bgcolor=3D"#FFFFFF">
+
+        <!-- BOX -->
+                <table class=3D"box" border=3D"0" cellspacing=3D"0" cellpad=
+ding=3D"5" style=3D"width: 494px;">
+                  <tr>
+                    <td colspan=3D"2" style=3D"padding: 0  0 15px 0;">
+                      <table border=3D"0" cellspacing=3D"0" cellpadding=3D"=
+0">
+                        <tr align=3D"center">
+                          <td class=3D"mail" valign=3D"top" align=3D"right"=
+ width=3D"74" style=3D"padding: 0 15px 0 5px;">
+                            <img src=3D"https://securemail.hsbc.com/brand/b=
+r/UK_HSBC_EN/rv/6c65f/resources/common/icon_mail.png" />
+                          </td>
+                          <td class=3D"main-message" align=3D"left" style=
+=3D"max-width: 416px; margin: 0; padding: 0; vertical-align: middle;">
+                            <h2 style=3D"margin: 0; padding: 0 0 4px; font-=
+size: 18px; line-height: 23px; font-weight: bold; font-family: 'Helvetica',=
+ 'Arial', sans-serif; color: #1f1f1f!important; background-color: #FFFFFF">
+                                This is an encrypted message.<br/>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=
+=20=20=20=20=20
+                            </h2>
+                          </td>
+                        </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                      </table>
+                    </td>
+                  </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+
+                  <tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    <td  class=3D"icon" align=3D"right" valign=3D"top" widt=
+h=3D"74" style=3D"padding-right: 15px;">
+                       <img  src=3D"https://securemail.hsbc.com/brand/br/UK=
+_HSBC_EN/rv/6c65f/resources/common/icon_desktop.png" />
+                    </td>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    <td class=3D"instruction" valign=3D"top" align=3D"left"=
+ style=3D"max-width: 416px; padding: 0 0 20px;">
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                        <h3 style=3D"margin:0; padding: 0 0 4px; font-size:=
+ 14px; font-weight: bold; font-family: 'Helvetica', 'Arial', sans-serif; co=
+lor: #1f1f1f!important; background-color: #FFFFFF;">
+                          Desktop Users:
+                        </h3>
+                        <p style=3D"margin: 0; padding: 0; font-size: 12px;=
+ font-family: 'Helvetica', 'Arial', sans-serif; line-height: 16px; color: #=
+7d7d7d; background-color: #FFFFFF;">
+                          Open the attachment (message_zdm.html) and follow=
+ the instructions.
+                        </p>
+                    </td>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                  </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    <tr>
+                      <td colspan=3D"2" align=3D"center">
+                        <p style=3D"margin: 10px 0; padding: 0; color: #7d7=
+d7d; font-size: 12px; font-family: 'Helvetica', 'Arial', sans-serif; line-h=
+eight: 16px;">
+                           <span style=3D"color: #db0011;"><a href=3D"http:=
+//www.hsbc.com/1/2/online-security/secure-email/about-securemail"><span sty=
+le=3D"color: #db0011;">About SecureMail</span></a></span>
+                        </p>
+                      </td>
+                    </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20
+=20=20=20=20
+=20=20=20=20=20=20=20=20
+        <tr>
+          <td colspan=3D"2">
+            <table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspacin=
+g=3D"0" style=3D"padding: 10px 0 ; font-size: 12px;">
+              <tr>
+                <td colspan=3D"2" align=3D"center" valign=3D"top" style=3D"=
+padding: 10px 0 0; border-top: 1px solid #ddd; font-family: 'Helvetica', 'A=
+rial', sans-serif; background: #FFFFFF;">
+                  <table width=3D"100%" border=3D"0" cellpadding=3D"0" cell=
+spacing=3D"0" style=3D"padding: 10px 0 ; font-size: 12px;">
+                    <tr>
+                      <td class=3D"personal" width=3D"74" style=3D"padding-=
+right: 15px;" align=3D"right">
+                            <img editable=3D"true" style=3D"border: 4px sol=
+id #ffffff;"
+                                 src=3D"https://securemail.hsbc.com/p13n/im=
+age/aab95e758f571e84df795606114571cf84fa2b64/adam@marash.net"
+                              width=3D"40" height=3D"40"  alt=3D"Personal S=
+ecurity Image"/>
+                      </td>
+                      <td style=3D"padding: 0" align=3D"left">
+                        <table width=3D"100%" border=3D"0" cellpadding=3D"0=
+" cellspacing=3D"2px" style=3D"padding: 0;">
+                          <tr>
+                            <td>
+                                 <p style=3D"margin: 0; padding: 0; color: =
+#7d7d7d; font-size: 13px; line-height: 16px;">Your personalized image for:&=
+nbsp;<a href=3D"#" style=3D"text-decoration: none;color: #7d7d7d;"><strong>=
+ adam@marash.net</strong></a></p>
+                            </td>
+                          </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20
+                            <tr>
+                              <td>
+                                <p style=3D"margin: 0; padding: 0; color: #=
+7d7d7d; font-size: 11px; line-height: 16px;">This personal security image w=
+ill appear on secure email to you. If it's missing or unrecognized, please =
+contact your HSBC representative or equivalent. <span style=3D"color: #db00=
+11;"><a href=3D"http://www.hsbc.com/1/2/online-security/secure-email/secure=
+-anti-phishing" target=3D"_blank" title=3D"Anti-Phishing Help"><span style=
+=3D"color: #db0011;">Learn more</span></a></span></p>
+                              </td>
+                            </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+=20=20=20=20=20=20=20=20
+=20=20=20=20=20=20=20=20
+=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+=20=20=20=20
+=20=20=20=20=20=20=20=20=20=20=20=20
+                    <tr>
+                      <td colspan=3D"2" align=3D"center" valign=3D"top" sty=
+le=3D"padding: 0; font-family: 'Helvetica', 'Arial', sans-serif; background=
+: #FFFFFF;">
+                        <table border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" bgcolor=3D"#FFFFFF" >
+                          <tr>
+                            <td align=3D"left" style=3D"padding: 0; ">
+                              <p style=3D"margin: 10px 0 18px; padding: 0; =
+color: #7d7d7d; font-size: 11px; font-family: 'Helvetica', 'Arial', sans-se=
+rif; line-height: 16px;"><strong>Disclaimer:</strong> This e-mail and any f=
+iles transmitted are confidential and intended solely for the use of<br />t=
+he individual or entity to whom they are addressed. It may also be legally =
+privileged. If you are not<br />the addressee you may not copy, forward, di=
+sclose or use any part of it. If you have received this<br />e-mail in erro=
+r please delete it and all copies from your system and notify the sender im=
+mediately<br />by return e-mail.<br /><br />Internet communications cannot =
+be guaranteed to be timely, completely secure, error or virus-free.<br />Th=
+e sender does not accept liability for any errors or omissions.<br /><br />=
+By using SecureMail to access your message, you agree to our <span style=3D=
+"color: #db0011;"><a href=3D"http://www.hsbc.com/1/2/online-security/secure=
+-email/about-securemail" target=3D"_blank" title=3D"Privacy Statement and T=
+erms and Conditions"><span style=3D"color: #db0011;">Privacy Statement and =
+Terms and Conditions</span></a></span></p>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                  <tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                    <td colspan=3D"2" class=3D"copyright" align=3D"left" st=
+yle=3D"border-top: 1px solid #ddd; margin:0; padding: 15px 0 5px; font-fami=
+ly: 'Helvetica', 'Arial', sans-serif; font-size: 11px;">
+                          <p style=3D"margin:0;line-height: 13px; font-size=
+: 11px; font-family: 'Helvetica', 'Arial', sans-serif; color: #7d7d7d;">Ema=
+il Security Powered by Voltage IBE(tm)</p>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                        <p style=3D"margin:0; font-family: 'Helvetica', 'Ar=
+ial', sans-serif; line-height: 13px; color: #7d7d7d;"><p><strong>Copyright =
+HSBC Holdings plc 2010 - 2014. All rights reserved.</strong></p></p>
+                    </td>
+                  </tr>
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+                </table>
+                <!-- BOX END -->
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+              </td>
+            </tr>=20=20=20=20
+          </table>
+          <!-- MAIN END -->
+        </td>
+      </tr>
+    </table>
+    <!-- WRAPPER END -->
+=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20=20
+  <table border=3D"0" class=3D"footer" align=3D"center" cellpadding=3D"0" c=
+ellspacing=3D"0" style=3D"width: 566px; margin: auto; padding: 0 8px; backg=
+round-image: url(https://securemail.hsbc.com/brand/br/UK_HSBC_EN/rv/6c65f/r=
+esources/common/bg_main_bottom.png);">
+    <tr>
+      <td height=3D"23px" valign=3D"top">
+        <table class=3D"footer-inner"  height=3D"13" align=3D"center" cellp=
+adding=3D"0" cellspacing=3D"0" style=3D"border-bottom: 1px solid #D7D7D7; b=
+order-left: 1px solid #D7D7D7; border-right: 1px solid #D7D7D7; width: 550p=
+x; background-color: #FFFFFF; -webkit-border-radius: 0 0 5px 5px; -moz-bord=
+er-radius: 0 0 5px 5px; -o-border-radius: 0 0 5px 5px; border-radius: 0 0 5=
+px 5px;">
+          <tr>
+            <td>
+            </td>
+          </tr>=20
+        </table>
+      </td>
+    </tr>
+  </table>
+=20=20=20=20
+  <div id=3D"ZFRdata" style=3D"width:1px;max-width:1px;height:1px;max-heigh=
+t:1px;overflow:hidden;padding:5px;display:none;color:#fbfafb;">
+    <pre style=3D"width:1px;max-width:1px;height:1px;max-height:1px;overflo=
+w:hidden;padding:5px;display:none;color:#fbfafb;">
+=20=20=20=20=20=20
+-----BEGIN VOLTAGE SECURE BLOCK V3-----
+MIIKAAYJKoZIhvcNAQcDoIIJ8TCCCe0CAQAxggIkMIIBBwIBADCBijCBhDGBgTB/
+BgNVBCkTeE1GZ3dEQVlLWUlaSUFZYjlIZ0lCQVF3VGFITmlZeTVqYjIwak1USTNP
+VFl6TlRJNU9UQXpNQm9NQ1c1dmRFSmxabTl5WlFRTk1qQXdNVEk1TURBd01EQXdX
+akFWREFKcFpBUVBZV1JoYlVCdFlYSmhjMmd1Ym1WMAIBATAPBgtghkgBhv0eAQEC
+BgUABGTYM5lJCP1S3K1pLaARc8yf8BItF3HKXKk4GUspL9Q2qFvWEaFv7Uw7WBEd
+4kCPnGI0z7RfbyxCG/Ln3dZ0w/ASDKFyhAc6T0YifB32kJXlkF6iwugzghEDgnuv
+oVR1zd1vinHnMIIBFQIBADCBmDCBkjGBjzCBjAYDVQQpE4GETUdFd0RBWUtZSVpJ
+QVliOUhnSUJBUXdUYUhOaVl5NWpiMjBqTVRJM09UWXpOVEk1T1RBOE1Cb01DVzV2
+ZEVKbFptOXlaUVFOTWpBd01USTRNREF3TURBd1dqQWVEQUpwWkFRWWRHVnljbmt1
+WTJoaGNHeHBia0JvYzJKamNHSXVZMjl0AgEBMA8GC2CGSAGG/R4BAQIGBQAEZJyt
+yy/7J7pBfizvwl3wDbRMqZfEBuC9DLMbZmQy6BE/CgJhaZlvHAx/K6LXvXe5zZmj
+mdem+k3lUkfbEWdPgt9z14R9uvDkL02REAP1w3fdPy+dKslETLHbS5YUpa1oxvun
+xsEwgge+BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAECBBBy/Yp+71ehzPaLodUEWbYx
+gIIHkMrvV9wAO8wI4w2Z8uASqFDlNz270o6Smjyw/qsYllED/eSE3VroAO/CdFKh
+SUfuk2XusAZaAsJ+ktB/FZzroxdYXKcC4YaP/M6xAU7WVykiavXaAi7eUOFC33Pd
+R0dqbojrgr0bamdEBCiuubuVK4Auj2oOqdT3/Bnyy9mYQWdvkipmMu17eG2VZTAF
+eNPag3RdVeTza9Aolh9EJDgLayE92p9Yo9d5LTK1zLB1u3T7nuz/94VAY0Hqbxs6
+NwGF243qmmEA//8tvY3MsnJsL5TNJONxVqyGZFqUTnSrC7gxtlWxl79KthiMQ3tr
+gqGc38ocg4sU9Fqok7JCKeeTqa3BWrwj2qXsVpSgZrw3DodOCrIOCxvC/WJxVP63
+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
+XvovEia00H7A07r/imMrvg5VvKo=3D
+-----END VOLTAGE SECURE BLOCK V3-----
+
+    </pre>
+  </div>
+
+=20=20=20=20
+    <!-------END VOLTAGE MESSAGE BLOCK V3------->
+
+<DIV>
+-----------------------------------------<BR>
+SAVE PAPER - THINK BEFORE YOU PRINT!<BR>
+<BR>
+This E-mail is confidential. <BR>
+<BR>
+It may also be legally privileged. If you are not the addressee you may not=
+ copy,<BR>
+forward, disclose or use any part of it. If you have received this message =
+in error,<BR>
+please delete it and all copies from your system and notify the sender imme=
+diately by<BR>
+return E-mail.<BR>
+<BR>
+Internet communications cannot be guaranteed to be timely secure, error or =
+virus-free.<BR>
+The sender does not accept liability for any errors or omissions.<BR>
+</DIV></body>
+</html>
+
+
+------=_Part_23418_26159041.1580747763584
+Content-Type: text/html; charset=UTF-8; name=message_zdm.html
+Content-Disposition: attachment; filename=message_zdm.html
+
+[attachment stripped]
+------=_Part_23418_26159041.1580747763584--

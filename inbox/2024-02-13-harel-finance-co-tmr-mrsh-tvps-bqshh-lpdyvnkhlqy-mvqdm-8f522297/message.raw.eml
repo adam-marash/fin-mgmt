@@ -1,0 +1,565 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:7412:f793:b0:fc:d80d:d1fa with SMTP id
+ en19csp3224992rdb;
+        Tue, 13 Feb 2024 00:58:38 -0800 (PST)
+X-Received: by 2002:a05:6870:63aa:b0:218:d3a2:2430 with SMTP id
+ t42-20020a05687063aa00b00218d3a22430mr10858010oap.22.1707814717734;
+        Tue, 13 Feb 2024 00:58:37 -0800 (PST)
+X-Forwarded-Encrypted: i=2;
+ AJvYcCUnH0rP+su/oZkvRf8U3PPob80utoKCewFpDLEM3jg26q/VE0VFSsM6b2hvNN+gs0iYOTELMW1FXlktwekJpQg=
+Return-Path: <tamar+caf_=adam=marash.net@marash.net>
+Received: from mail-sor-f41.google.com (mail-sor-f41.google.com.
+ [209.85.220.41])
+        by mx.google.com with SMTPS id
+ b24-20020a6567d8000000b005cdf801a5f6sor953899pgs.7.2024.02.13.00.58.36
+        for <adam@marash.net>
+        (Google Transport Security);
+        Tue, 13 Feb 2024 00:58:37 -0800 (PST)
+Received-SPF: neutral (google.com: 209.85.220.41 is neither permitted nor
+ denied by best guess record for domain of
+ tamar+caf_=adam=marash.net@marash.net) client-ip=209.85.220.41;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@harel-finance.co.il header.s=harel
+ header.b=KwZl8OAa;
+       dkim=neutral (body hash did not verify)
+ header.i=@Harelgroup.onmicrosoft.com
+ header.s=selector1-Harelgroup-onmicrosoft-com header.b=UbtE+H16;
+       arc=fail (body hash mismatch);
+       spf=neutral (google.com: 209.85.220.41 is neither permitted nor denied
+ by best guess record for domain of tamar+caf_=adam=marash.net@marash.net)
+ smtp.mailfrom="tamar+caf_=adam=marash.net@marash.net";
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=harel-finance.co.il
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=harel-finance.co.il;
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707814716; x=1708419516;
+        h=mime-version:content-language:accept-language:message-id:date
+         :thread-index:thread-topic:subject:cc:to:from:dkim-signature
+         :ironport-hdrordr:ironport-data:dkim-signature:delivered-to
+         :x-forwarded-for:x-forwarded-to:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mPbL1rjDY1ax2HGyudf/raHd2W0dB0MEIJfFFOq3H+Q=;
+        b=qTubO6WXfZxvG4PvfNSLwdKEJaB/RIrNoKHHScH9+qiNIGtPDl+JhdCsglWk57/GjR
+         SNIXXkWnhHHBCvpnjgKONMIueH/D0eb5YSR1LBxRkSUq0sUtFw5XBBMUxbGY2Qv+gUmA
+         dom/94X/1qTUJi/PpzuSgFLLjBZSx3muTjVGs8rTDJYKuS5+SuU1NiytvbyTeZcyCV6l
+         UfhfeKySEzh/8tRlkgYKsoXzSd99Fvy5BcvZ+Amu2KaitQ0iQgoMxONyKWnsqHWedJNa
+         qdSibUIf2F4Nd6TnixEXaU8GkNbeaqt8K2irY9OmSuhbhe2JBZL0fldOVnr+z1UNZfcs
+         MO3Q==
+X-Gm-Message-State: AOJu0YzlEOMfqz/mh9/doEn6fXBrt82nv0jUDTOCrCS3C5UWIm0aeTDz
+	fuF5R7WSRoUydmkTxDThvdNdeFJaGplT8KRemvhVwRFnL7lfVaJH2V5wkuuezo7GNAqeeBHeeUb
+	5ZzOrzgwZseBqc8O3pkCdd0lL7EuJ7q7gPKbbw9iX4os3/NOvTGmTUge4gh83FcKr5034JXgFru
+	qCot8=
+X-Received: by 2002:a05:6a21:3115:b0:19a:1cff:f574 with SMTP id
+ yz21-20020a056a21311500b0019a1cfff574mr8841548pzb.36.1707814716134;
+        Tue, 13 Feb 2024 00:58:36 -0800 (PST)
+X-Forwarded-To: adam@marash.net
+X-Forwarded-For: tamar@marash.net adam@marash.net
+Delivered-To: tamar@marash.net
+Received: by 2002:a05:6a10:3245:b0:52f:d6b2:35dd with SMTP id b5csp219412pxc;
+        Tue, 13 Feb 2024 00:58:34 -0800 (PST)
+X-Google-Smtp-Source: 
+ AGHT+IFqgoeIGIyZo7KgoKrSxUep63WDx4xBmv9YnG76yQ6+Q4oEesTlgdkKHiT92NRWdhyT4ahr
+X-Received: by 2002:a05:600c:1f82:b0:40f:e806:2f26 with SMTP id
+ je2-20020a05600c1f8200b0040fe8062f26mr7634181wmb.12.1707814713244;
+        Tue, 13 Feb 2024 00:58:33 -0800 (PST)
+Return-Path: <prvs=7668ebe3a=rivkaara@harel-finance.co.il>
+Received: from mail.harel-ins.co.il (mail.4me.co.il. [193.34.56.34])
+        by mx.google.com with ESMTPS id
+ c8-20020adffb48000000b0033add90c729si4129122wrs.862.2024.02.13.00.58.32
+        for <tamar@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 13 Feb 2024 00:58:33 -0800 (PST)
+Received-SPF: pass (google.com: domain of
+ prvs=7668ebe3a=rivkaara@harel-finance.co.il designates 193.34.56.34 as
+ permitted sender) client-ip=193.34.56.34;
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=harel-finance.co.il; i=@harel-finance.co.il;
+  q=dns/txt; s=harel; t=1707814713; x=1739350713;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=6rUGb9fxbbWjCKDZl2J1ni6LN6XD2kDOcuBzWv+CsHk=;
+  b=KwZl8OAaIg+EPQ/4Qw1ytOX0O4gCceYYoqTx8TJFSkQ2CxMItaJYXTz1
+   RgjanZCIqmodqfg9/GEvtn9nQxSM1SsSbtopN17V4jazugvu5SsLrrbRA
+   14Nvt/UWTm8vXbLjWSWQ+XSsaXNAnP76IBjaIrHL39PtGb5kRuKkNxFc4
+   16YEcqvJjrYv9qFBU3rJbv+Ib+ve4Uvo7kkoIxWIDeXRORXQZmS7FrGbx
+   TS9f02ZKhtmHNu+ghn5Q+drFqMkiFn1CkR127X956RiRdHBJTG1dgUmnb
+   S51M05RrLL0/Ira+4+9oQxYNeV0zgWz2r8kwvt8pbxYiVB1xdw4nuP94a
+   Q==;
+IronPort-Data: A9a23:52sgV6u8XolNT2EfcHKUr0kfiufnVCxeMUV32f8akzHdYApBs4E2e
+ lqraxnfZ67dN2L1escsKNqGQXl2upTUyII3QQdkrS5hHykV9pqaCI2TIxyvMSnLdsbJR088t
+ clFNdPLIsxtEHLV/0j1b+i88yAgjPyDFuujV+TJN0idKeMEpAIJ0HqPzMZn2N856TTAPz6wh
+ T+bTqC21DWNnoG2jZSrK+o8XqyvAzW6/YzoAaGBqU+C9OAnKLaqzS3jbR5FkLdHuTaloRMFs
+ Fk8c0UGMdwot6jbtS4aXQkAzbhCB/ZtwbdONYLpr+Adfqe0GdaNJe6EzEXc1rvocnORk94ZJ
+ L5lu5fvElx3NaGUle4UC0VUQipyM6ZPpeDMKibk4cHJlEDLf3XimvkyUh9mYN0TprgoDzoX+
+ fdEI20DPkzb2+68kdpXJgQB7ygGBJCD0NQ35i8+kWix4Y8afK3+r4X2Cf5whj49jcoSRKmEP
+ MBJZTBlPEnKbkZEMAhLV84yxbjy2nWjKm0Jo1+r/qdmuGK7IC6dcVTO3Hg5XvTWHZ09cpOw+
+ jqel4jBKkhGcobZkVJpy1r07sfXhyT3RYkOI7Ox8/9ukTW7y3caYPEsfQLTTcKR1AjmBbqzF
+ 2ROonBy9fJrrxTyJjXAd0bQTECs70d0t+V4Q7VSBDGlksL8/wufD24YeT9NAPROWBgeH2RCO
+ vehxrsFNBQ32FGnYSv1GoS89FteDRMowVoqPkfoe+enD+7L++nfhjqXJjpqOPTo34etQVkcy
+ RjSxMQ1r+17YcLmS8xXVL0I6t6hjsGhc+I72unYdiH7sy5+YNO+XoqD7wfg59wcCLapVHDU6
+ RDom+DGhAwPJamksQGyat4mNYnxvbCFOSfRhRtoEZcg/Dnr8HmmFWxSyGgmYhsxdJlaP2aBj
+ Ez74Gu94LdJPWWpZKZtaqqxAt4nye3uFNLsUPvZKNFJJJl1HOOC1HoxPxTPhz2w+KQqueYxG
+ 72Kev6PN1QbNJ9NzWO2W98BjYZ+k0jSwkuWH/gX1S+PzbObbWS9TL4fOUCOKOY08MusugjN9
+ MxDLOOW0ApaFub5JCjTmbP/NnhTdT5nXdap9YoOHgKeHjdb9KgaI6e56dscl0ZNxcy5Ss+gE
+ qmBZ3Jl
+IronPort-HdrOrdr: A9a23:7Ht9fKC7KbSMee/lHemU55DYdb4zR+YMi2TDGXoBLCC9Ffbo8P
+ xG/c5rsSMc5wxwZJhNo7G90cq7Lk80i6QFg7X5VI3KNGLbUQ2TXeJfBODZrgEIdReVygaKvZ
+ 0NT4FOTOTqC0d7gMrgiTPXL+od
+X-Talos-CUID: 9a23:IBUi32DhH/JtR3b6E2o5qWMTHp0+S3v2yijrKWXkLVZZUpTAHA==
+X-Talos-MUID: 9a23:PxppBQVGv83Klkjq/HjiphtzP/9L2YavNXsnkMwGp/GYaRUlbg==
+X-IronPort-AV: E=Sophos;i="6.06,156,1705356000";
+   d="pdf'?jpg'145?scan'145,208,145,217";a="37227055"
+Received: from unknown (HELO PAMEWBSCAP02.harel-office.com) ([10.40.76.1])
+  by mail.harel-ins.co.il with ESMTP; 13 Feb 2024 10:58:27 +0200
+Received: from PAMEWBSCAP02.HAREL-OFFICE.COM (PAMEWBSCAP02.HAREL-OFFICE.COM
+ [127.0.0.1])
+	by PAMEWBSCAP02.HAREL-OFFICE.COM (Service) with ESMTP id 8D88DB0D6;
+	Tue, 13 Feb 2024 10:58:21 +0200 (IST)
+Received: from PWMEEXCHAP12.harel-office.com (unknown [10.40.14.17])
+	by PAMEWBSCAP02.HAREL-OFFICE.COM (Service) with ESMTP id 5C190495;
+	Tue, 13 Feb 2024 10:58:21 +0200 (IST)
+Received: from PWGDEXCHAP10.harel-office.com (10.40.14.34) by
+ PWMEEXCHAP12.harel-office.com (10.40.14.39) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Tue, 13 Feb 2024 10:58:24 +0200
+Received: from PWMEEXCHED01.Harel-EXT.com (10.40.14.220) by
+ PWGDEXCHAP10.harel-office.com (10.40.14.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40 via Frontend Transport; Tue, 13 Feb 2024 10:58:23 +0200
+Received: from EUR01-VE1-obe.outbound.protection.outlook.com (104.47.1.50) by
+ hybridmail.harel-ins.co.il (10.40.72.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2176.14; Tue, 13 Feb 2024 10:58:24 +0200
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=MIIRXx8+962jOZOqT+LCCStdirDyqtieW+6TLpsaLj9ftsPbx6C5oZbQYcezzCDwVF1d2At+1NpUChsgukulp6khROSiSSE4Kttnka/WWYZmZyv9BT42SSQpyOGK7vcbVvzAFzJ68APRREJ3HjDkySgvfHnyYobeqcOjVPtx+AkKXYbYmIYKHybECDHMGvHl/Jt9qpWqe10Js6M6WuLvFzDzqtGO5gQMefvOj4ols9uuEiL+SZqOh0mWFqLqhyK46Jy3Ql/1Xt+eGdRWv4XRoUP+LfFbNbxoV3x626cd/LEaM+D5unPTr5QbLDN2Yh4cHoB/H/SyCQxr5PuK7kxU9A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zx9lWEDJJI2z4tAKOXg2OqwLGwKPgW05AulxEJV6G30=;
+ b=jRP1DnUMQRWk7I3sSd27S1jqleBo2asvoFH92mHL9a5cukBU4gYwnCbga2mKnEplSb4XvfGRuPTFYdE9yJRW3BK2vz8AL+376ivapFzu6uwTwkgtllKFDyf2aykcS9Ma7r2HJbo3rSSC58gRZPhwoLkZHhckLGCQmoYLj9J8OV7/I5YJs/WEctmQowdk0T5ieCuyRq7Dr6toeLxHqp08iY0XfWav1G9Rl8nasGBWwEZyaDDY5oeaWJtBXzgnLUugJlitXrubRB90lwjFvzb9+3RPHbylxCcSkdizbVF0ug/9RSvdqqMNzYBYATD+y3h84iLex4EspGgvq/2ioLpSGQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=harel-finance.co.il; dmarc=pass action=none
+ header.from=harel-finance.co.il; dkim=pass header.d=harel-finance.co.il;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=Harelgroup.onmicrosoft.com; s=selector1-Harelgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zx9lWEDJJI2z4tAKOXg2OqwLGwKPgW05AulxEJV6G30=;
+ b=UbtE+H16co7DywJMrE32+LhHaC+YX7Q8XUA2YR4GacY+JeE12gTjHPBmw5voPBrvoBkcMAPv7ZTxFjfLQBFKz+73gWcRCXP5bf6Ty9uhdpDEYvvQqm7/ZqfWlESXvlt959L6jEgzBL6nGVbyyqidddhSv6tP9ZWW2purMBeuFqM=
+Received: from PA6PR02MB10739.eurprd02.prod.outlook.com
+ (2603:10a6:102:3cb::20) by VI1PR02MB10128.eurprd02.prod.outlook.com
+ (2603:10a6:800:1cb::7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.38; Tue, 13 Feb
+ 2024 08:58:21 +0000
+Received: from PA6PR02MB10739.eurprd02.prod.outlook.com
+ ([fe80::6e64:7485:9d06:fcfe]) by PA6PR02MB10739.eurprd02.prod.outlook.com
+ ([fe80::6e64:7485:9d06:fcfe%7]) with mapi id 15.20.7270.036; Tue, 13 Feb 2024
+ 08:58:21 +0000
+From: "rivkaara@harel-finance.co.il" <rivkaara@harel-finance.co.il>
+To: "tamar@marash.net" <tamar@marash.net>
+CC: "t-hfa@harel-finance.co.il" <t-hfa@harel-finance.co.il>,
+	"danielag@harel-finance.co.il" <danielag@harel-finance.co.il>,
+	"reports@tswm.co.il" <reports@tswm.co.il>
+Subject: 
+ =?windows-1255?B?6OX08SDh9/nkIOz04+nl7yDn7PfpIO7l9+PtIOT44Owg5O7i7yDg+OTh?=
+ =?windows-1255?B?Lfru+CDu+Pk=?=
+Thread-Topic: 
+ =?windows-1255?B?6OX08SDh9/nkIOz04+nl7yDn7PfpIO7l9+PtIOT44Owg5O7i7yDg+OTh?=
+ =?windows-1255?B?Lfru+CDu+Pk=?=
+Thread-Index: AdpeWj9bAPNj4iSgQ1+V3z7lak5ydA==
+Date: Tue, 13 Feb 2024 08:58:21 +0000
+Message-ID: 
+ <PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2@PA6PR02MB10739.eurprd02.prod.outlook.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PA6PR02MB10739:EE_|VI1PR02MB10128:EE_
+x-ms-office365-filtering-correlation-id: d1629355-af2e-4432-2b65-08dc2c71edf3
+x-ld-processed: 7499966a-4a31-4c79-96c7-f9fbfa15f196,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ KGRKDTwNOqRzQNSlVkV5Itd+VMR9Tw44VvZJ6ozP2/Po016nYtAjrfTNpbAdpZKwY+z/66P6IRjDQMuN9GTSdT4o87M6ly9qop99u8vBsIn8j3Vq+7FKoSnjmVHwvMmank8hCBiLuTuOVDumUFAgIAdkORzfS/Z/LEvglKoiNkxNNbTCdEWr8HJsmpHI4YcBdyirOt8QQfn1TNVSgIt/hGMwytvF28c9mIY56j9Gk9GzYcj5pTgxmWxB0sN2B9o8wp2MMBg3jT2XFw7QpXvnS/83+vISQiRFgFHn8wpThxrw/EfXoFqUGssRRV5KpkoDFGpyrLw0PNGir9lSKidx8kEvsv+Z0OlLcR0oPf+GYxCbfvACymQ7SpPQJAe1l5ZtGPN4H6+5qwkH0EsapzvkPzND1T//ddlfTyFvp+pe5ztbWxo+t/WLow5RynZK83l1ANyJEU7is8rUL1pPxFdN7IUqdIXmOJB6CjZf+MAdX3qbSauLCun5ive3wC6B0E/JasVviINixq3QlYKn4NeQPybDlsEt732d1xJTUlEK3YijWqoWCzBC6rSvf7JPUoeu
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PA6PR02MB10739.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(346002)(39850400004)(136003)(366004)(396003)(230922051799003)(451199024)(186009)(1800799012)(64100799003)(99936003)(166002)(558084003)(4326008)(86362001)(66946007)(66556008)(66476007)(66446008)(64756008)(54906003)(6916009)(76116006)(6506007)(7696005)(71200400001)(478600001)(2906002)(52536014)(5660300002)(8936002)(122000001)(9686003)(38100700002)(26005)(316002)(33656002)(224303003)(38070700009)(85182001)(41300700001)(55016003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?bUm3+9O16nxPlx5bqG7viuTF3YMSolKDzRI7pfgvxSowyDhSq1M7pdmJ?=
+ =?windows-1255?Q?N1qhNemY+y7QWXHHJnZYP1CZVJ+aoTRAz1+BJt+fUN6BfWkcPYXtkwnG?=
+ =?windows-1255?Q?pwk+WUAXVBCJcBZrvMo9RpHTndAJsGulVLk5YsvDMCIBbHcMeQcO/qq6?=
+ =?windows-1255?Q?qiugfXdP9bgoHiFvzc1ULeYwIq9eYgB5bRs7zln4sXq53JELOwzzETOi?=
+ =?windows-1255?Q?AYZ7et4qs7T/Djnz+L4SdzIjkPgHbkC0eHdhRdy3IeRHWrcc3s1DZ8YS?=
+ =?windows-1255?Q?KaZUNpuZ6y2wnqhxnrWZcgUrKZxOIByTsRoy26DmAPIcOsGD4ncqyBH2?=
+ =?windows-1255?Q?vhRZsOW6MZXcfwC15UjiU5J2Q+7AmmYfpAek9HJLMxOt06khNRdpR92e?=
+ =?windows-1255?Q?rlgn1fsbTODCZEvSCz6d4CKknOXdZNqPMDWKEXAMHrh4Ualykv6LO1p5?=
+ =?windows-1255?Q?7ZabKuuF2/HeovLhdH5IjBDYn2tR/5GBVIKp1LYemnegOBTBEReUKaIV?=
+ =?windows-1255?Q?Gtlsh4gF75IWWtyLRsr1dBQ83sZUip6zV5CTBao/PElXlC2b/HwQHJMj?=
+ =?windows-1255?Q?4PWLi9BOpoaoitFEE64WIcg5ZbslusNwWOtMb0dSy9AJudeDUjckXAaR?=
+ =?windows-1255?Q?dQ13GwACLKhi3dOcq7YZsje4QJWXQre+kD5NgwE1cKd1XT4rKgsxAN55?=
+ =?windows-1255?Q?RkQ+RLuFGRX5aof9uzpzsoi1+aMTFOKicWiS8VIRLVmY90RDxHUffB4F?=
+ =?windows-1255?Q?rCCJeerouI+nFDAPQ9Z0laV15NUtedD0F63WUmFf4A3mAUVriA3WvWuT?=
+ =?windows-1255?Q?4LJesWLLQEuxx/LfX/vddgb/Xjur+lQDG0kOBmvmlelf8WnzFKeRKKSz?=
+ =?windows-1255?Q?aD5Wa2F4eF4QPLd/v7uZ7CKSYVjlhNf1Cdeqh+IDAUyenpJEiNMGogCC?=
+ =?windows-1255?Q?xe9EXHdd/T14/096/9r3aSdOyjn9UOTKjTG2ClKJKWcJeZxMG0hOHgfs?=
+ =?windows-1255?Q?sDLvGgxx9KSxOZP33yuYktfKmdZAf0zHsEztDoGWSJ3QJbi+kbQnDuM7?=
+ =?windows-1255?Q?TzDvriFzeBQnePC7CVnecvU+cD1J6o6VmlRaRFxd0yC/Nh0X1O47Yyqw?=
+ =?windows-1255?Q?IVK/VjWfR12NArMUI6LsQoO9sBHn0jb6cch4+pcCFjGhlaBdYHI8jPzR?=
+ =?windows-1255?Q?O0gOXKTwtHE8IWQiGe5wNoxd2S1p7UVZdLcGs0kqArreff8SX8qbwYBr?=
+ =?windows-1255?Q?pz+Om74cpcv4aEdilcylVaiqjnMZEhwE9vRkgoe2tmLLEJPejHj8V3oq?=
+ =?windows-1255?Q?BQU/Wrj50lQCJ5iaIFmnE+z5wDaR59zgw5rt//Ej6Ln17a6FCdmKB6AL?=
+ =?windows-1255?Q?B2lCw0lNF9nG4O+2A8vEm4XrLgcxsCAdobRGEf+1roCn0cdzNB+uN3q2?=
+ =?windows-1255?Q?YeRMTZHKoe6hV1IKe+BTnDaPOsUuSSppmH+DubhnLqapYNEZQoYdFbIV?=
+ =?windows-1255?Q?fl6MNnLg4UdEr4iPCIlxFe7jnipC50NOOcD02zZtGbQEoEhCBJL2L1I3?=
+ =?windows-1255?Q?82Klb+8g1vIaQaDUwGjBLiIFg4dXpaZjBhuUP6Nu8QWOyTXeeGFFyX0u?=
+ =?windows-1255?Q?nQj9A4FY5rk6qpJn51XOw8SMbKcPMs2AnzJvrvYTbnjXMXJrmlJnpEEZ?=
+ =?windows-1255?Q?FZU/9ErqbiugR746ITse5yMGhCbKqy3zRSSP6YXBfhbfEbupeTmWDg?=
+ =?windows-1255?Q?=3D=3D?=
+Content-Type: multipart/mixed;
+	boundary="_006_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_"
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PA6PR02MB10739.eurprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ d1629355-af2e-4432-2b65-08dc2c71edf3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Feb 2024 08:58:21.4418
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 7499966a-4a31-4c79-96c7-f9fbfa15f196
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ +hq6xUCxK5k1dPakUlMdDrgoaZqn4Umh3ZC1+rKhywiwvy8DjhZkpKojSv9ghbw3MtMgOQZhK3PFN1cY+6RdKzzb9D3LWUdN3q6DwnLR/Nw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR02MB10128
+X-TM-SNTS-SMTP: 
+	B89AF10E8EFEB1C8EB06084DDB83EFD12429B076ED06E085C82C2778BC72E1CF2000:8
+
+--_006_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: multipart/related;
+	boundary="_005_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_";
+	type="multipart/alternative"
+
+--_005_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: multipart/alternative;
+	boundary="_000_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_"
+
+--_000_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+=F9=EC=E5=ED,
+
+=EE=F6"=E1 =E8=E5=F4=F1 =E1=F7=F9=E4 =EC=F4=E3=E9=E5=EF =E7=EC=F7=E9 =E1=E4=
+=F8=E0=EC =E4=EE=E2=EF =E0=F8=E4"=E1.
+=EC=E0=E7=F8 =E7=FA=E9=EE=E4 =F2=EC =E4=E8=E5=F4=F1 =E9=F9 =EC=F9=EC=E5=E7 =
+=E0=EC=E9=F0=E5 =E1=E7=E6=F8=E4 =EC=E4=EE=F9=EA =E8=E9=F4=E5=EC.
+
+=E1=E1=F8=EB=E4,
+
+
+[cid:image001.jpg@01D7E6CA.C8B5F830]<http://www.harel-group.co.il/>
+RIVKA ARANI
+Operations | Harel Finance Alternative Ltd
+M.A.H Building, 12 Hachilazon St., Ramat Gan 5252276, Israel
+Tel. 0733466008            Mail. rivkaara@harel-finance.co.il<mailto:rivkaa=
+ra@harel-finance.co.il>
+
+
+
+--_000_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:right;
+	direction:rtl;
+	unicode-bidi:embed;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1027" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif">=F9=EC=E5=ED,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif">=EE=F6&quot;=E1 =E8=E5=F4=F1 =E1=F7=F9=E4 =EC=
+=F4=E3=E9=E5=EF =E7=EC=F7=E9 =E1=E4=F8=E0=EC =E4=EE=E2=EF =E0=F8=E4&quot;=
+=E1.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif">=EC=E0=E7=F8 =E7=FA=E9=EE=E4 =F2=EC =E4=E8=E5=
+=F4=F1 =E9=F9 =EC=F9=EC=E5=E7 =E0=EC=E9=F0=E5 =E1=E7=E6=F8=E4 =EC=E4=EE=F9=
+=EA =E8=E9=F4=E5=EC.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span lang=3D"HE" style=3D"font-family:&=
+quot;Arial&quot;,sans-serif">=E1=E1=F8=EB=E4,</span><span dir=3D"LTR"><o:p>=
+</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><!--[if gte vml 1]><v:shapetype id=3D"_x=
+0000_t75" coordsize=3D"21600,21600" o:spt=3D"75" o:preferrelative=3D"t" pat=
+h=3D"m@4@5l@4@11@9@11@9@5xe" filled=3D"f" stroked=3D"f">
+<v:stroke joinstyle=3D"miter" />
+<v:formulas>
+<v:f eqn=3D"if lineDrawn pixelLineWidth 0" />
+<v:f eqn=3D"sum @0 1 0" />
+<v:f eqn=3D"sum 0 0 @1" />
+<v:f eqn=3D"prod @2 1 2" />
+<v:f eqn=3D"prod @3 21600 pixelWidth" />
+<v:f eqn=3D"prod @3 21600 pixelHeight" />
+<v:f eqn=3D"sum @0 0 1" />
+<v:f eqn=3D"prod @6 1 2" />
+<v:f eqn=3D"prod @7 21600 pixelWidth" />
+<v:f eqn=3D"sum @8 21600 0" />
+<v:f eqn=3D"prod @7 21600 pixelHeight" />
+<v:f eqn=3D"sum @10 21600 0" />
+</v:formulas>
+<v:path o:extrusionok=3D"f" gradientshapeok=3D"t" o:connecttype=3D"rect" />
+<o:lock v:ext=3D"edit" aspectratio=3D"t" />
+</v:shapetype><v:shape id=3D"=FA=EE=E5=F0=E4_x0020_3" o:spid=3D"_x0000_s102=
+6" type=3D"#_x0000_t75" alt=3D"cid:image001.jpg@01D7E6CA.C8B5F830" href=3D"=
+http://www.harel-group.co.il/" style=3D'position:absolute;left:0;text-align=
+:left;margin-left:16.95pt;margin-top:6.2pt;width:88.5pt;height:63pt;z-index=
+:251659264;visibility:visible;mso-wrap-style:square;mso-width-percent:0;mso=
+-height-percent:0;mso-wrap-distance-left:9pt;mso-wrap-distance-top:0;mso-wr=
+ap-distance-right:9pt;mso-wrap-distance-bottom:0;mso-position-horizontal:ab=
+solute;mso-position-horizontal-relative:text;mso-position-vertical:absolute=
+;mso-position-vertical-relative:text;mso-width-percent:0;mso-height-percent=
+:0;mso-width-relative:page;mso-height-relative:page' o:button=3D"t">
+<v:imagedata src=3D"cid:image001.jpg@01DA5E6B.8CD4D140" o:title=3D"image001=
+.jpg@01D7E6CA" />
+<w:wrap type=3D"square"/>
+</v:shape><![endif]--><![if !vml]><a href=3D"http://www.harel-group.co.il/"=
+><img border=3D"0" width=3D"118" height=3D"84" style=3D"width:1.2291in;heig=
+ht:.875in" src=3D"cid:image001.jpg@01DA5E6B.8CD4D140" align=3D"left" hspace=
+=3D"12" alt=3D"cid:image001.jpg@01D7E6CA.C8B5F830" title=3D"" v:shapes=3D"=
+=FA=EE=E5=F0=E4_x0020_3"></a><![endif]><span dir=3D"LTR"><o:p></o:p></span>=
+</p>
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed">
+<b><span style=3D"color:#2C2C2C">RIVKA ARANI<o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed">
+<span style=3D"font-size:10.0pt;line-height:115%;color:#2C2C2C">Operations =
+| Harel Finance Alternative Ltd</span><span style=3D"font-size:10.0pt;line-=
+height:115%;color:#1F497D"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed">
+<b><span style=3D"font-size:8.0pt;line-height:115%;color:gray">M.A.H Buildi=
+ng, 12 Hachilazon St.,</span></b><span style=3D"font-size:8.0pt;line-height=
+:115%;color:#1F497D">
+</span><b><span style=3D"font-size:8.0pt;line-height:115%;color:gray">Ramat=
+ Gan 5252276, Israel</span></b><b><span style=3D"font-size:9.0pt;line-heigh=
+t:115%;color:#244061"><br>
+</span></b><b><span style=3D"font-size:8.0pt;line-height:115%;color:#585E5E=
+">Tel</span></b><span style=3D"font-size:8.0pt;line-height:115%;color:#585E=
+5E">.
+</span><span style=3D"font-size:8.0pt;line-height:115%">0733466008&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=3D"color:#585E5E"=
+>
+&nbsp; Mail. </span><a href=3D"mailto:rivkaara@harel-finance.co.il"><span s=
+tyle=3D"color:#0563C1">rivkaara@harel-finance.co.il</span></a></span><o:p><=
+/o:p></p>
+<p class=3D"MsoNormal" style=3D"text-align:left;line-height:115%;direction:=
+ltr;unicode-bidi:embed">
+<span style=3D"font-size:10.0pt;line-height:115%;color:#1F497D"><o:p>&nbsp;=
+</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL"><span dir=3D"LTR"><o:p>&nbsp;</o:p></spa=
+n></p>
+</div>
+</body>
+</html>
+
+--_000_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_--
+
+--_005_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: image/jpeg; name="image001.jpg"
+Content-Description: image001.jpg
+Content-Disposition: inline; filename="image001.jpg"; size=6299;
+	creation-date="Tue, 13 Feb 2024 08:58:21 GMT";
+	modification-date="Tue, 13 Feb 2024 08:58:21 GMT"
+Content-ID: <image001.jpg@01DA5E6B.8CD4D140>
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEASABIAAD/4QaHRXhpZgAATU0AKgAAAAgAAAAAAA4AAgIBAAQAAAABAAAA
+LAICAAQAAAABAAAGUwAAAAD/2P/gABBKRklGAAEBAAABAAEAAP/bAEMACAYGBwYFCAcHBwkJCAoM
+FA0MCwsMGRITDxQdGh8eHRocHCAkLicgIiwjHBwoNyksMDE0NDQfJzk9ODI8LjM0Mv/bAEMBCQkJ
+DAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy
+MjIyMv/AABEIADsAVAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/
+xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKC
+CQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaH
+iImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp
+6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAME
+BwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYn
+KCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeY
+mZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/
+2gAMAwEAAhEDEQA/APZfEXiWz8O2ZmuAXc/djU4Jrh7L4weZebbvSttsTjfFJlgPXB61q+LtEi1H
+UFlv3cxFsJEpwCB3J/pTJPAvh240NZ1RbSYKW3rIccdiCavD47Ae3eFndzSu30X9XOTFUcby+1pW
+UfzOo0zX7bULloEkDZAeNx/GpGR+hrYryHRGa38TWkNqzFNyxpnuBXpUXiPRpxdGLUbd/sgJuMN/
+qwDg5rmo1Y1Obl2T09C8PVlUj726NSis+HXNLuNMk1KG+heyjzvnDfKuOvNGna5pmrxyvp99DcrF
+/rDG2dv1rY6DQorBHjXwyX2f23Z7s4wZMVZvvE2iaa0S3mp20JlQSR7n+8p6Ee1AGrRWKvi/w89r
+Jcrq9qYI2Cu4fgE5wP0NatvcRXVvHcQSLJFIoZHXowPegCWiooZo7mBJom3RuNynGMiigCpqumrq
+MKjOHXoawZNAvJYTbO7Kn8LLzj8K66iuGtl9GrV9ttLy6+pr7Z+z9nLVHPaF4TtdIn+1vI091jAZ
+hgJ9BXjkGrTadc+KYI7KS4W7MkbumcRDefmPFfQleYaT4M1e3j8UF1gI1GN1tysoOSXJ59OtddOn
+GnHlirIwjBRVonOx3/2T4MmBWw93qBiAHccMf5frWp4FX+wfGOq6KT8s1mrj/eCBv5M1Qn4d+Ip9
+I0zTJY4FhhuHkmYTDgMVGR68A1pRfDq+0PxdZXminzLFMCUzSjdzkNxj0NWM85gmsk0XVYprB5bu
+SWPyLkD5YcE7gT7itbX4FtD4WjnC3qCxRmSJs7wZGO0H8cV1Fj4G1i08La5pk4tlutQlhNsvnD59
+jEn9Kp3Hg3X5v7GFg1mbvTYfLcfaFO1xIzdPxFAEGvHT5PAt3JY6DPpP+mwqyzE5k+V+Rn0r1Pwp
+/wAilpX/AF6p/KuI1XQPHOv6BcWWqtaSSedG8IVlUcbt2SB7iuj8EWXiXTrWS011oDbwxolqsRUk
+AZzkj8OtAze0T/kB2X/XFf5UUaJ/yA7L/riv8qKAL9FFFABXOy+Fg/mbL6ZC7BuB0wVOMZ9j+ddF
+RQBzsvhczJchtQm3SltrbfuA7eBz6L+ppx8MDjF9OCWdmbuS2eRzwRnGfSugooAw/wDhHsJpIF5J
+u09ywYrnfnqOenGR9DTpfDkEokHnSr5kjyPz13MGx7dMVtUUAc/F4X2TPK+o3DsW3DttPHPXrgYq
+xpWhf2ZcLN9rklxAIdpGB97OcZrYooAoaJ/yA7L/AK4r/KijRP8AkB2X/XFf5UUAX6KKKACiiigA
+ooooAKKKKACiiigChon/ACA7L/riv8qKuoixoERQqgYAAwBRQB//2f/bAEMAAQEBAQEBAQEBAQEB
+AQICAwICAgICBAMDAgMFBAUFBQQEBAUGBwYFBQcGBAQGCQYHCAgICAgFBgkKCQgKBwgICP/bAEMB
+AQEBAgICBAICBAgFBAUICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI
+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
+
+--_005_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_--
+
+--_006_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_
+Content-Type: application/pdf;
+	name="=?windows-1255?B?Lfru+CDu+PkgLejl9PEg4ff55CDs9OPp5e/n7PfpIO7l9+PtIC0g5Pjg?=
+ =?windows-1255?B?7CDk7uLvIOD45OEucGRm?="
+Content-Description: 
+ =?windows-1255?B?Lfru+CDu+PkgLejl9PEg4ff55CDs9OPp5e/n7PfpIO7l9+PtIC0g5Pjg?=
+ =?windows-1255?B?7CDk7uLvIOD45OEucGRm?=
+Content-Disposition: attachment;
+	filename="=?windows-1255?B?Lfru+CDu+PkgLejl9PEg4ff55CDs9OPp5e/n7PfpIO7l9+PtIC0g5Pjg?=
+ =?windows-1255?B?7CDk7uLvIOD45OEucGRm?="; size=46641;
+	creation-date="Tue, 13 Feb 2024 08:57:58 GMT";
+	modification-date="Tue, 13 Feb 2024 08:58:21 GMT"
+
+[attachment stripped]
+--_006_PA6PR02MB10739F4B20C8AD0D7EF649FC3D14F2PA6PR02MB10739eu_--

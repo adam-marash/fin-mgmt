@@ -1,0 +1,894 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:6022:928d:b0:32:6815:9690 with SMTP id
+ dc13csp1166805lab;
+        Wed, 2 Nov 2022 02:58:09 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AMsMyM7RTBYIyg098r4vFGhbDvpMBxy26l8VDL88Ze1CTWEWVZ1mZabcUBdGTVb+ngTE7mVGsXLG
+X-Received: by 2002:a05:600c:3111:b0:3cf:604:c1a9 with SMTP id
+ g17-20020a05600c311100b003cf0604c1a9mr14577114wmo.48.1667383088801;
+        Wed, 02 Nov 2022 02:58:08 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1667383088; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=waCJKqlw8wZ4XCJ2Kg7XLHDVHRvszzXsKShftMIiVaJ5z48M85LR5ZSL0m3ruXMZsd
+         L37CG2WcWdzEnNFXStPJnKaOlbXbrwl6jBFtsZmQ/aPiFvB3inOme8FAgk0dXmRdjtp7
+         KkH+NT8Bxc3B3NNk5i+CtOurReZSEm4MD6rDeG2o7XUwKJQ0+q2D3b5QXdPQ3r1oqS17
+         qG+MZVH+/Nn7tQaTVUpjvJcGQEHqbYusGsheKP0oc5XFynRLEiFEyJOH5Tq5IIhGtH6j
+         BoBz84hoaq/7S7Ig+LbcZMfuS3Eo7k32ZUzfRVRUPDAk7Q0WHTcCkt4E9EeDtgYUWrhE
+         QfLQ==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:message-id:date
+         :thread-index:thread-topic:subject:to:from:dkim-signature;
+        bh=r6mSY3oVWnhBWlJRgt5MpxMBNRAb+6PggeXXlFjVv1E=;
+        b=xay/gTJ1XwVlc+htcmns1nX29CviRPgLPgoN2as7dKQc0mSzMZRrSWOChQdr4L1w3k
+         lnSWIc9ZHYT36WF77oxBl3i3hMyZ06I2Pn0Bb8uZw4Qw124K9LFC0P/9LXNov263nrrH
+         2mPmPEszspA/3Kk7cukcpCqd+5b8EFCiopcR0PtVPAAxcnJRSeVM2RW3eAvVtb06zCqz
+         tcoadkS2mcdYBqxvnLfRAT3WB9cTWIQTD0e8pOJK/ig0wmTHCI3Q5Iomt31mcGM04o86
+         dCeTz67V9yhxZI5qfdbfmjQM8UcigvD34v63xpXNl++/psC1/cwE56rBlYQmcZZEYI3J
+         xz1A==
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="Pg/U7CSL";
+       arc=pass (i=1 spf=pass spfdomain=impactcapital.co.il dkim=pass
+ dkdomain=impactcapital.co.il dmarc=pass fromdomain=impactcapital.co.il);
+       spf=pass (google.com: domain of info@impactcapital.co.il designates
+ 40.107.103.110 as permitted sender) smtp.mailfrom=info@impactcapital.co.il
+Return-Path: <info@impactcapital.co.il>
+Received: from EUR03-VI1-obe.outbound.protection.outlook.com
+ (mail-vi1eur03on2110.outbound.protection.outlook.com. [40.107.103.110])
+        by mx.google.com with ESMTPS id
+ h18-20020adfe992000000b00236a9621b43si9273409wrm.802.2022.11.02.02.58.08
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 02 Nov 2022 02:58:08 -0700 (PDT)
+Received-SPF: pass (google.com: domain of info@impactcapital.co.il designates
+ 40.107.103.110 as permitted sender) client-ip=40.107.103.110;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b="Pg/U7CSL";
+       arc=pass (i=1 spf=pass spfdomain=impactcapital.co.il dkim=pass
+ dkdomain=impactcapital.co.il dmarc=pass fromdomain=impactcapital.co.il);
+       spf=pass (google.com: domain of info@impactcapital.co.il designates
+ 40.107.103.110 as permitted sender) smtp.mailfrom=info@impactcapital.co.il
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Na1fvwjNnav/u2mBmUx2Dy98jtPPxuRxIixw4vjRJrioqxF+To8uTJ7RUkX3JThaGXF8rzN7jfQHAPf6GHyBp4lTjGvbmuueZhZQoV0voRXVsU6o54eihtr6qnzGh5pTBROfCeukylJS2cpXp90uV6hdE2K1gqlnY8ew7xj7QVEjdEBT4yK+Wy0FF5I34bSgY2uRNXP0xxGbIACkCuWy2v0cdq9AcC5haQ7B1itcxRd3knbu1pVj5+eWTOlnO4Fr0i0m6gWlI+FOEO0gTPPIzVA6XpMgcdpvt/v03pmK4L/1uQMy7Iaswx3xy5LJSvCGg7ixvdiO3w/xdZ35d7O29w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=r6mSY3oVWnhBWlJRgt5MpxMBNRAb+6PggeXXlFjVv1E=;
+ b=BH9iL+5VVPavQ8jU4aUX7hGClLoImL+ZYHKGIPzK6QeCFrXbXgO52fXxwnA8XT1iJNwltQdAx9kLGPvzu/Jv7xgyBdFFVzu0aVamhkjyXolhff+LQ4t+NNHMmpVcW5MlKHJllPqSJBfm0dV0rFBlH8MxdUg7gU0HgkYC/SkIZCAe/CrdoMjmobJvfyABEojUcTRFDkE5ENOfIk5Sf/zupByomuFajUoXgxtevw+dmGHZp0dvYF0EXhG32TlnSAZ1WdjyNU+7F7xnhKfYGszTGCodz4cdmp/KPBL4Cs5ZySrTPUl1b7FvdMgOEBXaUVtXJUTQHEgoZrHwUwPD15dIDg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=impactcapital.co.il; dmarc=pass action=none
+ header.from=impactcapital.co.il; dkim=pass header.d=impactcapital.co.il;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=r6mSY3oVWnhBWlJRgt5MpxMBNRAb+6PggeXXlFjVv1E=;
+ b=Pg/U7CSLUlAW0MO4F9J9G7rvn2HQ9vxd+jhN4ouVtH1olyPAwg/5g0q+SKzfvNQpWFlRtpQuhT3+1PnsIScAkujgBr0upRpA81/SANkqOTxS5vdc45o4+dIyF53upEH8k6qH5CmioDg+LKk0Xs3o5+qyHjIUuKrjFb8/nVgClxg=
+Received: from PAXPR05MB8708.eurprd05.prod.outlook.com (2603:10a6:102:1dc::6)
+ by DBAPR05MB6949.eurprd05.prod.outlook.com (2603:10a6:10:187::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5769.16; Wed, 2 Nov
+ 2022 09:58:04 +0000
+Received: from PAXPR05MB8708.eurprd05.prod.outlook.com
+ ([fe80::7f7a:e627:c4ad:d493]) by PAXPR05MB8708.eurprd05.prod.outlook.com
+ ([fe80::7f7a:e627:c4ad:d493%3]) with mapi id 15.20.5791.020; Wed, 2 Nov 2022
+ 09:58:04 +0000
+From: Info <info@impactcapital.co.il>
+To: omer <omer@theservice.co.il>
+Subject: Impact Debt Q2 2022 Report
+Thread-Topic: Impact Debt Q2 2022 Report
+Thread-Index: Adjun+CVjpMDW3bjRhSJjc1iNxdsYQ==
+Date: Wed, 2 Nov 2022 09:58:04 +0000
+Message-ID: 
+ <PAXPR05MB8708FB4383463AB7015204DB9D399@PAXPR05MB8708.eurprd05.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=impactcapital.co.il;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PAXPR05MB8708:EE_|DBAPR05MB6949:EE_
+x-ms-office365-filtering-correlation-id: f8534d50-7472-42fd-9fca-08dabcb8bc49
+x-ld-processed: 58fb3346-4c39-4981-9288-e34cfc745325,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ xDhlp6iO0NSoXw7PYCREXhVc8T7fWc2vKUhJ5CBbNrXDrUSra2wg6Ib/4vaNWDdlZjGOAqouaLFU1AW/MUXmGMyi3vF3y3mw3Q5UcmEZfiRrsF/5IF7Zs4C2aJfIVKdaP+8FdsJO8pGVIE4T3X1v1ZWYKnYSBhlZfXJMCcmJas59XrPfpCgvuVbgW/JSCUjYxhYLdRPuB+v2+Q9UffKNCZD4TRoelXg2PEoa6EZ24WsA/9KNXzkbEuabCgyYXhq58FVkVHBLg7Y1kRHrmK18yR/meULBBBdf/w750O6SwL6aHaIR1oJ1wTLmK24fns/i/iYUQ9foR7Qfbi/vRbNieHWbtlt2e6J/aGhPitZNsf56go2qgmi4G2K0a0WYgmza1x8ryzLi3lNG6IhXN1P8KXA6SqmIgIonaFHOolqI+JqulBRETqLSJQBEW2eMbir6qLwGG1kHFd6Zab1brf3bFUH0MqPkTTSJIFuusF/4m/knhgM26cWRowAGW9BWSr5ocLmD0ltEgkoT46KQmVQbz4nnkGiQJO+stBhknw/d/EgIeG4HcIgHYIK9VMqwLmVVy74Pi8ilw74byjvzwGD6UHcATG5boM4jrD+kzgVBetPv4cmV6aNh2bP/2y5CIa7bDQogZGwCUI/cX2V5Y9abQDDAzAv8XtLlRQAaBbHhtTCGw38lY2VESgTedL4PkYGWrtfPBR33ciDTYQQxF9Phuw==
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:he;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR05MB8708.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(366004)(376002)(136003)(396003)(346002)(39830400003)(451199015)(66899015)(55016003)(76116006)(86362001)(65686005)(33656002)(2906002)(66476007)(71200400001)(38100700002)(99936003)(38070700005)(122000001)(64756008)(9686003)(26005)(186003)(8676002)(66946007)(316002)(7696005)(478600001)(7406005)(8936002)(52536014)(6862004)(7416002)(5660300002)(41300700001)(6506007)(66556008)(66446008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?wYre1hYJphx/SyEBSY2sJbm5T3R3HeYUh0cAy7kGzc9AkldoR47j1BRD?=
+ =?windows-1255?Q?csQizc+XGdoTtK+gNrpiNcvCnULqDwS9vVIV3j+fO4DSOTIF8yEYxq1k?=
+ =?windows-1255?Q?4gbtNdsG2DXCzZzmN6vKc+ehGgSzodMLVvydX2u751P03NQufWBAIuMb?=
+ =?windows-1255?Q?MkWebRk5ICX6YMRdtBEdw8gsI3TULR+2jwXjqcr3hm5I1c5EDtLz41FB?=
+ =?windows-1255?Q?EvbDakyYFdkzlvoTsmEAhbATlpuDoDZS17rsDNP7UZVyRy3sZyaO8VTE?=
+ =?windows-1255?Q?9FZN0TfXkYLllYGmev0xQflRVx7kV535XMah8sffEGr+71lJaAUqrbtj?=
+ =?windows-1255?Q?mXWD8Soz2qkKJToQWvRI2XMDfw3l19t86cBo1Xg1B1H7d4eCV6lmEMtZ?=
+ =?windows-1255?Q?XDadA1M++feEL7+FcBZy2H64sSf6SbvNuDMRptsJgGbVxNnCp0mRsewL?=
+ =?windows-1255?Q?YOKNf6YKckaT94d5BI0WpWMy9swYsZrx35h9q41Y9lFaKtePtjhJ8zGQ?=
+ =?windows-1255?Q?4PGZoLlFEzMvRxpe7R+Ilirm7jU8oJMJyf3Qso5BeEykjMoh12qCJC4E?=
+ =?windows-1255?Q?HtdT/IDxkHxVEIbxvpuojvbnQWI7DUaT7tdhXEiadn1H67Sj6F47LIcQ?=
+ =?windows-1255?Q?OZ2rXL0VdpKST29QvhA3AFBHEkD4LZBUh0bCCLqExcfyTbsnGzGKIYUP?=
+ =?windows-1255?Q?jIx0VrDw8CgZbcOsWcUArhbPsVdDN9snzxF8t0ySG195yB0+99UIApfB?=
+ =?windows-1255?Q?EdgiBhm/YLl5gdMYuK/66IniPrxZqaIaInGg8U8a4ft4bLJ8x5v7O3+s?=
+ =?windows-1255?Q?hg7vRbuCVxab2QaGei9+F/THyWajdnBMzvLtfSdIhph62Ufctc4KxEBv?=
+ =?windows-1255?Q?IvKTLVtMDVkNofprsIHhN3ONfRgKvSUSaNEV4AXk9kSU0ey5SnT1nk1Z?=
+ =?windows-1255?Q?tOd18F4Nnxu/MmuybruWbHp8iJcFrsVao+Nl6nsN18fAp5k+qck9j2p2?=
+ =?windows-1255?Q?34lvtevUUfWZDNNLvBdPHjLZP/l+t2NRZtUHtaXbQI4/K9L1wmj91mrj?=
+ =?windows-1255?Q?C0OLvBGQaXGsbarHmookdU+oxP0XrLeL3Mh0ZCAbV2IoYNFQXvpzYFbT?=
+ =?windows-1255?Q?SMRsbTu9PH5ixRDXO+CwBqEpECohsnbL4I9EoXc3mUTaDrVTf6SMop5p?=
+ =?windows-1255?Q?3IBCQPu/y3fH+JZl6UjF5yDAJcOfkml23QmJ87PhfOY31AMH23eMEhpn?=
+ =?windows-1255?Q?IZmNXmid8WHuTFEsqC66J8PLsoD1rT7QSKoPxTBfxQZl+sRAdW4rI2zx?=
+ =?windows-1255?Q?X734xu7SVacQ/KqAMS1yBuUK+CXTfxk7mop+uG9L5zSQokHk9aLxXbA5?=
+ =?windows-1255?Q?deLS3kuKhWNTLm1zYxmJIR55CR/GbkmDgoPNwkul09SCWZIcjMsL2QZy?=
+ =?windows-1255?Q?QBBnhGcyoI5MjQoqf74WIzceE9PVT8is96fCbg8fhrwd6881Id/TqW4o?=
+ =?windows-1255?Q?no4SKMk9sRWqB5mmN9KbmsPuN5yDVqbOT4dU0qbXQMXJdSqa8iyfnG1K?=
+ =?windows-1255?Q?k+Rdw4XhKhEjI/RZymj2GnNsmp5SntjUOhly/vvC8VYIfppS9Kyh4GLi?=
+ =?windows-1255?Q?nxSzBdNA0ux0jEzl9TlR/PcBI6QN5DBHpkOWWoRQsvlXHMS5/oPVqqod?=
+ =?windows-1255?Q?eGIR+GzwDHOh/BMf04PgUitzh2xPrcsU?=
+Content-Type: multipart/mixed;
+	boundary="_006_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: impactcapital.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PAXPR05MB8708.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ f8534d50-7472-42fd-9fca-08dabcb8bc49
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Nov 2022 09:58:04.5136
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ 6nPgHtXNhgVphBX6qSxF644zwomC8GuWpdW3hTOehk8al11GbOTdQi0NH4tbIb4TsOpt6Gf6XbYdMblECRik2mUcNBm3gGdNVQwir60zFYg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBAPR05MB6949
+
+--_006_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: multipart/related;
+	boundary="_005_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_";
+	type="multipart/alternative"
+
+--_005_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: multipart/alternative;
+	boundary="_000_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_"
+
+--_000_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+
+=EE=F9=F7=E9=F2=E9=ED =E9=F7=F8=E9=ED =F9=EC=E5=ED =F8=E1,
+
+=EC=E4=EC=EF =FA=E5=F6=E0=E5=FA =F4=F2=E9=EC=E5=FA =E4=F7=F8=EF =E1=EE=E4=
+=EC=EA =E4=F8=E1=F2=E5=EF =E4=F9=F0=E9 =F9=EC 2022:
+
+=B7         =EB=E7=EC=F7 =EE=E4=E0=F1=E8=F8=E8=E2=E9=E4 =EC=F0=E9=E4=E5=EC =
+=F1=E9=EB=E5=F0=E9=ED, =E4=F7=F8=EF =EE=EE=F9=E9=EB=E4 =EC=E4=E2=E3=E9=EC =
+=E0=FA =E7=F9=E9=F4=FA=E4 =EC=F9=E5=F7 =E4=E7=E5=E1 =E1=F9=EC=EC =F1=E2=EE=
+=F0=E8=E9=ED =E1=E0=EE=F6=F2=E5=FA =F7=F8=E9=E0=E5=FA =EC=EB=F1=F3 =EC=F7=
+=F8=F0=E5=FA =E1=E4=EF =F7=E9=E9=EE=FA =E4=FA=E7=E9=E9=E1=E5=FA =F4=FA=E5=
+=E7=E4.
+
+=B7         =E0=E9=EE=F4=F7=E8 =E7=E5=E1 =E1=FA=E4=EC=E9=EA =E1=E3=E9=F7=FA=
+ =F0=E0=E5=FA=E5=FA =EC=EE=F1=F4=F8 =F7=F8=F0=E5=FA =E1=F2=EC=E5=FA =EE=E5=
+=F0=E9=E8=E9=EF =E2=EC=E5=E1=EC=E9: =F7=F8=EF =E7=E5=E1 =E4=EE=F1=F4=F7=FA =
+=E0=F9=F8=E0=E9 =EC=E7=E1=F8=E5=FA =E1=F8=EE=E4 =E1=E9=F0=EC=E0=E5=EE=E9=FA=
+ =E5=F7=F8=EF =F0=E5=F1=F4=FA =E4=EE=F9=F7=E9=F2=E4 =E1=F9=E5=F7 =E4=F9=F0=
+=E9=E5=F0=E9.
+
+=B7         =E1=F8=E1=F2=E5=EF =E4=F9=F0=E9 =F9=EC =E4=F9=F0=E4 =E4=F7=F8=
+=EF =E4=F9=E9=E2=E4 =E1=E9=F6=E5=F2=E9=ED =E4=F0=EE=E5=EB=E9=ED =EE=F2=E8 =
+=EE=E4=F6=F4=E9. =E1=E9=F6=E5=F2=E9 =E7=F1=F8 =E0=EC=E4 =F0=E1=F2=E5 =E1=F2=
+=E9=F7=F8 =E1=F6=E9=F8=E5=F4=E4 =F9=EC =F7=F8=EF "'Apollo +", =F9=E4=E9=F0=
+=E4 =F7=F8=EF =E7=E3=F9=E4, =E4=EE=E0=E5=F4=E9=E9=F0=FA =E1=FA=F9=E5=E0=E4 =
+=F9=EC=E9=EC=E9=FA =E1=FA=E7=E9=EC=FA =E3=F8=EB=E4 =F2=F7=E1 J Curve =F6=F4=
+=E5=E9 (=E1=E9=F6=E5=F2=E9 =E7=F1=F8 =E1=FA=E7=E9=EC=FA =FA=F7=E5=F4=FA =E4=
+=E4=F9=F7=F2=E4, =E4=EE=E0=F4=E9=E9=F0=E9=ED =F7=F8=F0=E5=FA =EE=F1=E5=E2 =
+=E6=E4).
+
+=F2=ED =E6=E0=FA, =E1=E8=E5=E5=E7 =E4=E0=F8=E5=EA =EE=E3=E5=E1=F8 =E1=F7=F8=
+=EF =E0=E9=EB=E5=FA=E9=E5=FA, =E1=F2=EC=FA =EE=F0=E4=EC=E9=ED =EE=E4=F9=E5=
+=F8=E4 =E4=F8=E0=F9=E5=F0=E4 =E1=F2=E5=EC=ED, =EE=E5=F0=E9=E8=E9=EF =E5=E4=
+=E9=F1=E8=E5=F8=E9=E9=FA =E1=E9=F6=E5=F2=E9=ED =EE=F6=E5=E9=F0=FA.
+
+=B7         =E5=F2=E3=FA =E4=E4=F9=F7=F2=E5=FA =EE=E1=F6=F2=FA =F8=E5=E8=F6=
+=E9=E4 =E1=F4=E5=F8=E8=F4=E5=EC=E9=E5 =EC=F7=F8=F0=E5=FA =F2=ED =E1=E9=F6=
+=E5=F2=E9=ED =E2=E1=E5=E4=E9=ED =E9=E5=FA=F8, =E1=E9=F6=E5=F2=E9=ED =E0=EC=
+=E5 =E9=E1=E5=E0=E5 =EC=E9=E3=E9 =E1=E9=E8=E5=E9 =E1=EE=E4=EC=EA =E4=F8=E1=
+=F2=E5=F0=E9=ED =E4=E1=E0=E9=ED.
+
+=B7         =F7=F8=EF =E0=E9=EE=F4=F7=E8 =EE=E7=EC=F7=FA =E1=F8=E1=F2=E5=EF=
+ =E4=F9=F0=E9 =E0=FA =FA=F7=E1=E5=EC=E9 =E4=F8=E9=E1=E9=FA =F9=F0=F6=E1=F8=
+=E5 =E1=F9=E9=F2=E5=F8 =F9=EC =EB- 1.03%.
+
+=F0=FA=E5=F0=E9 =FA=E9=F7 =E4=E4=EC=E5=E5=E0=E5=FA (=F0=EB=E5=EF =EC=F1=E5=
+=F3 =E9=E5=F0=E9 2022):
+=B7         =F9=E5=E5=E9 =E4=EC=E5=E5=E0=E4 =EE=EE=E5=F6=F2=FA: 4.4 =EE=E9=
+=EC=E9=E5=EF $.
+=B7         =EE=F1=F4=F8 =E4=EC=E5=E5=E0=E5=FA =F4=F2=E9=EC=E5=FA: =EE=F2=
+=EC 500 =E0=EC=F3.
+=B7         LTV =EE=EE=E5=F6=F2: 51.67%.
+=B7         =EE=E7"=EE: 26.2 =E7=E5=E3=F9=E9=ED.
+
+=FA=F9=E5=E0=E4 =EC=F8=E1=F2=E5=EF: 1.02%
+=FA=F9=E5=E0=E4 =EE=FA=E7=E9=EC=FA =E4=F4=F2=E9=EC=E5=FA : 5.38%
+
+=E0=F0=E5 =E6=EE=E9=F0=E9=ED =EC=F9=E9=F8=E5=FA=EB=ED =E1=EB=EC =F9=E0=EC=
+=E4 =E0=E5 =E4=E1=E4=F8=E4 =F0=E5=F1=F4=E9=ED.
+
+=E1=E1=F8=EB=E4,
+=F6=E5=E5=FA =E0=E9=EE=F4=F7=E8 =E7=E5=E1 =E0=E2=E3 =F7=F8=F0=E5=FA.
+
+
+[impact sign 6]
+
+
+
+
+
+
+--_000_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"OE August Pro Light";
+	panose-1:0 0 4 0 0 0 0 0 0 0;}
+@font-face
+	{font-family:"OE August Pro Medium";
+	panose-1:0 0 6 0 0 0 0 0 0 0;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri",sans-serif;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:1466703054;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1309385864 134807553 134807555 134807557 134807553 =
+134807555 134807557 134807553 134807555 134807557;}
+@list l0:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l0:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l0:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l0:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l0:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l1
+	{mso-list-id:1527064146;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1731050720 67698689 67698691 67698693 67698689 6769=
+8691 67698693 67698689 67698691 67698693;}
+@list l1:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:18.0pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l1:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:54.0pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l1:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:90.0pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l1:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:126.0pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l1:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:162.0pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l1:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:198.0pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l1:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:234.0pt;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l1:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:270.0pt;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l1:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:306.0pt;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l2
+	{mso-list-id:1988433568;
+	mso-list-type:hybrid;
+	mso-list-template-ids:948750178 134807553 134807555 134807557 134807553 13=
+4807555 134807557 134807553 134807555 134807557;}
+@list l2:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l2:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l2:level3
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l2:level4
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l2:level5
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l2:level6
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+@list l2:level7
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Symbol;}
+@list l2:level8
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:"Courier New";}
+@list l2:level9
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0A7;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;
+	font-family:Wingdings;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;">=EE=
+=F9=F7=E9=F2=E9=ED =E9=F7=F8=E9=ED =F9=EC=E5=ED =F8=E1,</span><span dir=3D"=
+LTR" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:p></o:p></spa=
+n></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;;mso-=
+fareast-language:EN-GB"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Medium&quot;"=
+>=EC=E4=EC=EF =FA=E5=F6=E0=E5=FA =F4=F2=E9=EC=E5=FA =E4=F7=F8=EF =E1=EE=E4=
+=EC=EA =E4=F8=E1=F2=E5=EF =E4=F9=F0=E9 =F9=EC 2022:<o:p></o:p></span></b></=
+p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;text-indent:-18.0pt;line-height:150%;mso-list:l2 level1 lf=
+o1;direction:rtl;unicode-bidi:embed">
+<![if !supportLists]><span style=3D"font-family:Symbol"><span style=3D"mso-=
+list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span dir=3D"RTL"></span><span lang=3D"HE" s=
+tyle=3D"font-family:&quot;OE August Pro Light&quot;">=EB=E7=EC=F7 =EE=E4=E0=
+=F1=E8=F8=E8=E2=E9=E4 =EC=F0=E9=E4=E5=EC =F1=E9=EB=E5=F0=E9=ED, =E4=F7=F8=
+=EF =EE=EE=F9=E9=EB=E4 =EC=E4=E2=E3=E9=EC =E0=FA =E7=F9=E9=F4=FA=E4 =EC=F9=
+=E5=F7 =E4=E7=E5=E1 =E1=F9=EC=EC =F1=E2=EE=F0=E8=E9=ED =E1=E0=EE=F6=F2=E5=
+=FA =F7=F8=E9=E0=E5=FA =EC=EB=F1=F3 =EC=F7=F8=F0=E5=FA =E1=E4=EF =F7=E9=E9=
+=EE=FA =E4=FA=E7=E9=E9=E1=E5=FA =F4=FA=E5=E7=E4.<o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;text-indent:-18.0pt;line-height:150%;mso-list:l2 level1 lf=
+o1;direction:rtl;unicode-bidi:embed">
+<![if !supportLists]><span style=3D"font-family:Symbol"><span style=3D"mso-=
+list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span dir=3D"RTL"></span><span lang=3D"HE" s=
+tyle=3D"font-family:&quot;OE August Pro Light&quot;">=E0=E9=EE=F4=F7=E8 =E7=
+=E5=E1 =E1=FA=E4=EC=E9=EA =E1=E3=E9=F7=FA =F0=E0=E5=FA=E5=FA =EC=EE=F1=F4=
+=F8 =F7=F8=F0=E5=FA =E1=F2=EC=E5=FA =EE=E5=F0=E9=E8=E9=EF =E2=EC=E5=E1=EC=
+=E9: =F7=F8=EF =E7=E5=E1 =E4=EE=F1=F4=F7=FA =E0=F9=F8=E0=E9 =EC=E7=E1=F8=E5=
+=FA =E1=F8=EE=E4 =E1=E9=F0=EC=E0=E5=EE=E9=FA =E5=F7=F8=EF =F0=E5=F1=F4=FA =
+=E4=EE=F9=F7=E9=F2=E4 =E1=F9=E5=F7 =E4=F9=F0=E9=E5=F0=E9.</span><span dir=
+=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:p></o:p><=
+/span></p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;text-indent:-18.0pt;line-height:150%;mso-list:l2 level1 lf=
+o1;direction:rtl;unicode-bidi:embed">
+<![if !supportLists]><span style=3D"font-family:Symbol"><span style=3D"mso-=
+list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span dir=3D"RTL"></span><span lang=3D"HE" s=
+tyle=3D"font-family:&quot;OE August Pro Light&quot;">=E1=F8=E1=F2=E5=EF =E4=
+=F9=F0=E9 =F9=EC =E4=F9=F0=E4 =E4=F7=F8=EF =E4=F9=E9=E2=E4 =E1=E9=F6=E5=F2=
+=E9=ED =E4=F0=EE=E5=EB=E9=ED =EE=F2=E8 =EE=E4=F6=F4=E9. =E1=E9=F6=E5=F2=E9 =
+=E7=F1=F8 =E0=EC=E4 =F0=E1=F2=E5 =E1=F2=E9=F7=F8 =E1=F6=E9=F8=E5=F4=E4 =F9=
+=EC =F7=F8=EF
+</span><span dir=3D"LTR"></span><span dir=3D"LTR" style=3D"font-family:&quo=
+t;OE August Pro Light&quot;"><span dir=3D"LTR"></span>&quot;'Apollo +&quot;=
+</span><span dir=3D"RTL"></span><span lang=3D"HE" style=3D"font-family:&quo=
+t;OE August Pro Light&quot;"><span dir=3D"RTL"></span>, =F9=E4=E9=F0=E4 =F7=
+=F8=EF =E7=E3=F9=E4, =E4=EE=E0=E5=F4=E9=E9=F0=FA
+ =E1=FA=F9=E5=E0=E4 =F9=EC=E9=EC=E9=FA =E1=FA=E7=E9=EC=FA =E3=F8=EB=E4 =F2=
+=F7=E1 </span><span lang=3D"EN-GB" dir=3D"LTR" style=3D"font-family:&quot;O=
+E August Pro Light&quot;">J
+</span><span dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;">Curve</span><span dir=3D"RTL"></span><span style=3D"font-family:&quot;O=
+E August Pro Light&quot;"><span dir=3D"RTL"></span>
+<span lang=3D"HE">=F6=F4=E5=E9 (=E1=E9=F6=E5=F2=E9 =E7=F1=F8 =E1=FA=E7=E9=
+=EC=FA =FA=F7=E5=F4=FA =E4=E4=F9=F7=F2=E4, =E4=EE=E0=F4=E9=E9=F0=E9=ED =F7=
+=F8=F0=E5=FA =EE=F1=E5=E2 =E6=E4). </span>
+</span><span dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;"><o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;line-height:150%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;">=F2=
+=ED =E6=E0=FA, =E1=E8=E5=E5=E7 =E4=E0=F8=E5=EA =EE=E3=E5=E1=F8 =E1=F7=F8=EF=
+ =E0=E9=EB=E5=FA=E9=E5=FA, =E1=F2=EC=FA =EE=F0=E4=EC=E9=ED =EE=E4=F9=E5=F8=
+=E4 =E4=F8=E0=F9=E5=F0=E4 =E1=F2=E5=EC=ED, =EE=E5=F0=E9=E8=E9=EF =E5=E4=E9=
+=F1=E8=E5=F8=E9=E9=FA =E1=E9=F6=E5=F2=E9=ED =EE=F6=E5=E9=F0=FA.</span><span=
+ dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:p></o=
+:p></span></p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;text-indent:-18.0pt;line-height:150%;mso-list:l2 level1 lf=
+o1;direction:rtl;unicode-bidi:embed">
+<![if !supportLists]><span lang=3D"EN-GB" style=3D"font-family:Symbol"><spa=
+n style=3D"mso-list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Ro=
+man&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span dir=3D"RTL"></span><span lang=3D"HE" s=
+tyle=3D"font-family:&quot;OE August Pro Light&quot;">=E5=F2=E3=FA =E4=E4=F9=
+=F7=F2=E5=FA =EE=E1=F6=F2=FA =F8=E5=E8=F6=E9=E4 =E1=F4=E5=F8=E8=F4=E5=EC=E9=
+=E5 =EC=F7=F8=F0=E5=FA =F2=ED =E1=E9=F6=E5=F2=E9=ED =E2=E1=E5=E4=E9=ED =E9=
+=E5=FA=F8, =E1=E9=F6=E5=F2=E9=ED =E0=EC=E5 =E9=E1=E5=E0=E5 =EC=E9=E3=E9 =E1=
+=E9=E8=E5=E9 =E1=EE=E4=EC=EA =E4=F8=E1=F2=E5=F0=E9=ED =E4=E1=E0=E9=ED.</spa=
+n><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;"><=
+o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" dir=3D"RTL" style=3D"mso-margin-top-alt:0cm;m=
+argin-right:18.0pt;margin-bottom:0cm;margin-left:0cm;margin-bottom:.0001pt;=
+text-align:right;text-indent:-18.0pt;line-height:150%;mso-list:l0 level1 lf=
+o2;direction:rtl;unicode-bidi:embed">
+<![if !supportLists]><span style=3D"font-family:Symbol"><span style=3D"mso-=
+list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span dir=3D"RTL"></span><span lang=3D"HE" s=
+tyle=3D"font-family:&quot;OE August Pro Medium&quot;">=F7=F8=EF =E0=E9=EE=
+=F4=F7=E8 =EE=E7=EC=F7=FA =E1=F8=E1=F2=E5=EF =E4=F9=F0=E9 =E0=FA =FA=F7=E1=
+=E5=EC=E9 =E4=F8=E9=E1=E9=FA =F9=F0=F6=E1=F8=E5 =E1=F9=E9=F2=E5=F8 =F9=EC =
+=EB- 1.03%.</span><span dir=3D"LTR" style=3D"font-family:&quot;OE August Pr=
+o Medium&quot;"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<u><span dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Medium&quot;"=
+><o:p><span style=3D"text-decoration:none">&nbsp;</span></o:p></span></u></=
+p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<u><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Medium&quot;"=
+>=F0=FA=E5=F0=E9 =FA=E9=F7 =E4=E4=EC=E5=E5=E0=E5=FA (=F0=EB=E5=EF =EC=F1=E5=
+=F3 =E9=E5=F0=E9 2022):</span></u><u><span dir=3D"LTR" style=3D"font-family=
+:&quot;OE August Pro Medium&quot;"><o:p></o:p></span></u></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:18.0pt;text-align:=
+right;text-indent:-18.0pt;line-height:150%;mso-list:l1 level1 lfo3;directio=
+n:rtl;unicode-bidi:embed">
+<![if !supportLists]><b><span style=3D"font-family:Symbol"><span style=3D"m=
+so-list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span></b><![endif]><span dir=3D"RTL"></span><span lang=3D"H=
+E" style=3D"font-family:&quot;OE August Pro Medium&quot;">=F9=E5=E5=E9 =E4=
+=EC=E5=E5=E0=E4 =EE=EE=E5=F6=F2=FA:
+</span><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;">4.4 =EE=E9=EC=E9=E5=EF $.</span><b><span lang=3D"HE" style=3D"font-fami=
+ly:&quot;OE August Pro Medium&quot;"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:18.0pt;text-align:=
+right;text-indent:-18.0pt;line-height:150%;mso-list:l1 level1 lfo3;directio=
+n:rtl;unicode-bidi:embed">
+<![if !supportLists]><b><span style=3D"font-family:Symbol"><span style=3D"m=
+so-list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span></b><![endif]><span dir=3D"RTL"></span><span lang=3D"H=
+E" style=3D"font-family:&quot;OE August Pro Medium&quot;">=EE=F1=F4=F8 =E4=
+=EC=E5=E5=E0=E5=FA =F4=F2=E9=EC=E5=FA:
+</span><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;">=EE=F2=EC 500 =E0=EC=F3.</span><b><span dir=3D"LTR" style=3D"font-famil=
+y:&quot;OE August Pro Medium&quot;"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:18.0pt;text-align:=
+right;text-indent:-18.0pt;line-height:150%;mso-list:l1 level1 lfo3;directio=
+n:rtl;unicode-bidi:embed">
+<![if !supportLists]><b><span style=3D"font-family:Symbol"><span style=3D"m=
+so-list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span></b><![endif]><span dir=3D"RTL"></span><span dir=3D"LT=
+R" style=3D"font-family:&quot;OE August Pro Medium&quot;">LTV</span><span d=
+ir=3D"RTL"></span><span lang=3D"HE" style=3D"font-family:&quot;OE August Pr=
+o Medium&quot;"><span dir=3D"RTL"></span> =EE=EE=E5=F6=F2:
+</span><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;">51.67%.</span><b><span dir=3D"LTR" style=3D"font-family:&quot;OE August=
+ Pro Medium&quot;"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-right:18.0pt;text-align:=
+right;text-indent:-18.0pt;line-height:150%;mso-list:l1 level1 lfo3;directio=
+n:rtl;unicode-bidi:embed">
+<![if !supportLists]><b><span style=3D"font-family:Symbol"><span style=3D"m=
+so-list:Ignore">=B7<span style=3D"font:7.0pt &quot;Times New Roman&quot;">&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span></b><![endif]><span dir=3D"RTL"></span><span lang=3D"H=
+E" style=3D"font-family:&quot;OE August Pro Medium&quot;">=EE=E7&quot;=EE:
+</span><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quo=
+t;">26.2 =E7=E5=E3=F9=E9=ED.</span><b><span dir=3D"LTR" style=3D"font-famil=
+y:&quot;OE August Pro Medium&quot;"><o:p></o:p></span></b></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:=
+p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Medium&quot;"=
+>=FA=F9=E5=E0=E4 =EC=F8=E1=F2=E5=EF: </span>
+</b><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;"=
+>1.02%<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<b><span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Medium&quot;"=
+>=FA=F9=E5=E0=E4 =EE=FA=E7=E9=EC=FA =E4=F4=F2=E9=EC=E5=FA<span style=3D"col=
+or:#1F497D">
+</span>: </span></b><span lang=3D"HE" style=3D"font-family:&quot;OE August =
+Pro Light&quot;">5.38%</span><span dir=3D"LTR" style=3D"font-family:&quot;O=
+E August Pro Light&quot;"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:=
+p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;">=E0=
+=F0=E5 =E6=EE=E9=F0=E9=ED =EC=F9=E9=F8=E5=FA=EB=ED =E1=EB=EC =F9=E0=EC=E4 =
+=E0=E5 =E4=E1=E4=F8=E4 =F0=E5=F1=F4=E9=ED.</span><span dir=3D"LTR" style=3D=
+"font-family:&quot;OE August Pro Light&quot;"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span dir=3D"LTR" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:=
+p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;">=E1=
+=E1=F8=EB=E4,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;">=F6=
+=E5=E5=FA =E0=E9=EE=F4=F7=E8 =E7=E5=E1 =E0=E2=E3 =F7=F8=F0=E5=FA.<o:p></o:p=
+></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR"><img width=3D"414" height=3D"119" id=3D"Picture_x0020_1" =
+src=3D"cid:image002.jpg@01D8EEB2.5AD81690" alt=3D"impact sign 6"><o:p></o:p=
+></span></p>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;line-height:15=
+0%;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;OE August Pro Light&quot;"><o:=
+p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-family:&quot;Arial&quot;,sans-serif"><o:p>&=
+nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" align=3D"right" dir=3D"RTL" style=3D"text-align:left=
+;direction:rtl;unicode-bidi:embed">
+<span dir=3D"LTR" style=3D"font-family:&quot;Arial&quot;,sans-serif"><o:p>&=
+nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR"><o:p>&nbsp;</o:p></span></p>
+</div>
+</body>
+</html>
+
+--_000_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_--
+
+--_005_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: image/jpeg; name="image002.jpg"
+Content-Description: image002.jpg
+Content-Disposition: inline; filename="image002.jpg"; size=5518;
+	creation-date="Wed, 02 Nov 2022 09:58:04 GMT";
+	modification-date="Wed, 02 Nov 2022 09:58:04 GMT"
+Content-ID: <image002.jpg@01D8EEB2.5AD81690>
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIf
+IiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7
+Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAB3AZ4DASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD2aiii
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKA
+CiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACm7lLFdw3DqM
+806ucvZXg1XVZYmKOlmpDDqKwr1vZJO39Wb/AEE3Y6OisC0lvEv7KOS9klS8tyzBgBtOM8VHaX97
+Pc29i0rma3eQ3BHVwv3R+OaxWMjpdPt+X6O/3hc6OiuX07Ur6a7tna6DGaQrJCzrgD2XqCPepbW+
+uH1QRy3zMJpHRfLKsnsMdVI9amOOhJJpPV2/r7xcx0QYMMqQR7Glrk7K5mstBuHguCZBPsYEA+SC
+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
+KFjadzCQLbfwokzyD+Bx1OBTj4ZsRaw28ct1ELYILdknIaHapXKntkEg+tJJ4W02WaORjcEKqLIh
+nYrPsOVMmT8xB9evfNACalrkljqi2iojgm2GDkEebKUJz04x0rarLbw/ZSTLNK08sqmM73lJPySG
+RfyZj+GBWpQAUjfdP0paTrQB4Z8Hv+R8uP8Ar1l/9DWvdKydN8LaFo92bvTtLt7WdlKmSNcEgnJH
+6VrUAFeHeCv+S03H/Xxd/wDs1e41k2vhfQrLVDqltpdvFeszMZ1X5iW+8fxzQBQ8deEofFuhNbja
+l7Bl7WU9m/un2PQ/ge1Y/wAMPBL+HdPbUtSh2andDBRuTBH/AHfqep/Adq72igDyD46f8fGj/wC5
+N/7JXpXhb/kU9I/68of/AEAU/VvDuj66Ym1XToLswgiMyrnbnrj8hV63gitbeO3gjEcUShEReiqB
+gAUASV5h8cP+QNpX/X03/oBr0+qGq6HpeuRRxapYxXaRNuRZVyFOMZoAx/hv/wAk+0f/AK4n/wBC
+NdPVexsbXTbOKzsoEgt4hiONBgKParFABVTUtMstYs2s9Qt0ubdyC0b9CQcjNW6KAOb/AOFeeEP+
+gBaf98n/ABo/4V54Q/6AFp/3yf8AGukooA56PwD4ThlSWPQrVJI2DIyggqQcgjmuhoooAo61pNtr
+uj3Ol3YJhuUKkjqp7Ee4OD+FeGQzeJPhR4hkDRh4ZflO4HybpR0IPZh+Y+lfQNQ3VpbX0DW93bxX
+ELfejlQMp/A0AecRfG/SjBul0e9WXH3FZGX88j+VT+Dfidc+KfFr6dJYC3tXhJhCZdlYc5dunI9u
+o966B/hx4PeQudBtgSegLAfkDitvT9K0/SYPI06ygtY+6wxhc/XHWgC3RRRQBw/xf/5EKb/r4i/9
+CqP4N/8AIjf9vcv9K7HUtLsdYtDaajax3NuWDGOQZGR0NJpmlWGjWn2TTbSO1g3FvLjGBk9TQBco
+oooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACii
+igAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKK
+ACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA
+KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==
+
+--_005_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_--
+
+--_006_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_
+Content-Type: application/pdf; name="Impact Debt FS Q2 2022.pdf"
+Content-Description: Impact Debt FS Q2 2022.pdf
+Content-Disposition: attachment; filename="Impact Debt FS Q2 2022.pdf";
+	size=631434; creation-date="Wed, 02 Nov 2022 09:52:10 GMT";
+	modification-date="Wed, 02 Nov 2022 09:58:03 GMT"
+
+[attachment stripped]
+--_006_PAXPR05MB8708FB4383463AB7015204DB9D399PAXPR05MB8708eurp_--

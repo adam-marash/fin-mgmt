@@ -1,0 +1,700 @@
+Delivered-To: adam@marash.net
+Received: by 2002:a05:7412:1083:b0:10c:4329:ae19 with SMTP id w3csp4227776rdh;
+        Thu, 16 May 2024 00:32:12 -0700 (PDT)
+X-Google-Smtp-Source: 
+ AGHT+IEZ05NWjXAF1hu2s+Y+lVuN9ZryAnu7N94HjAmVPsHczPMQ/HwT6iau2xsK+aH/10c7Jxpv
+X-Received: by 2002:a05:6122:989:b0:4df:261c:fc0c with SMTP id
+ 71dfb90a1353d-4df8835a842mr14385423e0c.13.1715844730312;
+        Thu, 16 May 2024 00:32:10 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1715844730; cv=pass;
+        d=google.com; s=arc-20160816;
+        b=0JYMP3dYsSI0uhQxzq5EfedoK2HXlsqjlDzfeNknKLqlOhnZ6kdXRJTTZsQlWHJLTz
+         o/ZNYdRm1z6aLN3OHR71N+BSkMVWVPbJOrNheoFVR+g7joGS02J6WYHT6qirCs/gArIT
+         +VYuymxIuM9iXfnnDcXCrkUboxe4fk1tkLBlm60XCJ5AasAea9ii6jllnEbaEGGQl4f+
+         Qqt+TkbglP4k02uEUZR/OwqKTV2O9AfjF/GUMOFz768myke8LoryN5Qye8jAAD1KaHwj
+         m0XpQDZxithMqrebVd5PRVAv56SpigAJdTgrfpNoij9QAKMzUhchjSdx+8QAhJEUw7ja
+         Gq/g==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com;
+ s=arc-20160816;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=ZKbQvePImlfgNfQAb5QpgLS/4DfDdUfqd02DKscZwz0=;
+        fh=4/ABXNplvT5cmv91Y/7UWenmO7MDvU4fjF+81+80DPM=;
+        b=UwwXknhsOLv9x7w+q/9D3xwTKRZtVmZ71GhvcYwW36D7/JePNTTGRgOzmgXFZSv4ZH
+         082Q6WEZsyaxQ6k9WV0f7TDBGSLdrVR0ENe+mfk9sfSD4ir1fD3YoD728CvFbk/4aP/4
+         aHG6vz2vj4n/f8kTsGvhy2eDk6JtRHCvQrqVcPwiBw9PwcemJD2bPPAON1aHSNJv/BpD
+         1JO++IYJN4PhW3K04IL8PrE+4AfPN5VvO0q+F0siNV29i5xgtyOvKmo5W1pYSSH/3OTG
+         6KginBZyZ03DqquV668kxpts/YiGkI6NYcXzmlMNPiYpYlDb4BSe2gWRnWhLB02sFdsc
+         ghUg==;
+        dara=google.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=p4OxVfOp;
+       arc=pass (i=1 spf=pass spfdomain=tswm.co.il dkim=pass
+ dkdomain=tswm.co.il dmarc=pass fromdomain=tswm.co.il);
+       spf=pass (google.com: domain of ortal@tswm.co.il designates
+ 2a01:111:f403:2611::701 as permitted sender) smtp.mailfrom=ortal@tswm.co.il
+Return-Path: <ortal@tswm.co.il>
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com
+ (mail-vi1eur04on20701.outbound.protection.outlook.com.
+ [2a01:111:f403:2611::701])
+        by mx.google.com with ESMTPS id
+ 6a1803df08f44-6a15f2edad7si160678936d6.479.2024.05.16.00.32.06
+        for <adam@marash.net>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 16 May 2024 00:32:08 -0700 (PDT)
+Received-SPF: pass (google.com: domain of ortal@tswm.co.il designates
+ 2a01:111:f403:2611::701 as permitted sender)
+ client-ip=2a01:111:f403:2611::701;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@servicecrm.onmicrosoft.com
+ header.s=selector2-servicecrm-onmicrosoft-com header.b=p4OxVfOp;
+       arc=pass (i=1 spf=pass spfdomain=tswm.co.il dkim=pass
+ dkdomain=tswm.co.il dmarc=pass fromdomain=tswm.co.il);
+       spf=pass (google.com: domain of ortal@tswm.co.il designates
+ 2a01:111:f403:2611::701 as permitted sender) smtp.mailfrom=ortal@tswm.co.il
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Jh2HOUBV8i9KbkfVV2tcSAtd7sIFg5aiV2ly0Zj/UtImvK5GKP8tfVOmu+WFN2d4veUYTo8jWRAqckkkaURGxsNdle1mqbpoESmHwcnTB/llZuIXVM9Qxfm9PceCQRErgdqiT0DQ7yGxpiow0aa2nhrqKJWWV+j86PlgDzkbqdGzNIsIZyVGa4JOtba1beeQz/0F7tJPsgKTLfZ4Xd84Sh4NUS9nX9u1NgoyVd7kPFCt+9gG6uz+yW9NY7T3+xwOrPloKHdx5Xjv3tCkruPfPBFGT/Oay1kuw1lDv4AAl6bfgE3c9/CHSPebTprrO2PCjoYZmSvEbHQoWcXuI6f36Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZKbQvePImlfgNfQAb5QpgLS/4DfDdUfqd02DKscZwz0=;
+ b=VHNid5DfKoMCq8fkEW8RaHmoIlzz4861ytpJFAoUZHI3qxFIO9VCUtVhKojVeXYQcXelbi64fJMFlk145J+AxXcuRPAAe51xpwBGXwFQ61qaSI9ZEI8g8kLTb++mv7eBWWG2DBwqJ+JxPOAQP8ihQGT/qt6s+EpFxtcWGTz5wTfJDCQ8dbSrD+7WWA4MjzEDB44CSp1YkUtDwbxdw4o4EJUtrgxRg+OKhL2Dz+Jo5fILYOpQY/kZgk+/s5oHP5/LfXdmg47ra8J9VukxiNBJ9tbHbkuux5wl7E+ziLndK5j4Y5UT2NdF+RUu4S7EfB7m6vc3uKnizVgVpuU95cqVmg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=tswm.co.il; dmarc=pass action=none header.from=tswm.co.il;
+ dkim=pass header.d=tswm.co.il; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=servicecrm.onmicrosoft.com; s=selector2-servicecrm-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZKbQvePImlfgNfQAb5QpgLS/4DfDdUfqd02DKscZwz0=;
+ b=p4OxVfOpvtdfciv9h4H3IB+gJBki5xCKKCy8J4YRw49cgjzsq2zqYIOUA09XXSJVclg+IOKiqWOua2B7rSQoRYP2HOhSJ2TlGwRpoI9t+dY7D6Mt16fCOS+9A2/tRHRobC1mct1dNEjmumi140CxRuPLNz5EuD6p4VXaAr13KQ8=
+Received: from AM0PR05MB6594.eurprd05.prod.outlook.com (2603:10a6:208:134::23)
+ by DB9PR05MB8041.eurprd05.prod.outlook.com (2603:10a6:10:255::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7587.27; Thu, 16 May
+ 2024 07:32:02 +0000
+Received: from AM0PR05MB6594.eurprd05.prod.outlook.com
+ ([fe80::daeb:6504:5403:64b0]) by AM0PR05MB6594.eurprd05.prod.outlook.com
+ ([fe80::daeb:6504:5403:64b0%4]) with mapi id 15.20.7587.028; Thu, 16 May 2024
+ 07:32:02 +0000
+From: Ortal Hassan <ortal@tswm.co.il>
+To: Adam Marash <adam@marash.net>
+Subject: FW: Viola Credit ALF III - First Close and First Drawdown
+Thread-Topic: Viola Credit ALF III - First Close and First Drawdown
+Thread-Index: AQHaj014Cg2433tUVkG+wNOcfWQRu7FplZHqgADBvDCAAHBGQIAu3waA
+Date: Thu, 16 May 2024 07:32:01 +0000
+Message-ID: 
+ <AM0PR05MB659406D2765AB583654D3BE08AED2@AM0PR05MB6594.eurprd05.prod.outlook.com>
+References: 
+ <PA4PR07MB8599CDA696FCDF1A3F973D3CA20A2@PA4PR07MB8599.eurprd07.prod.outlook.com>
+ <CABgnYt+QgL4ZZyrONFwT7NyW4LqB=qheLqgrUGGsZvgNwqz9gA@mail.gmail.com>
+ <AM8PR05MB79052B324993018DBA32D55DEF092@AM8PR05MB7905.eurprd05.prod.outlook.com>
+ <AM0PR05MB6594949F8E689EA70F6D8D908A082@AM0PR05MB6594.eurprd05.prod.outlook.com>
+ <PA4PR05MB7790B2FFDC6D466D0ED320BB93082@PA4PR05MB7790.eurprd05.prod.outlook.com>
+In-Reply-To: 
+ <PA4PR05MB7790B2FFDC6D466D0ED320BB93082@PA4PR05MB7790.eurprd05.prod.outlook.com>
+Accept-Language: he-IL, en-US
+Content-Language: he-IL
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=tswm.co.il;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AM0PR05MB6594:EE_|DB9PR05MB8041:EE_
+x-ms-office365-filtering-correlation-id: 07fe84c7-df34-4145-1535-08dc757a4753
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230031|366007|1800799015|376005|38070700009;
+x-microsoft-antispam-message-info: 
+ =?windows-1255?Q?nhVYhcfSY5JvJp4zmgd98zZYzqO/DZRCx593IYGQPE7oVlW2MGW2vCQA?=
+ =?windows-1255?Q?JT17piSOZiS1qqU1SomCJzFf4lSE0FnnXtPxczXqFuQQ8kjq5c3cYAp4?=
+ =?windows-1255?Q?Oz/hxtx1DzhHSqNfhUXtW5yWKr+4tEElomqDS2/AGx/w7EbkwkeKtjIT?=
+ =?windows-1255?Q?Lf3kLgU7BQg4KGY3b2oH57djZIfuVnVUeDrTtYeJj8HzHoo2UctH6N30?=
+ =?windows-1255?Q?SL434zzUzY6WoSXZovSg7aBL2OvqVYSc7ByfqhKz30AwquEGTQlFRggg?=
+ =?windows-1255?Q?zkZ6RCtiU13SwyWGhh6R1FBhYQsIK//8kd70aAoN+QNEfXq2/+Pbn1kF?=
+ =?windows-1255?Q?f7SbgRqRQu6lflQvD+EXNNu5j4Rw8qh47XVw5RgePV5P8hllqIXeWJoJ?=
+ =?windows-1255?Q?XgtfdJXU0iG7BGG9SgETRuTyrCbayUzOf7+WmTPfujv2H+fnfvum2I2J?=
+ =?windows-1255?Q?2hkzDMk09xIsqn91UgKbx1mNgwuhgkmYTrNBGPUyyxt34ONvPo60MqAJ?=
+ =?windows-1255?Q?lA2c3AM6FIBtm+B/01fHdvp6TuklTKTrAM2bAIdnc2H9GPzYFi+LaMSY?=
+ =?windows-1255?Q?gwpbObWTzJxpCPniev1a1OWFa9WEe9cvPiJP4lmx8ydMC31rfZIqD/dD?=
+ =?windows-1255?Q?SMtV+Ve8xyHg4mIPszv1H183ByCotwTP2Hb3dMRp+6orfBblaiwjLDcY?=
+ =?windows-1255?Q?ZgX3WeIzbWaEiff1MnqdRiqwupvQpW5Q53XTxI8FuGbzWzysV9YfczUb?=
+ =?windows-1255?Q?vt1pvH5eoeYbjHtIlNXt0XD8wrJyBSTUbvJ2s6xPSpRJ+g7iG9LJC8Gv?=
+ =?windows-1255?Q?UxzIkq+YhkLpzjfe859WYwrsymFjtPk7z1VisZ+aLnmA2ORBtweFelY1?=
+ =?windows-1255?Q?9N0O8cDAcc2SgL2Geib+3Z4ILVQkPB7LcrX+CsTQYdNZNhm+rd6akIJU?=
+ =?windows-1255?Q?zJhfF7slGnGk/mCWhGktUwVOfr3L5keKP/odDHmB4qJe4+JxXq5QDGNE?=
+ =?windows-1255?Q?DZ+pFsFVmEtlrC9G6cnHQSOHAATg5itcWbO0EgDng7TWqCtD0KPSILBr?=
+ =?windows-1255?Q?AeyJgdgAhUs6j1IUhvPpyp1VfMcZQMTuzPqXCPMFCojeJNkLXDl4tAyv?=
+ =?windows-1255?Q?66JvpqjNRnA9NtsT7qiL/CLskgcDzRnmYf2SBZyiBXorrQdx8gU1C6jV?=
+ =?windows-1255?Q?BfkGSLO0gNxxbJIIedmhxO2wMLjdDFcRYsn4hrI7I4n31u7A08H3IY6f?=
+ =?windows-1255?Q?CPhNwmdkXdEk17VkrY1w90p5FFEnS09bamwwwe2BwWdDMWEafYRTSB+Q?=
+ =?windows-1255?Q?2EkM8jfb7Z3QW9RK3tSZJOZncSc=3D?=
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR05MB6594.eurprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366007)(1800799015)(376005)(38070700009);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?windows-1255?Q?C2y4dgfEuEg9ernpTLBKPtQZQVfwT+iSD/nAMfpn2wjpz1A0Pgz0twUk?=
+ =?windows-1255?Q?eYQ8NWDp1t+DdSe1YRskQ9onK33qFPVzyk/nrPgOzwIrdi2XjQ+iuGWe?=
+ =?windows-1255?Q?1Y4laMqhMaBw9Dxd6DptPW4q9A7DjtD2tOKDxd3i8g+u3JSgij6xUIld?=
+ =?windows-1255?Q?Cjqkrc68v09iMMs0w04tIgACo+s5ZqE4Me/JHjLl5tTP9wEDNZHnV7ms?=
+ =?windows-1255?Q?PQ3F/qBcQ2a1pJHXU3g266pfjRP+EcfrEbomLzsJKmvj4/ysyjr1Ilfr?=
+ =?windows-1255?Q?zuqOzndxwFHPOLGXvXlr1or8B0exi7pbC81109ag9FwdSotIKjWo1nbh?=
+ =?windows-1255?Q?xTWkqs/u76MntwmyyfFmgBHnY+RHDjmLi1wHEwr9APDoWDSCRjXtwxY5?=
+ =?windows-1255?Q?+ZzkDIiwmf2ZFSAtlt3Pe6LNK1/BGiLw2m5FWeq9oHYpuy8jYGt1E8fN?=
+ =?windows-1255?Q?Y7EEzcH555iOjzTzojyHU0HzdMl3D+fvOGaHyKr0saWeYqZoK5TLrqOH?=
+ =?windows-1255?Q?5LFrO6DWpcDZtgqrTpfMakPuMvA3lKKCaOluMMfKFvq24hBF2ZZ7nGx6?=
+ =?windows-1255?Q?0DRudmyLShQVXejcyEZPMClFvTBpDgkj8Jukt0WGlKlBfk6K2g3JSjrR?=
+ =?windows-1255?Q?CeuMAX8ZzmDkz3xNbACvw1MjHQjZqPyzncd670hPEKf7AzzAA+3n6OoE?=
+ =?windows-1255?Q?3D+IHQWOQYEmNz5mzsSQXfB7WMpDZx32kGBR0a0nlFiD5UFPfGPqPk1U?=
+ =?windows-1255?Q?pUF/q5iqUfCk81ADWF0ucIucL05Qd3HVzBHZxckBLU1rZByPLhZHmie/?=
+ =?windows-1255?Q?xlStCc/8QAFjWhobcU4LkixV+dKcmyB++yM7G8UjcrtKIzZFqQJmtWb5?=
+ =?windows-1255?Q?b/etU69hgBtDPS1MUN1SsRqGKRz4BlG3T5bMSlNP3st6xaSvbU1iaQWQ?=
+ =?windows-1255?Q?DB+gvtUBX0aXrU7hGI+7DGr4JWOkjg27J/JqcsBoaHEEI6U1aR8u2BVz?=
+ =?windows-1255?Q?3GicFdWnY6CZadWtn0wlbFGg1bDjEgrfgMqkqlgsJ1R3e524RVIDdZ6r?=
+ =?windows-1255?Q?2fiGwf8/xJGj4OkfavzEpvmR6C7IQk7kFtNnXMu8v6lv/4Z/oihz0fT2?=
+ =?windows-1255?Q?u6qTfOQvpGzdofZzA+Q2NWxxnRhuz2/9UNag6mKLS4X4t9yKAXjjjsIe?=
+ =?windows-1255?Q?dTW+niAFNe7kGDFnWgNTtpDMuus56+F4694VGlFv5cEtPG2VXm8qgoCA?=
+ =?windows-1255?Q?TprCaHX82GOYtsB1HO6WR3LBz592Tawc2dAxXy+85CkxsNl8Ok65qIj1?=
+ =?windows-1255?Q?kjGyOteemoiiodpofUl2LVTt/yGfH1HKMF4Dhy7OBDsgx2D/fH+opeKV?=
+ =?windows-1255?Q?MpTaodGVospgQE5RtK5+4FcvkcF+0a8Zp14/SwS/qpO+fF5lGIhBSB2b?=
+ =?windows-1255?Q?+Id7RqYBIvjCxRpG5dELjcqP8i09LVX3CNADyfeqn6aYmIc4NMXG5a9H?=
+ =?windows-1255?Q?j+OXig0QFEXFUoPsoo/QQ+QA6AIF0bjCo35DYQvvGLaL/5pue/np2j0F?=
+ =?windows-1255?Q?2sPMxe9hlyuXxUC3A/PipL0wutom+j6ye2LFDLTtjUH21Ys+GphmAO/n?=
+ =?windows-1255?Q?XBM63I8ZBkTnlsF+RiGJh3PrfcIy0PaCqS1mJV8PY7TRL8ClaVRH32mi?=
+ =?windows-1255?Q?wsL6F0kCRN8=3D?=
+Content-Type: multipart/mixed;
+	boundary="_006_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: tswm.co.il
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR05MB6594.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 
+ 07fe84c7-df34-4145-1535-08dc757a4753
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 May 2024 07:32:02.2726
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 58fb3346-4c39-4981-9288-e34cfc745325
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 
+ 7IYZbAxPzUcehH781TRuxlAhfBCzseEcywLabyMQB7pGSAjpeEc1UCC1hEEqPFCiMFB683vgWWJovRCpam24Wg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR05MB8041
+
+--_006_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: multipart/related;
+	boundary="_005_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_";
+	type="multipart/alternative"
+
+--_005_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: multipart/alternative;
+	boundary="_000_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_"
+
+--_000_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: text/plain; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+=F9=EC=E5=ED =E0=E3=ED,
+
+=F0=E5=E3=E4 =EC=F7=E1=EC=FA =E0=F1=EE=EB=FA=E0 =E1=E2=E9=EF =E4=F2=E1=F8=
+=FA =EB=F1=F4=E9=ED =EC=F7=F8=E9=E0=E4 =E1=F7=F8=EF =E5=E9=E5=EC=E4.
+
+=E1=E1=F8=EB=E4,
+
+[X]
+From: Lia Ben Avi <lia@theservice.co.il>
+Sent: Tuesday, April 16, 2024 2:43 PM
+To: Adam Marash=FE <adam@marash.net>
+Cc: eran=FE <eran@theservice.co.il>; Ortal Hassan=FE <ortal@tswm.co.il>
+Subject: RE: Viola Credit ALF III - First Close and First Drawdown
+
+=F9=EC=E5=ED =E0=E3=ED,
+
+=EE=F6"=E1 =E4=F1=EB=E5=ED =E7=FA=E5=ED
+
+=E1=E1=F8=EB=E4,
+
+[cid:image002.jpg@01DA900C.5826B530]
+
+From: Adam Marash <adam@marash.net<mailto:adam@marash.net>>
+Sent: Monday, April 15, 2024 4:56:06 PM
+To: eran <eran@theservice.co.il<mailto:eran@theservice.co.il>>
+Subject: Fwd: Viola Credit ALF III - First Close and First Drawdown
+
+=F2=F8=EF =E4=E9, =F7=E9=E1=EC=FA=E9 =F7=F8=E9=E0=E4 =EC=EB=F1=F3 =EE=E5=E9=
+=E5=EC=E4 =EC=F4=F0=E9 =F9=F7=E9=E1=EC=FA=E9 =E0=FA =E4=EE=F1=EE=EB=E9=ED =
+=E4=E7=FA=E5=EE=E9=ED =EE=E4=ED =E7=E6=F8=E4...
+---------- Forwarded message ---------
+From: Viola Credit Lps <investors@violacredit.com<mailto:investors@violacre=
+dit.com>>
+Date: Sun, 14 Apr 2024 at 18:36
+Subject: Viola Credit ALF III - First Close and First Drawdown
+To: adam@marash.net<mailto:adam@marash.net> <adam@marash.net<mailto:adam@ma=
+rash.net>>
+Cc: Viola Credit Lps <investors@violacredit.com<mailto:investors@violacredi=
+t.com>>
+
+
+Dear Investor,
+
+Tamar Marash
+
+We are delighted to announce that we are conducting our first closing of AL=
+F III fund, the 3rd series of Funds in our Global Asset Based Lending Strat=
+egy with total committed and investable capital of $480M at closing.
+
+As a reminder, ALF III funds seek to provide investors with attractive ongo=
+ing current income and potential for capital gains through asset-based lend=
+ing transactions to finance assets originated by Tech enabled Lenders (aka =
+FinTech lenders) across US, Western Europe, U.K and Australia.
+
+We are also excited to draw your attention to the first capital call follow=
+ing the execution of our first transactions in ALF III fund.
+Please see attached the capital call letter, wire instructions and the fund=
+=92s tax withholding exemption (relevant for Israeli investors).
+
+We wanted to take this opportunity to thank you all for the continued trust=
+ and support and looking forward for a fruitful partnership.
+
+Thank you,
+Viola Credit Management Team
+
+
+
+--_000_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: text/html; charset="windows-1255"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+255">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+p.xmsonormal, li.xmsonormal, div.xmsonormal
+	{mso-style-name:x_msonormal;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;}
+span.EmailStyle19
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle20
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle21
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle24
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle25
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"EN-US" link=3D"blue" vlink=3D"purple">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif">=F9=EC=E5=ED =E0=E3=ED,<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif">=F0=E5=E3=E4 =EC=F7=E1=EC=FA =E0=F1=EE=EB=FA=E0 =E1=E2=E9=EF =E4=
+=F2=E1=F8=FA =EB=F1=F4=E9=ED =EC=F7=F8=E9=E0=E4 =E1=F7=F8=EF =E5=E9=E5=EC=
+=E4.<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif">=E1=E1=F8=EB=E4,</span><span dir=3D"LTR" style=3D"font-size:11.0=
+pt;font-family:&quot;Calibri&quot;,sans-serif"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif"><img width=3D"421" height=3D"209" style=3D"width:4.3833in;height=
+:2.175in" id=3D"_x0000_i1026" src=3D"file:///C:/Users/ortal/AppData/Local/M=
+icrosoft/Windows/INetCache/Content.Outlook/91HOLTC5/new%20signature%20ortal=
+%20(003).jpg"></span><span dir=3D"LTR" style=3D"font-size:11.0pt;font-famil=
+y:&quot;Calibri&quot;,sans-serif"><o:p></o:p></span></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm =
+0cm 0cm">
+<p class=3D"MsoNormal"><b><span style=3D"font-size:11.0pt;font-family:&quot=
+;Calibri&quot;,sans-serif">From:</span></b><span style=3D"font-size:11.0pt;=
+font-family:&quot;Calibri&quot;,sans-serif"> Lia Ben Avi &lt;lia@theservice=
+.co.il&gt;
+<br>
+<b>Sent:</b> Tuesday, April 16, 2024 2:43 PM<br>
+<b>To:</b> Adam Marash<span dir=3D"RTL"></span><span dir=3D"RTL"></span><sp=
+an lang=3D"HE" dir=3D"RTL"><span dir=3D"RTL"></span><span dir=3D"RTL"></spa=
+n>=FE</span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=3D"=
+LTR"></span><span dir=3D"LTR"></span> &lt;adam@marash.net&gt;<br>
+<b>Cc:</b> eran<span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=
+=3D"HE" dir=3D"RTL"><span dir=3D"RTL"></span><span dir=3D"RTL"></span>=FE</=
+span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span><span dir=3D"LTR"></span> &lt;eran@theservice.co.il&gt;;
+ Ortal Hassan<span dir=3D"RTL"></span><span dir=3D"RTL"></span><span lang=
+=3D"HE" dir=3D"RTL"><span dir=3D"RTL"></span><span dir=3D"RTL"></span>=FE</=
+span><span dir=3D"LTR"></span><span dir=3D"LTR"></span><span dir=3D"LTR"></=
+span><span dir=3D"LTR"></span> &lt;ortal@tswm.co.il&gt;<br>
+<b>Subject:</b> RE: Viola Credit ALF III - First Close and First Drawdown<o=
+:p></o:p></span></p>
+</div>
+</div>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif;color:#1F497D">=F9=EC=E5=ED =E0=E3=ED,</span><span dir=3D"LTR" st=
+yle=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,sans-serif;color:#1F4=
+97D"><o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif;color:#1F497D">=EE=F6&quot;=E1 =E4=F1=EB=E5=ED =E7=FA=E5=ED<o:p><=
+/o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span lang=3D"HE" style=3D"font-size:11.0pt;font-family:&quot;Arial&quot;,s=
+ans-serif;color:#1F497D">=E1=E1=F8=EB=E4,</span><span lang=3D"HE" style=3D"=
+font-size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif;color:#1F497D">=
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR" style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;=
+,sans-serif;color:#1F497D"><o:p>&nbsp;</o:p></span></p>
+<div>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"text-align:right;direction:rtl;=
+unicode-bidi:embed">
+<span dir=3D"LTR" style=3D"font-size:11.0pt;font-family:&quot;Calibri&quot;=
+,sans-serif;color:#1F497D"><img width=3D"297" height=3D"141" style=3D"width=
+:3.0916in;height:1.4666in" id=3D"_x0000_i1025" src=3D"cid:image002.jpg@01DA=
+900C.5826B530"></span><span dir=3D"LTR" style=3D"font-size:11.0pt;font-fami=
+ly:&quot;Calibri&quot;,sans-serif"><o:p></o:p></span></p>
+</div>
+<p class=3D"MsoNormal" align=3D"center" style=3D"text-align:center"><o:p>&n=
+bsp;</o:p></p>
+<div id=3D"divRplyFwdMsg">
+<p class=3D"MsoNormal"><b><span style=3D"font-size:11.0pt;font-family:&quot=
+;Calibri&quot;,sans-serif;color:black">From:</span></b><span style=3D"font-=
+size:11.0pt;font-family:&quot;Calibri&quot;,sans-serif;color:black"> Adam M=
+arash &lt;<a href=3D"mailto:adam@marash.net">adam@marash.net</a>&gt;<br>
+<b>Sent:</b> Monday, April 15, 2024 4:56:06 PM<br>
+<b>To:</b> eran &lt;<a href=3D"mailto:eran@theservice.co.il">eran@theservic=
+e.co.il</a>&gt;<br>
+<b>Subject:</b> Fwd: Viola Credit ALF III - First Close and First Drawdown<=
+/span>
+<o:p></o:p></p>
+<div>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+</div>
+</div>
+<div>
+<div>
+<div>
+<p class=3D"MsoNormal" dir=3D"RTL" style=3D"margin-bottom:12.0pt;text-align=
+:right;direction:rtl;unicode-bidi:embed">
+<span lang=3D"HE">=F2=F8=EF =E4=E9, =F7=E9=E1=EC=FA=E9 =F7=F8=E9=E0=E4 =EC=
+=EB=F1=F3 =EE=E5=E9=E5=EC=E4 =EC=F4=F0=E9 =F9=F7=E9=E1=EC=FA=E9 =E0=FA =E4=
+=EE=F1=EE=EB=E9=ED =E4=E7=FA=E5=EE=E9=ED =EE=E4=ED =E7=E6=F8=E4...</span><s=
+pan dir=3D"LTR"><o:p></o:p></span></p>
+</div>
+<div>
+<div>
+<p class=3D"MsoNormal">---------- Forwarded message ---------<br>
+From: <strong>Viola Credit Lps</strong> &lt;<a href=3D"mailto:investors@vio=
+lacredit.com">investors@violacredit.com</a>&gt;<br>
+Date: Sun, 14 Apr 2024 at 18:36<br>
+Subject: Viola Credit ALF III - First Close and First Drawdown<br>
+To: <a href=3D"mailto:adam@marash.net">adam@marash.net</a> &lt;<a href=3D"m=
+ailto:adam@marash.net">adam@marash.net</a>&gt;<br>
+Cc: Viola Credit Lps &lt;<a href=3D"mailto:investors@violacredit.com">inves=
+tors@violacredit.com</a>&gt;<o:p></o:p></p>
+</div>
+<p class=3D"MsoNormal" style=3D"margin-bottom:12.0pt"><o:p>&nbsp;</o:p></p>
+<div>
+<div>
+<div>
+<table class=3D"MsoNormalTable" border=3D"0" cellspacing=3D"0" cellpadding=
+=3D"0" width=3D"732" style=3D"width:549.0pt;border-collapse:collapse">
+<tbody>
+<tr style=3D"height:195.5pt">
+<td width=3D"732" valign=3D"top" style=3D"width:549.0pt;padding:0cm 0cm 0cm=
+ 0cm;height:195.5pt">
+<p class=3D"xmsonormal"><span style=3D"font-size:9.0pt;font-family:&quot;Ta=
+homa&quot;,sans-serif">Dear Investor,<br>
+<br>
+<b><u>Tamar Marash</u></b><br>
+<br>
+We are delighted to announce that we are conducting our first closing of AL=
+F III fund, the 3rd series of Funds in our Global Asset Based Lending Strat=
+egy with total committed and investable capital of $480M at closing.<br>
+<br>
+As a reminder, ALF III funds seek to provide investors with attractive ongo=
+ing current income and potential for capital gains through asset-based lend=
+ing transactions to finance assets originated by Tech enabled Lenders (aka =
+FinTech lenders) across US, Western
+ Europe, U.K and Australia. <br>
+<br>
+We are also excited to draw your attention to the first capital call follow=
+ing the execution of our first transactions in ALF III fund.<br>
+Please see attached the capital call letter, wire instructions and the fund=
+=92s tax withholding exemption (relevant for Israeli investors).
+<br>
+<br>
+We wanted to take this opportunity to thank you all for the continued trust=
+ and support and looking forward for a fruitful partnership.
+<br>
+<br>
+Thank you, <br>
+Viola Credit Management Team</span><span lang=3D"HE" dir=3D"RTL"><o:p></o:p=
+></span></p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class=3D"xmsonormal">&nbsp;<o:p></o:p></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
+
+--_000_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_--
+
+--_005_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: image/jpeg; name="image002.jpg"
+Content-Description: image002.jpg
+Content-Disposition: inline; filename="image002.jpg"; size=7017;
+	creation-date="Tue, 16 Apr 2024 11:42:50 GMT";
+	modification-date="Thu, 16 May 2024 07:32:01 GMT"
+Content-ID: <image002.jpg@01DA900C.5826B530>
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIf
+IiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7
+Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCACNASkDASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD2aiii
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiio1uIGna3WaMzIAzRhhuUHoSOtAElF
+Fecat8ZdO0nV7vTpNJupHtZWiZ1dQGI7imk2B6PRXlv/AAvTS/8AoDXf/fxaP+F6aX/0Brv/AL+L
+T5WB6lRXlv8AwvTS/wDoDXf/AH8Wj/heml/9Aa7/AO/i0crA9Sory3/heml/9Aa7/wC/i0f8L00v
+/oDXf/fxaOVgepUV5b/wvTS/+gNd/wDfxaP+F6aX/wBAa7/7+LRysD1KivLf+F6aX/0Brv8A7+LR
+/wAL00v/AKA13/38WjlYHqVFeW/8L00v/oDXf/fxaP8Aheml/wDQGu/+/i0crA9Sory3/heml/8A
+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
+iiigD//Z
+
+--_005_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_--
+
+--_006_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_
+Content-Type: application/pdf;
+	name="Viola Credit ALF III (1) L.P. Subscription Agreement -Tamar Marash (Fe)
+ ....pdf"
+Content-Description: Viola Credit ALF III (1) L.P. Subscription Agreement
+ -Tamar Marash (Fe) ....pdf
+Content-Disposition: attachment;
+	filename="Viola Credit ALF III (1) L.P. Subscription Agreement -Tamar Marash
+ (Fe) ....pdf"; size=1076040; creation-date="Tue, 16 Apr 2024 11:42:32 GMT";
+	modification-date="Thu, 16 May 2024 07:32:01 GMT"
+
+[attachment stripped]
+--_006_AM0PR05MB659406D2765AB583654D3BE08AED2AM0PR05MB6594eurp_--
