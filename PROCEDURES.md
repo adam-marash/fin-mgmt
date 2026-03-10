@@ -339,3 +339,11 @@ Pattern: `ledger/YYYY/<filing-date>-<source>-<desc>-<hash>/`
 - `<hash>`: first 6-8 chars of SHA-256 for uniqueness
 - FO-sourced folders: `<filing-date>-<investment>-fo-sourced-<hash>/`
 - Folders are never renamed after filing
+
+## TODO: Tax Deductibility Tagging
+
+Currently `#us-deductible` is applied ad-hoc to Virtu Tax entries. Need to generalize:
+- Define which tags exist (e.g., `#us-deductible`, `#uk-deductible`, `#il-deductible`)
+- Document which expense categories are deductible in which jurisdictions
+- Decide whether deductibility is tagged per-transaction or derived from account + rules
+- Ensure ingestion scripts apply tags automatically where the mapping is known
