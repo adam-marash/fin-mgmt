@@ -18,7 +18,7 @@ FO records the fund's settlement date. Bank records the payment date. The bank d
 
 ### FO deposit semantics
 
-An FO "deposit" records the actual bank movement (step 3: investment payment), not the capital call notice (step 2). FO-sourced entries from deposits are labeled "investment payment", not "capital call".
+An FO "deposit" records the actual payment (Investment Lifecycle step 3b), not the capital call notice (step 2). FO-sourced entries from deposits are labeled "investment payment", not "capital call".
 
 ## Source Hierarchy and Demotion
 
@@ -26,7 +26,7 @@ Primary source (bank statement, investment agreement) supersedes secondary (FO).
 
 ### FO as announcement substitute only
 
-FO-sourced entries stand in for the investment-side document only - either a distribution announcement (money in) or a capital call notice (money out). They never replace a bank leg. The balance sheet leg of an FO-sourced entry goes to `Assets:Receivable` (for distributions/capital returns) or `Liabilities:Commitments` (for investment payments), never to `Assets:Banks`.
+FO-sourced entries stand in for the investment-side document only - either a distribution announcement (money in) or a capital call payment (money out). They never replace a bank leg. For distributions, the balance sheet leg goes to `Assets:Receivable`. For investment payments, the entry creates `Assets:Investments`, reduces `Liabilities:Commitments`, unwinds `Equity:Commitments`, and parks the cash outflow in `Assets:Suspense` (see Investment Lifecycle step 3b). FO entries never touch `Assets:Banks`.
 
 ### Creating FO-sourced entries
 
@@ -218,6 +218,14 @@ When an investment concludes, any uncalled commitment is explicitly released:
 | Positive | Cost basis of holdings | Normal |
 | Zero | Not yet funded or fully returned | Check commitments |
 
+**Receivables** (`Assets:Receivable:X`):
+
+| Balance | Meaning | Action |
+|---------|---------|--------|
+| Positive | Announcement booked, bank credit pending | "Where's my money?" |
+| Negative | Bank credit arrived, announcement pending | "What is this for?" |
+| Zero | Fully reconciled | Done |
+
 ### Excluded from commitment tracking
 
 - IBI-Portfolio and Yalin-Portfolio (managed portfolios, not commitment-based)
@@ -263,12 +271,6 @@ A complete investment view:
 ```
 WHERE account ~ '<Investment>' OR ANY_META('investment') = '<Investment>'
 ```
-
-### Receivable balance signals
-
-- **Positive**: announcement booked, bank credit pending ("where's my money?")
-- **Negative**: bank credit arrived, announcement pending ("what is this for?")
-- **Zero**: fully reconciled
 
 ## Distribution Classification
 
@@ -408,7 +410,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 - FO-sourced metadata (`source:`, `fo-line:`)
 - Classification metadata (`classification-source:` on Yield/Capital-Return entries)
 - `#provisional` not on classified entries
-- Account routing (distributions -> Receivable, payments -> Commitments)
+- Account routing (distributions -> Receivable, payments -> Investments + Commitments + Equity)
 - Folder naming (`<date>-<desc>[-<hash>]`)
 - Over-drawn commitment balances (positive = investigate)
 - Suspense balances (non-zero = unresolved counterparty)
@@ -424,7 +426,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 ## Script Behavior Notes
 
 - `check_fo_assertions.py`: matches against both `Assets:Receivable:` (withdrawals) and `Liabilities:Commitments:` (deposits). Allows $45 HSBC wire fee difference on deposit matches.
-- `generate_fo_entries.py`: routes deposits to `Assets:Investments` + `Liabilities:Commitments` + `Equity:Commitments` + `Assets:Suspense` (except IBI-Portfolio and Yalin-Portfolio which use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
+- `generate_fo_entries.py`: **TODO (issue #31)**: currently routes deposits to `Liabilities:Commitments` + `Assets:Suspense`; needs updating to 4-legged pattern per Investment Lifecycle step 3b. IBI-Portfolio and Yalin-Portfolio are excluded (managed portfolios, use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
 
 ## Link Tag Conventions
 
