@@ -8,6 +8,10 @@ Implementation patterns and usage guide. For design decisions and problem-space 
 
 Bank payment = FO amount + $45 (consistent across all matched investment payments). The $45 is a HSBC outgoing wire fee. When matching FO deposits to bank debits, allow for this difference.
 
+### IBI-as-trustee payments
+
+Investment payments routed through IBI as trustee are never bundled - each payment appears as a separate bank debit. Do not attempt to split or aggregate IBI-trusteed transactions.
+
 ### FO date vs bank date
 
 FO records the fund's settlement date. Bank records the payment date. The bank date is typically 5-22 days earlier than FO. The FO-to-ledger matcher uses a tolerance window (default 5 days, 45 days for date-uncertain entries).
