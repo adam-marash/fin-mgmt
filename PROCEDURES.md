@@ -153,7 +153,7 @@ Source: distribution notice or FO data.
 2022-11-29 * "Boligo-1 - yield distribution" #fo-sourced ^boligo-1-dist-1
   source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
   Assets:Receivable:Boligo-1                5,000.00 USD
-  Income:Distribution:Boligo-1:Yield       -5,000.00 USD
+  Income:Investments:Boligo-1:Yield       -5,000.00 USD
 ```
 
 ### Step 4b: Capital return announced
@@ -264,7 +264,7 @@ Accounts that do NOT need it (the investment name is already in the account path
 - `Assets:Receivable:<Investment>`
 - `Liabilities:Commitments:<Investment>`
 - `Liabilities:Capital-Calls:<Investment>`
-- `Income:Distribution:<Investment>:*`
+- `Income:Investments:<Investment>:*`
 - `Expenses:Carried-Interest:<Investment>`
 
 A complete investment view:
@@ -274,7 +274,7 @@ WHERE account ~ '<Investment>' OR ANY_META('investment') = '<Investment>'
 
 ## Distribution Classification
 
-Distributions are initially booked as `Income:Distribution:<Investment>:Unclassified` when the income type is unknown. Classification happens when a source provides the yield vs capital-return breakdown.
+Distributions are initially booked as `Income:Investments:<Investment>:Unclassified` when the income type is unknown. Classification happens when a source provides the yield vs capital-return breakdown.
 
 ### Classification sources (in priority order)
 
@@ -286,9 +286,9 @@ Distributions are initially booked as `Income:Distribution:<Investment>:Unclassi
 
 When reclassifying from `Unclassified` to `Yield`/`Capital-Return`/`Capital-Gain`:
 
-1. **Yield**: change to `Income:Distribution:<Investment>:Yield`
+1. **Yield**: change to `Income:Investments:<Investment>:Yield`
 2. **Capital-Return**: change to `Assets:Investments:<Investment>` (reduces cost basis, not income)
-3. **Capital-Gain**: change to `Income:Distribution:<Investment>:Capital-Gain`
+3. **Capital-Gain**: change to `Income:Investments:<Investment>:Capital-Gain`
 4. Add `classification-source:` metadata pointing to the document that provides the classification
 5. Remove `#provisional` tag if present
 6. If a single distribution splits into multiple types (e.g., part yield + part capital return), split into separate legs
@@ -297,7 +297,7 @@ When reclassifying from `Unclassified` to `Yield`/`Capital-Return`/`Capital-Gain
 2023-10-12 * "Data Center LA - distribution announced" ^data-center-la-dist-2
   classification-source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
   Assets:Receivable:Data-Center-LA  859,646.00 USD
-  Income:Distribution:Data-Center-LA:Yield  -277,682.00 USD
+  Income:Investments:Data-Center-LA:Yield  -277,682.00 USD
   Assets:Investments:Data-Center-LA  -581,964.00 USD
 ```
 

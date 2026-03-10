@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Reclassify Unclassified distributions using FO data (issue #30).
 
-Cross-references Income:Distribution:*:Unclassified entries against FO CSV
+Cross-references Income:Investments:*:Unclassified entries against FO CSV
 to determine yield vs capital-return classification.
 
-- Yield -> Income:Distribution:<Investment>:Yield
+- Yield -> Income:Investments:<Investment>:Yield
 - Capital-Return -> Assets:Investments:<Investment> (reduces cost basis)
 
 Usage:
@@ -32,7 +32,7 @@ def classify_account(cls_type, investment):
     if cls_type == 'Capital-Return':
         return f'Assets:Investments:{investment}'
     else:
-        return f'Income:Distribution:{investment}:{cls_type}'
+        return f'Income:Investments:{investment}:{cls_type}'
 
 
 def load_investment_map():
@@ -186,7 +186,7 @@ def find_unclassified_entries(ledger_dir):
                     j += 1
                     continue
 
-                if 'Income:Distribution:' in stripped and ':Unclassified' in stripped:
+                if 'Income:Investments:' in stripped and ':Unclassified' in stripped:
                     parts = stripped.split()
                     account = parts[0]
                     investment = account.split(':')[2]
@@ -240,7 +240,7 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
 
     if len(classification_splits) == 1:
         cls_type, _ = classification_splits[0]
-        old_account = f'Income:Distribution:{investment}:Unclassified'
+        old_account = f'Income:Investments:{investment}:Unclassified'
         new_account = classify_account(cls_type, resolved_inv)
         new_line = original_line.replace(old_account, new_account)
 

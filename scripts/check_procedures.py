@@ -129,7 +129,7 @@ def check_fo_sourced_metadata(files):
 def check_classification_metadata(files):
     """Classified (non-Unclassified) distribution entries must have classification-source:."""
     violations = []
-    classified_re = re.compile(r'Income:Distribution:\S+:(Yield|Capital-Return|Capital-Gain)')
+    classified_re = re.compile(r'Income:Investments:\S+:(Yield|Capital-Return|Capital-Gain)')
     for fp in files:
         for txn in parse_transactions(fp):
             has_classified = any(
@@ -145,7 +145,7 @@ def check_classification_metadata(files):
 def check_provisional_consistency(files):
     """#provisional should not appear on classified (non-Unclassified) distribution entries."""
     violations = []
-    classified_re = re.compile(r'Income:Distribution:\S+:(Yield|Capital-Return|Capital-Gain)')
+    classified_re = re.compile(r'Income:Investments:\S+:(Yield|Capital-Return|Capital-Gain)')
     for fp in files:
         for txn in parse_transactions(fp):
             if "provisional" not in txn["tags"]:
@@ -414,7 +414,7 @@ def collect_link_data(files):
                 for p in txn["postings"]:
                     for pattern in [r'Assets:Receivable:(\S+)',
                                     r'Liabilities:Commitments:(\S+)',
-                                    r'Income:Distribution:(\S+?):']:
+                                    r'Income:Investments:(\S+?):']:
                         m = re.search(pattern, p["text"])
                         if m:
                             investments.add(m.group(1))

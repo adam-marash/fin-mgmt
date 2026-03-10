@@ -77,7 +77,7 @@ def find_unclassified_files(investment):
             fpath = os.path.join(root, fname)
             with open(fpath) as f:
                 content = f.read()
-            if f"Income:Distribution:{investment}:Unclassified" in content:
+            if f"Income:Investments:{investment}:Unclassified" in content:
                 results.append(fpath)
     return sorted(results)
 
@@ -110,7 +110,7 @@ def classify_file(fpath, investment, fo_entries, dry_run=True):
         content = f.read()
 
     original = content
-    unclassified_pattern = f"Income:Distribution:{investment}:Unclassified"
+    unclassified_pattern = f"Income:Investments:{investment}:Unclassified"
     if unclassified_pattern not in content:
         return []
 
@@ -119,7 +119,7 @@ def classify_file(fpath, investment, fo_entries, dry_run=True):
     # First pass: determine classification for each entry
     date_re = re.compile(r"^(\d{4}-\d{2}-\d{2})\s+[*!]")
     amount_re = re.compile(
-        rf"Income:Distribution:{re.escape(investment)}:Unclassified\s+(-?[\d,]+\.?\d*)\s+(\w+)"
+        rf"Income:Investments:{re.escape(investment)}:Unclassified\s+(-?[\d,]+\.?\d*)\s+(\w+)"
     )
 
     # Collect all entries with their dates and amounts
@@ -245,9 +245,9 @@ def main():
         has_yield = any(e["classification"] == "Yield" for e in fo_entries)
         has_cr = any(e["classification"] == "Capital-Return" for e in fo_entries)
         if has_yield:
-            new_accounts.add(f"Income:Distribution:{investment}:Yield")
+            new_accounts.add(f"Income:Investments:{investment}:Yield")
         if has_cr:
-            new_accounts.add(f"Income:Distribution:{investment}:Capital-Return")
+            new_accounts.add(f"Income:Investments:{investment}:Capital-Return")
 
         print(f"\n{'='*60}")
         print(f"  {investment} ({len(files)} files, {len(fo_entries)} FO entries)")
@@ -275,7 +275,7 @@ def main():
     existing = set()
     with open(os.path.join(LEDGER_DIR, "accounts.beancount")) as f:
         for line in f:
-            m = re.search(r"open\s+(Income:Distribution:\S+)", line)
+            m = re.search(r"open\s+(Income:Investments:\S+)", line)
             if m:
                 existing.add(m.group(1))
 
