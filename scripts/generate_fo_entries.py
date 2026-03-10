@@ -189,14 +189,17 @@ def generate_entry(fo, bc_name):
     elif fo.tx_type in ("yield_withdrawal", "withdrawal"):
         if fo.tx_type == "yield_withdrawal":
             narration = f"{bc_name} - distribution (FO-sourced)"
+            offset_account = f'Income:Distribution:{bc_name}:Yield'
         else:
             narration = f"{bc_name} - capital return (FO-sourced)"
+            offset_account = f'Assets:Investments:{bc_name}'
         lines = [
             f'{fo.date} * "{narration}" #fo-sourced #provisional',
             f'  source: "{FO_CSV.relative_to(ROOT)}"',
             f'  fo-line: "{fo.line_num}"',
+            f'  classification-source: "{FO_CSV.relative_to(ROOT)}"',
             f'  Assets:Receivable:{bc_name}  {amt} {ccy}',
-            f'  Income:Distribution:{bc_name}:Unclassified  -{amt} {ccy}',
+            f'  {offset_account}  -{amt} {ccy}',
         ]
     else:
         return None

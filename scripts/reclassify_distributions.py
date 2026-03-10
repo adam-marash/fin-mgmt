@@ -4,6 +4,9 @@
 Cross-references Income:Distribution:*:Unclassified entries against FO CSV
 to determine yield vs capital-return classification.
 
+- Yield -> Income:Distribution:<Investment>:Yield
+- Capital-Return -> Assets:Investments:<Investment> (reduces cost basis)
+
 Usage:
   python scripts/reclassify_distributions.py          # dry run
   python scripts/reclassify_distributions.py --write   # apply changes
@@ -22,6 +25,14 @@ ROOT = Path('.')
 FO_CSV = ROOT / 'data/2026-03-05-fo-transactions/tamar-transactions.csv'
 KNOWLEDGE = ROOT / 'knowledge.json'
 FO_SOURCE = str(FO_CSV)
+
+
+def classify_account(cls_type, investment):
+    """Return the target account for a given classification type."""
+    if cls_type == 'Capital-Return':
+        return f'Assets:Investments:{investment}'
+    else:
+        return f'Income:Distribution:{investment}:{cls_type}'
 
 
 def load_investment_map():
@@ -71,10 +82,7 @@ def load_fo_distributions(inv_map):
 
 
 def resolve_investment_name(investment, filepath):
-    """Resolve ambiguous investment name using file path context.
-
-    E.g., 'Boligo' -> 'Boligo-1' or 'Boligo-2' based on the file path.
-    """
+    """Resolve ambiguous investment name using file path context."""
     if investment == 'Boligo' and filepath:
         fp = str(filepath).lower()
         if 'boligo-2' in fp:
@@ -90,12 +98,11 @@ def find_fo_match(fo_data, investment, entry_date_str, filepath=None):
 
     resolved = resolve_investment_name(investment, filepath)
     investments_to_check = [resolved]
-    # If still ambiguous, check both
     if resolved == 'Boligo':
         investments_to_check = ['Boligo-1', 'Boligo-2']
 
     for inv in investments_to_check:
-        for delta in range(-5, 6):  # check -5..+5 day window
+        for delta in range(-5, 6):
             check_date = str(d + timedelta(days=delta))
             key = (inv, check_date)
             if key in fo_data:
@@ -104,29 +111,21 @@ def find_fo_match(fo_data, investment, entry_date_str, filepath=None):
 
 
 def determine_classification(fo_entries, primary_amount, primary_currency):
-    """Determine classification and split from FO entries.
-
-    Returns list of (classification, amount) tuples in primary currency.
-    """
-    # Check if all FO entries have same classification
+    """Determine classification and split from FO entries."""
     types = set(e['classification'] for e in fo_entries)
 
     if len(types) == 1:
-        # All same type - simple reclassification, keep original amount
         return [(types.pop(), primary_amount)]
 
     # Mixed - need to split
-    # If primary currency matches FO currency, use FO amounts directly
     if fo_entries[0]['currency'] == primary_currency:
         result = []
         total_fo = sum(e['amount'] for e in fo_entries)
         running_total = Decimal(0)
         for i, e in enumerate(fo_entries):
             if i == len(fo_entries) - 1:
-                # Last entry gets remainder to avoid rounding issues
                 amt = primary_amount - running_total
             else:
-                # Proportional split
                 amt = (e['amount'] * primary_amount / total_fo).quantize(
                     Decimal('0.01'), rounding=ROUND_HALF_UP
                 )
@@ -134,10 +133,10 @@ def determine_classification(fo_entries, primary_amount, primary_currency):
             result.append((e['classification'], amt))
         return result
 
-    # Primary is in different currency (e.g., ILS) - use FO ILS equivalents
+    # Primary is in different currency - use FO ILS equivalents
     total_fo_ils = sum(e['amount_ils'] for e in fo_entries if e['amount_ils'])
     if total_fo_ils == 0:
-        return None  # Can't split
+        return None
 
     result = []
     running_total = Decimal(0)
@@ -164,7 +163,6 @@ def find_unclassified_entries(ledger_dir):
         i = 0
         while i < len(lines):
             line = lines[i]
-            # Look for transaction start
             match = re.match(r'^(\d{4}-\d{2}-\d{2})\s+[*!]\s+"([^"]*)"', line)
             if not match:
                 i += 1
@@ -173,10 +171,8 @@ def find_unclassified_entries(ledger_dir):
             txn_date = match.group(1)
             narration = match.group(2)
 
-            # Scan postings for Unclassified income
             j = i + 1
             unclassified_posting = None
-            receivable_posting = None
             while j < len(lines):
                 pline = lines[j]
                 if pline.strip() == '' or (not pline[0:1].isspace() and pline.strip()):
@@ -191,11 +187,9 @@ def find_unclassified_entries(ledger_dir):
                     continue
 
                 if 'Income:Distribution:' in stripped and ':Unclassified' in stripped:
-                    # Parse: Income:Distribution:X:Unclassified  -AMOUNT CCY
                     parts = stripped.split()
                     account = parts[0]
                     investment = account.split(':')[2]
-                    # Find amount
                     for k, part in enumerate(parts[1:], 1):
                         cleaned = part.replace(',', '').lstrip('-')
                         try:
@@ -215,9 +209,6 @@ def find_unclassified_entries(ledger_dir):
                             break
                         except Exception:
                             continue
-
-                if 'Assets:Receivable:' in stripped:
-                    receivable_posting = {'line_idx': j}
                 j += 1
 
             if unclassified_posting:
@@ -245,14 +236,12 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
     original_line = lines[line_idx]
     indent = entry['indent']
     investment = entry['investment']
-    # Use resolved name (e.g., Boligo -> Boligo-1) for the target account
     resolved_inv = resolve_investment_name(investment, filepath)
 
     if len(classification_splits) == 1:
-        # Simple reclassification - just change account name
         cls_type, _ = classification_splits[0]
         old_account = f'Income:Distribution:{investment}:Unclassified'
-        new_account = f'Income:Distribution:{resolved_inv}:{cls_type}'
+        new_account = classify_account(cls_type, resolved_inv)
         new_line = original_line.replace(old_account, new_account)
 
         if dry_run:
@@ -260,16 +249,13 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
 
         lines[line_idx] = new_line
     else:
-        # Split - replace single line with multiple lines
         new_lines = []
         for cls_type, amount in classification_splits:
-            account = f'Income:Distribution:{resolved_inv}:{cls_type}'
-            # Format amount like the original
+            account = classify_account(cls_type, resolved_inv)
             if '.' in str(amount):
                 amt_str = f'{amount:,.2f}'
             else:
                 amt_str = f'{int(amount):,}'
-            # Income amounts are negative
             if amount > 0:
                 amt_str = f'-{amt_str}'
             elif amount < 0 and not amt_str.startswith('-'):
@@ -283,7 +269,6 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
         lines[line_idx:line_idx + 1] = new_lines
 
     # Add classification-source metadata if not present
-    # Find the metadata area (lines after txn header, before first posting)
     txn_line_idx = entry['txn_line_idx']
     has_classification_source = False
     insert_meta_at = None
@@ -296,8 +281,7 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
             break
         if l.startswith('source:') or l.startswith('fo-line:'):
             insert_meta_at = k + 1
-        # Stop at first posting (account name)
-        if l and not l.startswith(';') and not l.startswith('#') and ':' in l.split()[0] if l.split() else False:
+        if l and not l.startswith(';') and not l.startswith('#'):
             if not any(l.startswith(prefix) for prefix in ('source:', 'fo-line:', 'classification-source:', 'investment:')):
                 break
 
@@ -306,11 +290,9 @@ def apply_reclassification(entry, classification_splits, dry_run=True):
         if insert_meta_at is not None:
             lines.insert(insert_meta_at, meta_line)
         else:
-            # Insert after transaction header
             lines.insert(txn_line_idx + 1, meta_line)
 
     if not dry_run:
-        # Remove #provisional tag if present
         txn_line = lines[txn_line_idx]
         if '#provisional' in txn_line:
             txn_line = txn_line.replace(' #provisional', '')
@@ -340,13 +322,11 @@ def main():
     unmatched = 0
     split_count = 0
 
-    # Process files one at a time to avoid conflicts from multiple edits
     by_file = defaultdict(list)
     for entry in unclassified:
         by_file[str(entry['filepath'])].append(entry)
 
     for filepath_str, file_entries in sorted(by_file.items()):
-        # Process entries in reverse order within a file (to preserve line numbers)
         for entry in reversed(file_entries):
             fo_entries, fo_date = find_fo_match(
                 fo_data, entry['investment'], entry['txn_date'],
@@ -359,7 +339,6 @@ def main():
                       f"{entry['amount']} {entry['currency']}  ({entry['filepath']})")
                 continue
 
-            # Determine classification
             primary_amount = abs(entry['amount'])
             splits = determine_classification(
                 fo_entries, primary_amount, entry['currency']
@@ -371,7 +350,6 @@ def main():
                       f"(no ILS data)")
                 continue
 
-            # Make amounts negative (income)
             splits = [(cls, -abs(amt)) for cls, amt in splits]
 
             matched += 1

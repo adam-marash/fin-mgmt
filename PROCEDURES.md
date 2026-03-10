@@ -158,13 +158,13 @@ Source: distribution notice or FO data.
 
 ### Step 4b: Capital return announced
 
-Source: distribution notice or FO data.
+Source: distribution notice or FO data. Capital returns reduce cost basis (not income).
 
 ```beancount
 2024-03-04 * "Boligo-1 - capital return" #fo-sourced ^boligo-1-dist-2
   source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
-  Assets:Receivable:Boligo-1                       10,000.00 USD
-  Income:Distribution:Boligo-1:Capital-Return     -10,000.00 USD
+  Assets:Receivable:Boligo-1          10,000.00 USD
+  Assets:Investments:Boligo-1        -10,000.00 USD
 ```
 
 ### Step 5: Distribution received (bank)
@@ -182,9 +182,9 @@ Clears the receivable. Link tag ties it to the announcement in step 4.
 
 ### Capital returns do not affect commitments
 
-Capital returns are distributions (money coming back to us). They route through `Assets:Receivable` and `Income:Distribution:<Investment>:Capital-Return`, exactly like yield distributions. They never touch `Liabilities:Commitments`.
+Capital returns are distributions (money coming back to us). They route through `Assets:Receivable` and reduce `Assets:Investments:<Investment>` (cost basis). Unlike yield distributions (which are income), capital returns are recovery of invested capital. They never touch `Liabilities:Commitments`.
 
-The commitment tracks the contractual call schedule (money out) only. Capital returned does not re-open or reduce the commitment. The `Capital-Return` income classification captures the economic character of the return.
+The commitment tracks the contractual call schedule (money out) only. Capital returned does not re-open or reduce the commitment. The net balance on `Assets:Investments:<Investment>` shows cost basis minus capital returned.
 
 When an investment concludes, any uncalled commitment is explicitly released:
 
@@ -286,17 +286,19 @@ Distributions are initially booked as `Income:Distribution:<Investment>:Unclassi
 
 When reclassifying from `Unclassified` to `Yield`/`Capital-Return`/`Capital-Gain`:
 
-1. Change the income account from `Income:Distribution:<Investment>:Unclassified` to the appropriate sub-account
-2. Add `classification-source:` metadata pointing to the document that provides the classification
-3. Remove `#provisional` tag if present
-4. If a single distribution splits into multiple types (e.g., part yield + part capital return), split into separate legs
+1. **Yield**: change to `Income:Distribution:<Investment>:Yield`
+2. **Capital-Return**: change to `Assets:Investments:<Investment>` (reduces cost basis, not income)
+3. **Capital-Gain**: change to `Income:Distribution:<Investment>:Capital-Gain`
+4. Add `classification-source:` metadata pointing to the document that provides the classification
+5. Remove `#provisional` tag if present
+6. If a single distribution splits into multiple types (e.g., part yield + part capital return), split into separate legs
 
 ```beancount
 2023-10-12 * "Data Center LA - distribution announced" ^data-center-la-dist-2
   classification-source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
   Assets:Receivable:Data-Center-LA  859,646.00 USD
   Income:Distribution:Data-Center-LA:Yield  -277,682.00 USD
-  Income:Distribution:Data-Center-LA:Capital-Return  -581,964.00 USD
+  Assets:Investments:Data-Center-LA  -581,964.00 USD
 ```
 
 ### When NOT to reclassify
