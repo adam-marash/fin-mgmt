@@ -257,7 +257,7 @@ Some accounts are organized by jurisdiction or cost type rather than by investme
 Accounts that need `investment:` metadata (the account name does not contain the investment):
 - `Expenses:Tax:<Jurisdiction>` - withholding tax
 - `Expenses:Professional:FO-Fees` - family office fees attributable to a specific investment
-- `Expenses:Tax-Advisory` - tax advisory fees for a specific investment
+- `Expenses:Professional:Tax-Advisory` - tax advisory fees for a specific investment
 
 Accounts that do NOT need it (the investment name is already in the account path):
 - `Assets:Investments:<Investment>`
