@@ -36,8 +36,10 @@ When no primary source exists, FO data serves as a provisional primary source:
 2024-06-15 * "ISF-III - investment payment (FO-sourced)" #fo-sourced #provisional
   source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
   fo-line: "123"
-  Liabilities:Commitments:ISF-III  100,000.00 USD
-  Assets:Suspense  -100,000.00 USD
+  Assets:Investments:ISF-III        100,000.00 USD
+  Liabilities:Commitments:ISF-III   100,000.00 USD
+  Equity:Commitments               -100,000.00 USD
+  Assets:Suspense                  -100,000.00 USD
 ```
 
 Tags: `#fo-sourced` (provenance marker, persists) + `#provisional` (removed when primary source arrives).
@@ -67,34 +69,116 @@ Do not demote when:
 - No matching bank entry exists (FO entry is still the best available source)
 - The amounts differ significantly (investigate first)
 
-## Three-Step Commitment Model
+## Investment Lifecycle
 
-### Step 1: Commitment (from agreements)
+An investment goes through up to seven steps. Not all steps occur for every investment. FO-sourced variants use `Assets:Suspense` as a placeholder until matched to bank.
+
+### Step 1: Commitment signed
+
+Source: investment agreement.
 
 ```beancount
-2019-01-01 * "Investment commitment - Boligo-1 (provisional)" #fo-sourced #provisional
+2019-06-01 * "Investment commitment - Boligo-1" #primary-source
+  source: "inbox/commitments/boligo-1-commitment.pdf"
   Liabilities:Commitments:Boligo-1  -500,000.00 USD
-  Equity:Commitments  500,000.00 USD
+  Equity:Commitments                 500,000.00 USD
 ```
 
-- Source: investment agreements (primary) or FO deposit totals (provisional)
-- Stored in `ledger/commitments.beancount`
-- Negative balance = unfunded obligation
+`Liabilities:Commitments` = long-term callable obligation (negative = unfunded).
+`Equity:Commitments` = balancing entry for the off-balance-sheet promise.
 
-### Step 2: Capital call (from call notices) - NOT YET IMPLEMENTED
+### Step 2: Capital call notice received
 
-Would move from `Liabilities:Commitments` to `Liabilities:Payable`. Waiting on capital call notice documents.
-
-### Step 3: Investment payment (from bank/FO)
+Source: call notice from fund administrator.
 
 ```beancount
-2021-10-05 * "Investment payment - Liquidity-Capital" ^liquidity-capital-payment-3
-  Liabilities:Commitments:Liquidity-Capital  60,045.00 USD
-  Assets:Banks:HSBC-GU:Tamar-Direct:USD-Capital-5637  -60,045.00 USD
+2019-06-05 * "Boligo-1 - capital call notice" ^boligo-1-call-1
+  source: "inbox/capital-calls/boligo-1-call-2019-06.pdf"
+  Liabilities:Commitments:Boligo-1    200,000.00 USD
+  Liabilities:Capital-Calls:Boligo-1 -200,000.00 USD
 ```
 
-- Bank statement amount includes wire fee
-- Draws down the commitment directly (steps 2+3 combined)
+Moves the amount from long-term commitment to short-term payable ("due now").
+If no call notice document exists, steps 2+3 collapse into step 3 alone.
+
+### Step 3a: Capital call paid (bank known)
+
+Source: bank statement.
+
+```beancount
+2019-06-07 * "Boligo-1 - investment payment" ^boligo-1-call-1
+  source: "ledger/2019/.../entries.beancount"
+  Assets:Investments:Boligo-1                          200,000.00 USD
+  Liabilities:Capital-Calls:Boligo-1                   200,000.00 USD
+  Equity:Commitments                                  -200,000.00 USD
+  Assets:Banks:HSBC-GU:Tamar-Direct:USD-Capital-5637  -200,000.00 USD
+```
+
+Four legs: payable cleared, investment asset created, equity unwinds, cash leaves bank.
+If step 2 was skipped, replace `Liabilities:Capital-Calls` with `Liabilities:Commitments`.
+
+### Step 3b: Capital call paid (FO-sourced, bank unknown)
+
+Source: FO transaction data.
+
+```beancount
+2019-06-07 * "Boligo-1 - investment payment (FO-sourced)" #fo-sourced
+  source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
+  fo-line: "42"
+  Assets:Investments:Boligo-1                          200,000.00 USD
+  Liabilities:Capital-Calls:Boligo-1                   200,000.00 USD
+  Equity:Commitments                                  -200,000.00 USD
+  Assets:Suspense                                     -200,000.00 USD
+```
+
+Same as 3a but `Assets:Suspense` stands in for the unknown bank account.
+
+### Step 3c: Bank matched (clears FO suspense)
+
+When the bank statement arrives for a previously FO-sourced payment:
+
+```beancount
+2019-06-07 * "Boligo-1 - bank match for FO payment"
+  Assets:Banks:HSBC-GU:Tamar-Direct:USD-Capital-5637  -200,000.00 USD
+  Assets:Suspense                                       200,000.00 USD
+```
+
+Steps 3b + 3c net to step 3a.
+
+### Step 4a: Yield distribution announced
+
+Source: distribution notice or FO data.
+
+```beancount
+2022-11-29 * "Boligo-1 - yield distribution" #fo-sourced ^boligo-1-dist-1
+  source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
+  Assets:Receivable:Boligo-1                5,000.00 USD
+  Income:Distribution:Boligo-1:Yield       -5,000.00 USD
+```
+
+### Step 4b: Capital return announced
+
+Source: distribution notice or FO data.
+
+```beancount
+2024-03-04 * "Boligo-1 - capital return" #fo-sourced ^boligo-1-dist-2
+  source: "data/2026-03-05-fo-transactions/tamar-transactions.csv"
+  Assets:Receivable:Boligo-1                       10,000.00 USD
+  Income:Distribution:Boligo-1:Capital-Return     -10,000.00 USD
+```
+
+### Step 5: Distribution received (bank)
+
+Source: bank statement.
+
+```beancount
+2022-12-05 * "Boligo-1 - distribution received" ^boligo-1-dist-1
+  source: "ledger/2022/.../entries.beancount"
+  Assets:Banks:Leumi:ILS           18,000.00 ILS
+  Assets:Receivable:Boligo-1      -18,000.00 ILS
+```
+
+Clears the receivable. Link tag ties it to the announcement in step 4.
 
 ### Capital returns do not affect commitments
 
@@ -110,13 +194,29 @@ When an investment concludes, any uncalled commitment is explicitly released:
   Equity:Commitments           -100,000 USD
 ```
 
-### Commitment balance signals
+### Balance signals
+
+**Commitments** (`Liabilities:Commitments:X`):
 
 | Balance | Meaning | Action |
 |---------|---------|--------|
 | Negative | Unfunded obligation remaining | Normal state |
 | Zero | Fully funded | Done |
-| Positive | Over-drawn | Investigate: duplicate entries (issue #12), wrong commitment amount, or wire fees |
+| Positive | Over-drawn | Investigate: duplicate entries, wrong commitment amount, or wire fees |
+
+**Capital calls** (`Liabilities:Capital-Calls:X`):
+
+| Balance | Meaning | Action |
+|---------|---------|--------|
+| Negative | Called but not yet paid | Pay or investigate |
+| Zero | All calls paid | Normal |
+
+**Investments** (`Assets:Investments:X`):
+
+| Balance | Meaning | Action |
+|---------|---------|--------|
+| Positive | Cost basis of holdings | Normal |
+| Zero | Not yet funded or fully returned | Check commitments |
 
 ### Excluded from commitment tracking
 
@@ -126,11 +226,14 @@ When an investment concludes, any uncalled commitment is explicitly released:
 
 | Flow | Account pattern | Example |
 |------|----------------|---------|
-| Distribution (money in, all types: yield, capital return, capital gain) | `Assets:Receivable:<Investment>` | `Assets:Receivable:Electra-MIF-II` |
-| Investment payment (money out) | `Liabilities:Commitments:<Investment>` | `Liabilities:Commitments:Boligo-1` |
-| Unknown counterparty | `Assets:Suspense` | `Assets:Suspense` or `Assets:Suspense:Betegy` |
+| Investment cost basis | `Assets:Investments:<Investment>` | `Assets:Investments:Boligo-1` |
+| Distribution announced | `Assets:Receivable:<Investment>` | `Assets:Receivable:Electra-MIF-II` |
+| Long-term commitment | `Liabilities:Commitments:<Investment>` | `Liabilities:Commitments:Boligo-1` |
+| Capital call due | `Liabilities:Capital-Calls:<Investment>` | `Liabilities:Capital-Calls:Boligo-1` |
+| Commitment/equity offset | `Equity:Commitments` | multi-currency (USD, EUR, ILS) |
+| Unknown bank (FO placeholder) | `Assets:Suspense` | `Assets:Suspense` |
+| Unknown inflow | `Income:Suspense:<Currency>` | `Income:Suspense:ILS` |
 | Personal expense | `Expenses:Personal:<Person>` | `Expenses:Personal:Tamar` |
-| Commitment offset | `Equity:Commitments` | multi-currency (USD, EUR, ILS) |
 
 ### Investment metadata on cross-cutting accounts
 
@@ -149,8 +252,10 @@ Accounts that need `investment:` metadata (the account name does not contain the
 - `Expenses:Tax-Advisory` - tax advisory fees for a specific investment
 
 Accounts that do NOT need it (the investment name is already in the account path):
+- `Assets:Investments:<Investment>`
 - `Assets:Receivable:<Investment>`
 - `Liabilities:Commitments:<Investment>`
+- `Liabilities:Capital-Calls:<Investment>`
 - `Income:Distribution:<Investment>:*`
 - `Expenses:Carried-Interest:<Investment>`
 
@@ -319,7 +424,7 @@ Checks ledger compliance with conventions in this file and ASSUMPTIONS.md:
 ## Script Behavior Notes
 
 - `check_fo_assertions.py`: matches against both `Assets:Receivable:` (withdrawals) and `Liabilities:Commitments:` (deposits). Allows $45 HSBC wire fee difference on deposit matches.
-- `generate_fo_entries.py`: routes deposits to `Liabilities:Commitments` + `Assets:Suspense` (except IBI-Portfolio and Yalin-Portfolio which use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
+- `generate_fo_entries.py`: routes deposits to `Assets:Investments` + `Liabilities:Commitments` + `Equity:Commitments` + `Assets:Suspense` (except IBI-Portfolio and Yalin-Portfolio which use `Assets:Receivable`). Matching checks both receivable and commitment accounts.
 
 ## Link Tag Conventions
 
