@@ -1129,7 +1129,7 @@ function ledgerApp() {
       return total;
     },
     fmtAmount(val, currency) {
-      if (val === undefined || val === null || Math.abs(val) < 0.005) return '';
+      if (val === undefined || val === null) return '';
       const decimals = currency === 'JPY' ? 0 : 2;
       return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: decimals,
