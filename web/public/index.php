@@ -117,8 +117,16 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
     }
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
+    // Optional year filter (for P&L / Balance Sheet drill-down)
+    $yearFilter = '';
+    if (isset($_GET['year'])) {
+        $year = intval($_GET['year']);
+        if ($year >= 2000 && $year <= 2100) {
+            $yearFilter = " AND year = {$year}";
+        }
+    }
     // Main journal query with running balance
-    $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}' ORDER BY date";
+    $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}'{$yearFilter} ORDER BY date";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     $lines = explode("\n", trim($csv));
     $rows = [];
@@ -144,7 +152,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
         ];
     }
     // Contra accounts query - get all postings from transactions touching this account
-    $contraQuery = "SELECT date, narration, account, number, currency FROM HAS_ACCOUNT('{$account}') ORDER BY date";
+    $contraQuery = "SELECT date, narration, account, number, currency FROM HAS_ACCOUNT('{$account}') WHERE 1=1{$yearFilter} ORDER BY date";
     $contraCsv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($contraQuery) . ' --format csv 2>&1');
     $contraLines = explode("\n", trim($contraCsv));
     // Build contra lookup keyed by date+narration
@@ -328,16 +336,19 @@ tailwind.config = {
   </header>
 
   <!-- Account detail modal -->
-  <div x-show="acctModal" class="fixed inset-0 z-50 flex items-start justify-center pt-12" @keydown.escape.window="acctModal = false">
-    <div class="absolute inset-0 bg-black/60" @click="acctModal = false"></div>
+  <div x-show="acctModal" class="fixed inset-0 z-50 flex items-start justify-center pt-12" @keydown.escape.window="closeAcctModal()">
+    <div class="absolute inset-0 bg-black/60" @click="closeAcctModal()"></div>
     <div class="relative bg-gray-900 border border-border rounded-lg shadow-2xl w-[95vw] max-w-6xl h-[80vh] flex flex-col">
       <!-- Modal header -->
       <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
         <div>
           <h2 class="text-sm font-semibold text-purple-400" x-text="acctName"></h2>
-          <div class="text-[11px] text-gray-500 mt-0.5" x-text="acctJournal.length + ' postings'"></div>
+          <div class="text-[11px] text-gray-500 mt-0.5">
+            <span x-text="acctJournal.length + ' postings'"></span>
+            <span x-show="acctYear" class="ml-1 text-blue-400" x-text="acctYear ? '(' + acctYear + ')' : ''"></span>
+          </div>
         </div>
-        <button @click="acctModal = false" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
+        <button @click="closeAcctModal()" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
       </div>
       <!-- Loading -->
       <div x-show="acctLoading" class="flex-1 flex items-center justify-center py-12">
@@ -371,7 +382,7 @@ tailwind.config = {
                     x-text="row.balance.filter(b => b.currency === row.currency).map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
                 <td class="py-1.5 px-3 text-gray-500 text-xs truncate max-w-xs" :title="(row.contra||[]).join(', ')">
                   <template x-for="(c, ci) in (row.contra||[])" :key="ci">
-                    <span class="cursor-pointer hover:text-purple-400" @click.stop="openAccount(c)" x-text="c.split(':').slice(-2).join(':')"></span>
+                    <span class="cursor-pointer hover:text-purple-400" @click.stop="openAccount(c, acctYear)" x-text="c.split(':').slice(-2).join(':')"></span>
                   </template>
                 </td>
               </tr>
@@ -444,7 +455,7 @@ tailwind.config = {
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
                               <div class="py-1 px-2 pl-10 text-xs">
-                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear)"></span>
                               </div>
                               <template x-for="cur in reportCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
@@ -537,7 +548,7 @@ tailwind.config = {
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
                               <div class="py-1 px-2 pl-10 text-xs">
-                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name))"></span>
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear)"></span>
                               </div>
                               <template x-for="cur in trialBalCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
@@ -733,6 +744,7 @@ function ledgerApp() {
     // Account detail modal
     acctModal: false,
     acctName: '',
+    acctYear: null, // year filter for P&L/BS drill-down, null = all time
     acctJournal: [],
     acctLoading: false,
     acctCache: {},
@@ -768,7 +780,7 @@ function ledgerApp() {
       return Object.keys(yearMap).sort().reverse().map(y => ({ name: y, events: yearMap[y] }));
     },
     async init() {
-      window._openAccount = (name) => this.openAccount(name);
+      window._openAccount = (name) => this.openAccount(name, null);
       try {
         const [evRes, fxRes] = await Promise.all([
           fetch('?api=events'),
@@ -791,22 +803,38 @@ function ledgerApp() {
       if (yearNames.length) this.openYears[yearNames[0]] = true;
 
       // Restore state from URL hash
+      // Formats: #pnl/2025, #pnl/2025/Account:Name, #balsheet/2024/Account:Name,
+      //          #trialbal, #trialbal/Account:Name, #folder-name, #folder-name/Account:Name
       const hash = window.location.hash.slice(1);
-      if (hash === 'pnl' || hash.startsWith('pnl/')) {
-        this.page = 'pnl';
-        const y = parseInt(hash.split('/')[1]);
+      const hashParts = hash.split('/');
+      let restoreAccount = null;
+      let restoreYear = null;
+      if (hashParts[0] === 'pnl' || hashParts[0] === 'balsheet') {
+        this.page = hashParts[0];
+        const y = parseInt(hashParts[1]);
         if (y >= 2018 && y <= 2030) this.reportYear = y;
-      } else if (hash === 'balsheet' || hash.startsWith('balsheet/')) {
-        this.page = 'balsheet';
-        const y = parseInt(hash.split('/')[1]);
-        if (y >= 2018 && y <= 2030) this.reportYear = y;
-      } else if (hash === 'trialbal') {
+        if (hashParts[2]) {
+          restoreAccount = decodeURIComponent(hashParts.slice(2).join('/'));
+          restoreYear = y;
+        }
+      } else if (hashParts[0] === 'trialbal') {
         this.page = 'trialbal';
+        if (hashParts[1]) {
+          restoreAccount = decodeURIComponent(hashParts.slice(1).join('/'));
+          restoreYear = null;
+        }
       } else if (hash) {
-        const idx = this.events.findIndex(e => e.folder === hash);
+        // Could be folder or folder/Account:Name
+        // Try matching as a ledger folder (YYYY/slug pattern in events)
+        const folderCandidate = hashParts[0];
+        const idx = this.events.findIndex(e => e.folder === folderCandidate);
         if (idx >= 0) {
           this.selectedIdx = idx;
           this.openYears[this.events[idx].year] = true;
+          if (hashParts[1]) {
+            restoreAccount = decodeURIComponent(hashParts.slice(1).join('/'));
+            restoreYear = null;
+          }
         }
       }
 
@@ -819,6 +847,11 @@ function ledgerApp() {
         this.fetchReport();
       } else if (this.selected) {
         await this.loadEntry(this.selected.relFolder);
+      }
+
+      // Restore account modal if encoded in hash
+      if (restoreAccount) {
+        this.openAccount(restoreAccount, restoreYear);
       }
 
       this.$nextTick(() => {
@@ -962,23 +995,54 @@ function ledgerApp() {
       if (leaf === group) return section + ':' + group;
       return section + ':' + group + ':' + leaf;
     },
-    async openAccount(name) {
+    async openAccount(name, year = null) {
       this.acctName = name;
+      this.acctYear = year;
       this.acctModal = true;
-      if (this.acctCache[name]) {
-        this.acctJournal = this.acctCache[name];
+      // Update URL hash to include account (and year if applicable)
+      this.pushAcctHash();
+      const cacheKey = name + (year ? '|' + year : '');
+      if (this.acctCache[cacheKey]) {
+        this.acctJournal = this.acctCache[cacheKey];
         return;
       }
       this.acctLoading = true;
       this.acctJournal = [];
       try {
-        const res = await fetch('?api=account&name=' + encodeURIComponent(name));
+        let url = '?api=account&name=' + encodeURIComponent(name);
+        if (year) url += '&year=' + year;
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed');
         const data = await res.json();
-        this.acctCache[name] = data;
+        this.acctCache[cacheKey] = data;
         this.acctJournal = data;
       } catch { this.acctJournal = []; }
       this.acctLoading = false;
+    },
+    pushAcctHash() {
+      // Encode current page + account into URL hash
+      let base;
+      if (this.page === 'pnl' || this.page === 'balsheet') {
+        base = '#' + this.page + '/' + this.reportYear;
+      } else if (this.page === 'trialbal') {
+        base = '#trialbal';
+      } else {
+        const event = this.events[this.selectedIdx];
+        base = event ? '#' + event.folder : '#ledger';
+      }
+      history.replaceState(null, '', base + '/' + encodeURIComponent(this.acctName));
+    },
+    closeAcctModal() {
+      this.acctModal = false;
+      // Restore URL hash without the account
+      if (this.page === 'pnl' || this.page === 'balsheet') {
+        history.replaceState(null, '', '#' + this.page + '/' + this.reportYear);
+      } else if (this.page === 'trialbal') {
+        history.replaceState(null, '', '#trialbal');
+      } else {
+        const event = this.events[this.selectedIdx];
+        history.replaceState(null, '', event ? '#' + event.folder : '#');
+      }
     },
     // Trial Balance
     async fetchTrialBal() {
