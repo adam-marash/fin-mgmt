@@ -841,7 +841,7 @@ function ledgerApp() {
       if (yearNames.length) this.openYears[yearNames[0]] = true;
 
       // Restore state from URL hash
-      // Formats: #pnl/2025, #pnl/2025/Account:Name, #balsheet/2024/Account:Name,
+      // Formats: #pnl/2025, #pnl/2025/uk, #pnl/2025/Account:Name, #pnl/2025/uk/Account:Name,
       //          #trialbal, #trialbal/Account:Name, #folder-name, #folder-name/Account:Name
       const hash = window.location.hash.slice(1);
       const hashParts = hash.split('/');
@@ -851,8 +851,14 @@ function ledgerApp() {
         this.page = hashParts[0];
         const y = parseInt(hashParts[1]);
         if (y >= 2018 && y <= 2030) this.reportYear = y;
-        if (hashParts[2]) {
-          restoreAccount = decodeURIComponent(hashParts.slice(2).join('/'));
+        // Check for /uk tax year flag
+        let acctStart = 2;
+        if (hashParts[2] === 'uk') {
+          this.ukTaxYear = true;
+          acctStart = 3;
+        }
+        if (hashParts[acctStart]) {
+          restoreAccount = decodeURIComponent(hashParts.slice(acctStart).join('/'));
           restoreYear = y;
         }
       } else if (hashParts[0] === 'trialbal') {
@@ -994,7 +1000,7 @@ function ledgerApp() {
         history.replaceState(null, '', '#trialbal');
         this.fetchTrialBal();
       } else if (p === 'pnl' || p === 'balsheet') {
-        history.replaceState(null, '', '#' + p + '/' + this.reportYear);
+        history.replaceState(null, '', this.reportHash());
         this.fetchReport();
       } else {
         const event = this.events[this.selectedIdx];
@@ -1010,6 +1016,7 @@ function ledgerApp() {
       this.ukTaxYear = !this.ukTaxYear;
       this.reportCache = {};
       this.acctCache = {};
+      history.replaceState(null, '', this.reportHash());
       this.fetchReport();
     },
     async fetchReport() {
@@ -1068,11 +1075,14 @@ function ledgerApp() {
       } catch { this.acctJournal = []; }
       this.acctLoading = false;
     },
+    reportHash() {
+      return '#' + this.page + '/' + this.reportYear + (this.ukTaxYear ? '/uk' : '');
+    },
     pushAcctHash() {
       // Encode current page + account into URL hash
       let base;
       if (this.page === 'pnl' || this.page === 'balsheet') {
-        base = '#' + this.page + '/' + this.reportYear;
+        base = this.reportHash();
       } else if (this.page === 'trialbal') {
         base = '#trialbal';
       } else {
@@ -1085,7 +1095,7 @@ function ledgerApp() {
       this.acctModal = false;
       // Restore URL hash without the account
       if (this.page === 'pnl' || this.page === 'balsheet') {
-        history.replaceState(null, '', '#' + this.page + '/' + this.reportYear);
+        history.replaceState(null, '', this.reportHash());
       } else if (this.page === 'trialbal') {
         history.replaceState(null, '', '#trialbal');
       } else {

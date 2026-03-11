@@ -54,6 +54,10 @@ All in `scripts/`. See `scripts/PREPROCESSING.md` for the full data pipeline.
 - **After every change to ledger content**, run `bean-check ledger/main.beancount` to validate. Do not proceed if it fails.
 - **After completing a unit of work**, commit without asking. Do not ask "want me to commit?" - just do it.
 
+## Web UI
+
+See [`WEB-UI.md`](WEB-UI.md) for full documentation. Single-file PHP + Alpine.js + Tailwind app at `web/public/index.php`.
+
 ## Conventions
 
 - Python for scripts, venv at `.venv/`
