@@ -6,15 +6,17 @@ Tamar and Z co-invested in Betegy sp. z o.o. (Poland) via Prodigy Investments Lt
 Prodigy was later dissolved; shares distributed equally to Z and Tamar.
 All cash came from Tamar. Half of each investment payment and related fees are loans to Z.
 
-## Current ledger state (after 2026-03-10 corrections)
+## Current ledger state (after 2026-03-11 corrections)
 
 ### Balances
 | Account | Balance | Notes |
 |---------|---------|-------|
-| Assets:Business:Betegy | 2,659,877.58 PLN | Equity investment (shares + premium + loan assignments) |
-| Assets:Loans:Betegy | 73,545.00 EUR | Tamar-only loan to Betegy (non-performing) |
-| Expenses:Professional:Prodigy-MT | 44,464.56 EUR + 3,629.70 CHF | Half is Z's loan |
-| Assets:Loans:Zilbershtein | -357,154.00 EUR | Z's repayments (no originating entry yet) |
+| Assets:Business:Betegy | 0 | Written off (was 2,659,877.58 PLN) |
+| Assets:Loans:Betegy | 0 | Written off per Debt Release Agreement |
+| Expenses:Professional:MT | 44,464.56 EUR | Half is Z's loan; needs reclassification |
+| Expenses:Professional:UK | 3,629.70 CHF | Libertas Treuhand - NOT Z's responsibility |
+| Assets:Loans:Zilbershtein | 0 | Fully reconstructed and zeroed |
+| Income:Interest:Zilbershtein | -6,717.20 EUR | Interest component of Z's repayment |
 
 ### Tamar's outflows INTO Betegy (the investment)
 
@@ -82,24 +84,22 @@ EUR Betegy loan (73,545 EUR) is Tamar only, excluded.
 
 | Component | EUR |
 |-----------|-----|
-| Half of PLN investments | 310,321.08 |
-| Half of EUR professional fees (44,464.56 / 2) | 22,232.28 |
-| Half of CHF professional fees (~3,800 EUR / 2) | ~1,900.00 |
-| **Z total debt (principal)** | **~334,453** |
+| Half of PLN investments (620,642.16 / 2) | 310,321.08 |
+| Half of EUR professional fees (44,464.56 / 2) | 22,232.30 |
+| Promisepay direct loan | 17,883.41 |
+| **Z total debt (principal)** | **350,436.79** |
+| Interest (backed into from repayment) | 6,717.20 |
+| **Total owed** | **357,153.99** |
 | Z repaid | -357,154.00 |
-| **Net** | **~-22,700 (Z overpaid)** |
+| **Outstanding** | **0 (0.01 rounding)** |
 
-### Interpretation
-
-The ~22,700 EUR overpayment likely represents **interest** on the loan. This would make the accounting clean:
-- Principal: ~334,453 EUR
-- Interest: ~22,700 EUR
-- Outstanding: zero
+### Notes
+- CHF fees (Libertas Treuhand 3,629.70 CHF) excluded - not Z's responsibility
+- "Business start up" 8,000 EUR confirmed as loan repayment 3/5
+- Interest confirmed by Adam as legitimate (no formal rate, backed into from repayment)
 
 ### Caveats
 - PLN/EUR rates are Frankfurter mid-rates, not actual bank conversion rates
-- CHF component approximated (~3,800 EUR for CHF 3,630)
-- "Business start up" €8,000 included in repayments - confirm this is a repayment
 - Actual bank spreads on PLN conversions could shift the total by several thousand EUR
 
 ## Ledger corrections made (2026-03-10)
@@ -115,15 +115,16 @@ The ~22,700 EUR overpayment likely represents **interest** on the loan. This wou
 
 ## Still to do
 
-- [ ] Book originating Z loan entry (~334K EUR, split into principal components)
-- [ ] Split Z repayments into principal (~334K) and interest (~22K)
-- [ ] Create `Income:Interest:Zilbershtein` or similar for the interest component
+- [x] ~~Book originating Z loan entry (~334K EUR, split into principal components)~~ DONE - entries.beancount
+- [x] ~~Split Z repayments into principal and interest~~ DONE - interest = 6,717.20 EUR
+- [x] ~~Create `Income:Interest:Zilbershtein`~~ DONE
 - [x] ~~Find Betegy loan relinquishment doc and write off Assets:Loans:Betegy~~ DONE
 - [x] ~~Reclassify Assets:Suspense:Betegy (2.66M PLN) to proper investment asset account~~ DONE - now Assets:Business:Betegy
-- [ ] Reclassify Expenses:Professional:Prodigy-MT - half is Z's loan, half is Tamar's cost
-- [ ] Confirm "business start up" €8K is a loan repayment
-- [ ] Confirm interest interpretation of ~€22,700 overpayment
-- [ ] Determine if there was a stated interest rate or back into it from repayment
+- [ ] Reclassify Expenses:Professional:MT - half is Z's loan, half is Tamar's cost (swap Equity:Opening-Balances -> Expenses:Professional:MT on fee entries)
+- [ ] Reclassify Betegy investment entries - swap Equity:Opening-Balances -> Expenses:Losses:Betegy (PLN/EUR mismatch absorbed by interest)
+- [x] ~~Confirm "business start up" €8K is a loan repayment~~ DONE - yes, repayment 3/5
+- [x] ~~Confirm interest interpretation of overpayment~~ DONE - yes, Z paid interest
+- [x] ~~Determine if there was a stated interest rate~~ N/A - no formal rate, backed into from repayment
 
 ## Answers from Adam (2026-03-10)
 
@@ -135,5 +136,5 @@ The ~22,700 EUR overpayment likely represents **interest** on the loan. This wou
 
 ## Remaining questions
 
-- What EUR amounts did the bank actually convert for the PLN payments? (Would give exact loan principal vs our mid-rate estimate of ~334K)
-- Should we back into the interest rate from the repayment figures, or just book the ~22.7K as interest without a stated rate?
+- What EUR amounts did the bank actually convert for the PLN payments? (Would give exact loan principal vs our mid-rate estimate)
+- Loan entries currently use Equity:Opening-Balances as counterparty - need to reclassify to proper accounts (Expenses:Professional:MT for fees, Expenses:Losses:Betegy for investments)
