@@ -46,8 +46,8 @@ All cash came from Tamar. Half of each investment payment and related fees are l
 | 2020-08-04 | DWP Malta - Inv 2020317 | 3,260.50 EUR |
 | 2020-09-15 | Borg Galea Audit - 2018-2019 | 1,667.21 EUR |
 | 2021-03-15 | Borg Galea Audit - RFP675 | 1,756.85 EUR |
-| 2025-11-12 | Libertas Treuhand - accountancy | 3,629.70 CHF (paid 4,015.16 EUR) |
-| **Total** | | **44,464.56 EUR + 3,629.70 CHF** |
+| 2025-11-12 | Libertas Treuhand - accountancy | 3,629.70 CHF (paid 4,015.16 EUR) - **NOT Z's responsibility** |
+| **Total** | | **44,464.56 EUR + 3,629.70 CHF** (Z's half excludes Libertas) |
 
 ### Z's repayments (received via HSBC JE EUR)
 
