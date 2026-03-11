@@ -13,10 +13,11 @@ All cash came from Tamar. Half of each investment payment and related fees are l
 |---------|---------|-------|
 | Assets:Business:Betegy | 0 | Written off (was 2,659,877.58 PLN) |
 | Assets:Loans:Betegy | 0 | Written off per Debt Release Agreement |
-| Expenses:Professional:MT | 44,464.56 EUR | Half is Z's loan; needs reclassification |
+| Expenses:Professional:MT | 22,232.26 EUR | Tamar's half only (Z's half reclassified to loan) |
 | Expenses:Professional:UK | 3,629.70 CHF | Libertas Treuhand - NOT Z's responsibility |
+| Expenses:Losses:Betegy | 109,223.01 EUR + 1,329,938.79 PLN | Debt release + Tamar's half equity write-off |
 | Assets:Loans:Zilbershtein | 0 | Fully reconstructed and zeroed |
-| Income:Interest:Zilbershtein | -6,717.20 EUR | Interest component of Z's repayment |
+| Income:Interest:Zilbershtein | -6,717.22 EUR | Interest component of Z's repayment |
 
 ### Tamar's outflows INTO Betegy (the investment)
 
@@ -32,9 +33,9 @@ All cash came from Tamar. Half of each investment payment and related fees are l
 | **Total PLN** | | **2,659,877.58** | **PLN** | |
 
 ### EUR loan to Betegy (Tamar only, Z NOT involved)
-- 2019-10-30: 73,545.00 EUR - non-performing, relinquishment doc likely exists
-- Now in `Assets:Loans:Betegy` (was in Assets:Suspense)
-- Write off when relinquishment doc is found
+- 2019-10-30: 73,545.00 EUR - written off per Debt Release Agreement (2024-08-31)
+- Principal 73,500 + accrued interest 35,723.01 = 109,223.01 EUR total write-off
+- Now zero (in Expenses:Losses:Betegy)
 
 ### Prodigy professional fees (paid by Tamar via HSBC JE EUR)
 
@@ -84,14 +85,14 @@ EUR Betegy loan (73,545 EUR) is Tamar only, excluded.
 
 | Component | EUR |
 |-----------|-----|
-| Half of PLN investments (620,642.16 / 2) | 310,321.08 |
+| Half of PLN investments (620,642.16 / 2) | 310,321.07 |
 | Half of EUR professional fees (44,464.56 / 2) | 22,232.30 |
 | Promisepay direct loan | 17,883.41 |
-| **Z total debt (principal)** | **350,436.79** |
-| Interest (backed into from repayment) | 6,717.20 |
-| **Total owed** | **357,153.99** |
+| **Z total debt (principal)** | **350,436.78** |
+| Interest (backed into from repayment) | 6,717.22 |
+| **Total owed** | **357,154.00** |
 | Z repaid | -357,154.00 |
-| **Outstanding** | **0 (0.01 rounding)** |
+| **Outstanding** | **0** |
 
 ### Notes
 - CHF fees (Libertas Treuhand 3,629.70 CHF) excluded - not Z's responsibility
@@ -116,12 +117,12 @@ EUR Betegy loan (73,545 EUR) is Tamar only, excluded.
 ## Still to do
 
 - [x] ~~Book originating Z loan entry (~334K EUR, split into principal components)~~ DONE - entries.beancount
-- [x] ~~Split Z repayments into principal and interest~~ DONE - interest = 6,717.20 EUR
+- [x] ~~Split Z repayments into principal and interest~~ DONE - interest = 6,717.22 EUR
 - [x] ~~Create `Income:Interest:Zilbershtein`~~ DONE
 - [x] ~~Find Betegy loan relinquishment doc and write off Assets:Loans:Betegy~~ DONE
 - [x] ~~Reclassify Assets:Suspense:Betegy (2.66M PLN) to proper investment asset account~~ DONE - now Assets:Business:Betegy
-- [ ] Reclassify Expenses:Professional:MT - half is Z's loan, half is Tamar's cost (swap Equity:Opening-Balances -> Expenses:Professional:MT on fee entries)
-- [ ] Reclassify Betegy investment entries - swap Equity:Opening-Balances -> Expenses:Losses:Betegy (PLN/EUR mismatch absorbed by interest)
+- [x] ~~Reclassify Expenses:Professional:MT~~ DONE - Z's half credits Expenses:Professional:MT
+- [x] ~~Reclassify Betegy investment entries~~ DONE - Z's half credits Assets:Business:Betegy (PLN @ EUR rate); equity write-off halved to Tamar's 1,329,938.79 PLN
 - [x] ~~Confirm "business start up" €8K is a loan repayment~~ DONE - yes, repayment 3/5
 - [x] ~~Confirm interest interpretation of overpayment~~ DONE - yes, Z paid interest
 - [x] ~~Determine if there was a stated interest rate~~ N/A - no formal rate, backed into from repayment
@@ -137,4 +138,3 @@ EUR Betegy loan (73,545 EUR) is Tamar only, excluded.
 ## Remaining questions
 
 - What EUR amounts did the bank actually convert for the PLN payments? (Would give exact loan principal vs our mid-rate estimate)
-- Loan entries currently use Equity:Opening-Balances as counterparty - need to reclassify to proper accounts (Expenses:Professional:MT for fees, Expenses:Losses:Betegy for investments)
