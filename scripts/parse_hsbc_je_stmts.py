@@ -21,13 +21,13 @@ actual direction.
 
 import argparse
 import csv
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, fields
 from pathlib import Path
-
-from pdf2image import convert_from_path
-import pytesseract
 
 
 # ---------------------------------------------------------------------------
@@ -105,14 +105,28 @@ DATE_RE = re.compile(
 # OCR
 # ---------------------------------------------------------------------------
 
-def ocr_pdf(pdf_path: str, dpi: int = 300) -> list[str]:
-    """OCR all pages of a PDF, returning list of page texts."""
-    images = convert_from_path(pdf_path, dpi=dpi)
-    pages = []
-    for img in images:
-        text = pytesseract.image_to_string(img)
-        pages.append(text)
-    return pages
+def ocr_pdf(pdf_path: str, dpi: int = 150) -> list[str]:
+    """OCR all pages of a PDF using pdftoppm + tesseract CLI.
+
+    Much faster than pdf2image + pytesseract (~1s/page vs ~2min/page).
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        prefix = os.path.join(tmpdir, "pg")
+        subprocess.run(
+            ["pdftoppm", "-png", "-r", str(dpi), pdf_path, prefix],
+            check=True, capture_output=True,
+        )
+        page_imgs = sorted(Path(tmpdir).glob("pg-*.png"))
+        pages = []
+        for img_path in page_imgs:
+            out_base = str(img_path.with_suffix(""))
+            subprocess.run(
+                ["tesseract", str(img_path), out_base],
+                check=True, capture_output=True,
+            )
+            text = Path(out_base + ".txt").read_text()
+            pages.append(text)
+        return pages
 
 
 # ---------------------------------------------------------------------------
@@ -168,7 +182,7 @@ def normalize_account(s: str) -> str:
 
 SKIP_PHRASES = [
     "IBAN:", "IBAN ", "BIC:", "BIC ", "Page ", "www.expat",
-    "HSBC <X}", "HSBC <x}", "HSBC (X)",
+    "HSBC <X}", "HSBC <x}", "HSBC (X)", "HSBC €",
     "Details of Your Accounts",
     "Transaction Details", "Date Transaction",
     "Date Details",
@@ -217,6 +231,7 @@ BALANCE_PHRASES = [
     "OPENING BALANCE",
     "Transaction Turnover",
     "Transaction Count",
+    "'Transaction",  # OCR artifact
 ]
 
 CURRENCY_CODES = {"USD", "EUR", "GBP", "CHF", "JPY", "AUD", "PLN", "CAD", "SGD"}
@@ -550,11 +565,24 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
 def detect_account_header(
     line: str, all_lines: list[str], idx: int
 ) -> tuple[str, str] | None:
-    """Detect account section header, handling split across lines."""
+    """Detect account section header, handling split across lines.
+
+    OCR often wraps headers in parentheses/brackets:
+      ( BANK ACCOUNT 023-085996-705 +)
+      ('SAVER ACCOUNT 023-085996-540 )
+    """
+    # Strip OCR artifacts: leading/trailing parens, brackets, pipes, etc.
+    cleaned = re.sub(r"^[\s({\[|']+", "", line)
+    cleaned = re.sub(r"[\s)}\]|+]+$", "", cleaned)
+
     for atype in ACCT_TYPES:
-        if line.startswith(atype):
-            rest = line[len(atype):].strip()
+        if cleaned.startswith(atype) or atype in cleaned:
+            rest = cleaned.split(atype, 1)[-1].strip()
             acct_match = ACCT_RE.search(rest)
+            if acct_match:
+                return (atype, acct_match.group(0))
+            # Also search the original line
+            acct_match = ACCT_RE.search(line)
             if acct_match:
                 return (atype, acct_match.group(0))
             # Check next few non-empty lines
