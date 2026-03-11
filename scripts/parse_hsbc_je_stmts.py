@@ -2,21 +2,13 @@
 """Parse HSBC JE (Jersey/Expat) PDF statements into CSV.
 
 Handles two formats:
-  - Composite (Premier Statement): multi-account per PDF (folders 1, 4)
-  - Individual (Account Statement): single-account per PDF (folders 2, 3)
+  - Composite (Premier Statement): multi-account per PDF
+  - Individual (Account Statement): single-account per PDF
 
-Uses OCR (pytesseract + pdf2image) since these are scanned/image PDFs.
+Uses OCR (pdftoppm + tesseract CLI) since these are scanned/image PDFs.
 
-The OCR output from these table-based PDFs is unreliable in column
-positioning - amounts, dates, and descriptions can appear on separate
-lines in unpredictable orders. The parser uses a state machine that
-collects lines between transaction boundaries and assembles them.
-
-Amount assignment strategy: OCR cannot reliably distinguish the
-Deposits vs Withdrawals column. When only one amount is present
-alongside the balance, we place it in `deposit` by default; downstream
-consumers should verify against successive balances to determine
-actual direction.
+Post-processing uses balance-delta inference to determine deposit vs
+withdrawal direction and filters garbled OCR amounts.
 """
 
 import argparse
@@ -26,6 +18,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections import defaultdict
 from dataclasses import dataclass, fields
 from pathlib import Path
 
@@ -56,10 +49,11 @@ KNOWN_CURRENCIES = {
     "023-085996-360": "AUD",
     "023-085996-361": "JPY",
     "023-085996-540": "EUR",
-    "023-085996-200": "CHF",  # Fixed deposit - can vary
+    "023-085996-200": "USD",
     "023-085996-705": "USD",
     "023-085996-076": "EUR",
     "023-085996-077": "USD",
+    "023-085996-690": "AUD",
 }
 
 
@@ -77,11 +71,17 @@ MONTH_MAP = {
 def parse_date_ddmmmyyyy(s: str) -> str:
     """Convert DDMMMYYYY (e.g. '07Dec2023') to YYYY-MM-DD.
 
-    Also handles OCR artifacts like leading 'O' instead of '0'.
+    Also handles OCR artifacts like 'O' for '0', 'c1' for 'ct' (Oct).
     """
     s = s.strip()
-    # Fix common OCR: leading O -> 0
+    # Fix common OCR artifacts
     s = re.sub(r"^O", "0", s)
+    # OCR sometimes renders Oct as 0c1, 0ct, Oc1, 007, 0CT
+    s = re.sub(r"(?i)0c1", "Oct", s)
+    s = re.sub(r"(?i)Oc1", "Oct", s)
+    s = re.sub(r"0CT", "Oct", s)
+    # "007" = OCR mangling of "Oct" (O->0, c->0, t->7)
+    s = re.sub(r"(\d{2})007(\d{4})", r"\1Oct\2", s)
     m = re.match(r"(\d{2})([A-Za-z]{3})(\d{4})", s)
     if not m:
         return ""
@@ -92,10 +92,10 @@ def parse_date_ddmmmyyyy(s: str) -> str:
     return f"{year}-{mm}-{day}"
 
 
-# Date pattern for DDMMMYYYY (with possible OCR 'O' prefix)
+# Date pattern for DDMMMYYYY (with possible OCR 'O' prefix and Oct variants)
 DATE_RE = re.compile(
     r"(?:[O0]\d|[0-3]\d)"
-    r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+    r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|[O0]ct|[O0]c1|0CT|007|Nov|Dec)"
     r"\d{4}",
     re.IGNORECASE,
 )
@@ -106,10 +106,7 @@ DATE_RE = re.compile(
 # ---------------------------------------------------------------------------
 
 def ocr_pdf(pdf_path: str, dpi: int = 150) -> list[str]:
-    """OCR all pages of a PDF using pdftoppm + tesseract CLI.
-
-    Much faster than pdf2image + pytesseract (~1s/page vs ~2min/page).
-    """
+    """OCR all pages of a PDF using pdftoppm + tesseract CLI."""
     with tempfile.TemporaryDirectory() as tmpdir:
         prefix = os.path.join(tmpdir, "pg")
         subprocess.run(
@@ -134,7 +131,6 @@ def ocr_pdf(pdf_path: str, dpi: int = 150) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def is_composite(pages: list[str]) -> bool:
-    """Detect composite (Premier Statement) vs individual (Account Statement)."""
     text = "\n".join(pages[:2])
     if "Premier Statement" in text or "Summary of Your Portfolio" in text:
         return True
@@ -163,6 +159,27 @@ def clean_amount(s: str) -> str:
     return s
 
 
+def is_plausible_amount(s: str, currency: str = "") -> bool:
+    """Check if a cleaned amount string is plausible (not a garbled ref number).
+
+    Rejects:
+    - Numbers with more than 10 digits before decimal (> 10 billion)
+    - Numbers that look like account/reference numbers (8+ contiguous digits
+      without comma separators in the original)
+    """
+    if not s:
+        return False
+    try:
+        val = float(s.replace(",", ""))
+    except ValueError:
+        return False
+    # JPY can be large (hundreds of millions) but not trillions
+    if currency == "JPY":
+        return val < 10_000_000_000  # 10 billion JPY
+    # Other currencies: max ~100 million
+    return val < 100_000_000
+
+
 # ---------------------------------------------------------------------------
 # Account number normalization
 # ---------------------------------------------------------------------------
@@ -171,7 +188,6 @@ ACCT_RE = re.compile(r"\d{3}-\d{5,6}-\d{3}|\d{6}-\d{8}")
 
 
 def normalize_account(s: str) -> str:
-    """Extract and normalize account number from OCR text."""
     m = ACCT_RE.search(s)
     return m.group(0) if m else s.strip()
 
@@ -217,12 +233,18 @@ SKIP_PHRASES = [
 
 ACCT_TYPES = [
     "CURRENCY SAVINGS A/C",
+    "CURRENCY SAVINGS AIC",   # OCR variant
     "BANK ACCOUNT",
     "MULTIPLE SETTLEMENT",
     "SAVER ACCOUNT",
     "ONLINE BONUS SAVER",
     "FIXED DEPOSITS",
 ]
+
+# Normalize OCR variants to canonical names
+ACCT_TYPE_CANONICAL = {
+    "CURRENCY SAVINGS AIC": "CURRENCY SAVINGS A/C",
+}
 
 BALANCE_PHRASES = [
     "BALANCE BROUGHT FORWARD",
@@ -231,7 +253,9 @@ BALANCE_PHRASES = [
     "OPENING BALANCE",
     "Transaction Turnover",
     "Transaction Count",
-    "'Transaction",  # OCR artifact
+    "'Transaction",
+    "[Transaction",
+    "(Transaction",
 ]
 
 CURRENCY_CODES = {"USD", "EUR", "GBP", "CHF", "JPY", "AUD", "PLN", "CAD", "SGD"}
@@ -245,12 +269,14 @@ def is_skip_line(s: str) -> bool:
 
 
 def is_balance_line(s: str) -> bool:
+    # Strip leading OCR bracket artifacts
+    cleaned = re.sub(r"^[\[('{\\|]+\s*", "", s)
     for phrase in BALANCE_PHRASES:
-        if s.startswith(phrase):
+        if cleaned.startswith(phrase):
             return True
-    if re.match(r"^WITHDRAWALS\b", s):
+    if re.match(r"^WITHDRAWALS\b", cleaned):
         return True
-    if re.match(r"^DEPOSITS\b", s):
+    if re.match(r"^DEPOSITS\b", cleaned):
         return True
     return False
 
@@ -261,9 +287,18 @@ def is_amount_only_line(s: str) -> bool:
     return bool(re.match(r"^[\d,.\s]+$", cleaned))
 
 
-def extract_amounts(s: str) -> list[str]:
+def extract_amounts_from_line(s: str) -> list[str]:
+    """Extract plausible amounts from a line.
+
+    Only extracts numbers that look like monetary amounts:
+    - Must have comma separators for 4+ digit numbers, OR
+    - Must have a decimal point
+    - Standalone small numbers (1-3 digits) are accepted
+    """
     s = re.sub(r"\bDR\b", "", s)
-    return re.findall(r"[\d,]+(?:\.\d+)?", s)
+    # Match: numbers with commas (e.g., 1,234.56), or with decimals, or small integers
+    candidates = re.findall(r"[\d,]+\.\d+|[\d]{1,3}(?:,\d{3})+(?:\.\d+)?|\d{1,3}", s)
+    return candidates
 
 
 def is_date_token(s: str) -> bool:
@@ -272,34 +307,38 @@ def is_date_token(s: str) -> bool:
 
 def is_date_start(s: str) -> re.Match | None:
     """Match a line starting with a date token."""
-    return re.match(r"^([O0]?\d{1,2}[A-Za-z]{3}\d{4})\s*(.*)", s)
+    return re.match(r"^([O0]?\d{1,2}(?:[A-Za-z]{3}|0c1|Oc1|0CT|007)\d{4})\s*(.*)", s, re.IGNORECASE)
 
 
 # ---------------------------------------------------------------------------
 # Statement date extraction
 # ---------------------------------------------------------------------------
 
-def extract_statement_date(pages: list[str]) -> str:
+def extract_statement_date(pages: list[str], pdf_name: str = "") -> str:
     for page in pages[:2]:
-        # Try same-line: "STATEMENT DATE 07MAR2014"
         m = re.search(
-            r"STATEMENT\s+DATE\s+([O0]?\d{1,2}[A-Za-z]{3}\d{4})", page
+            r"STATEMENT\s+DATE\s+([O0]?\d{1,2}(?:[A-Za-z]{3}|0c1|Oc1|0CT|007)\d{4})",
+            page, re.IGNORECASE,
         )
         if m:
             return parse_date_ddmmmyyyy(m.group(1))
 
-    # Fallback: STATEMENT DATE on one line, date value on a later line
-    # (OCR sometimes splits label and value into different lines)
+    # Fallback: STATEMENT DATE on one line, date on subsequent line
     for page in pages[:2]:
         lines = page.split("\n")
         for idx, line in enumerate(lines):
             if "STATEMENT DATE" in line:
-                # Check if date is on same line (already tried above) or
-                # scan subsequent lines for first date token
                 for j in range(idx + 1, min(idx + 20, len(lines))):
                     dm = DATE_RE.search(lines[j])
                     if dm:
                         return parse_date_ddmmmyyyy(dm.group(0))
+
+    # Last resort: extract date from filename
+    if pdf_name:
+        # Try YYYY-MM-DD or YYYY_MM_DD patterns
+        m = re.search(r"(\d{4})[-_](\d{2})[-_](\d{2})", pdf_name)
+        if m:
+            return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
     return ""
 
 
@@ -308,23 +347,70 @@ def is_boilerplate_page(text: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Summary balance extraction (for validation)
+# ---------------------------------------------------------------------------
+
+def extract_summary_balances(pages: list[str]) -> dict[str, float]:
+    """Extract account balances from the portfolio summary table on page 1.
+
+    Returns {account_number: balance}.
+    """
+    balances = {}
+    text = pages[0] if pages else ""
+    # Look for lines with account numbers and amounts after "Summary of Your Portfolio"
+    in_summary = False
+    for line in text.split("\n"):
+        if "Summary of Your Portfolio" in line:
+            in_summary = True
+            continue
+        if "Details of Your Accounts" in line:
+            break
+        if not in_summary:
+            continue
+        # Look for account number + balance
+        acct_match = ACCT_RE.search(line)
+        if acct_match:
+            acct = acct_match.group(0)
+            # Extract amounts after the account number
+            rest = line[acct_match.end():]
+            amounts = re.findall(r"[\d,]+(?:\.\d+)?", rest)
+            if amounts:
+                try:
+                    bal = float(amounts[0].replace(",", ""))
+                    balances[acct] = bal
+                except ValueError:
+                    pass
+    return balances
+
+
+# ---------------------------------------------------------------------------
 # Amount assignment
 # ---------------------------------------------------------------------------
 
-def assign_amounts(raw_amounts: list[str]) -> tuple[str, str]:
+def assign_amounts(raw_amounts: list[str], currency: str = "") -> tuple[str, str]:
     """From a list of raw amount strings, return (amount, balance).
 
-    Strategy: the last amount is typically the balance (rightmost column).
-    If there are 2+ amounts, the second-to-last is the transaction amount.
-    If there is exactly 1 amount, it is the balance (transaction-only rows
-    without balance are rare; the amount will still be useful).
+    Filters implausible amounts first.
     """
-    if not raw_amounts:
+    valid = [a for a in raw_amounts if is_plausible_amount(a, currency)]
+    if not valid:
         return ("", "")
-    if len(raw_amounts) == 1:
-        return ("", raw_amounts[0])
-    # 2+: second-to-last is amount, last is balance
-    return (raw_amounts[-2], raw_amounts[-1])
+    if len(valid) == 1:
+        return ("", valid[0])
+    return (valid[-2], valid[-1])
+
+
+# ---------------------------------------------------------------------------
+# OCR line cleaning
+# ---------------------------------------------------------------------------
+
+def clean_ocr_line(s: str) -> str:
+    """Strip common OCR bracket/pipe artifacts from line edges."""
+    s = re.sub(r"^[\[('{\\|]+\s*", "", s)
+    s = re.sub(r"\s*[\])}'|+\\]+$", "", s)
+    # Also strip leading backslash from description-like content
+    s = re.sub(r"^\\+", "", s)
+    return s.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -332,12 +418,12 @@ def assign_amounts(raw_amounts: list[str]) -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 
 def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
-    """Parse a composite Premier Statement (multi-account)."""
-    statement_date = extract_statement_date(pages)
+    statement_date = extract_statement_date(pages, pdf_name)
     if not statement_date:
         print(f"  WARNING: No statement date in {pdf_name}", file=sys.stderr)
         return []
 
+    summary_balances = extract_summary_balances(pages)
     transactions: list[Transaction] = []
 
     all_lines: list[str] = []
@@ -345,7 +431,7 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
         if is_boilerplate_page(page_text):
             continue
         for line in page_text.split("\n"):
-            all_lines.append(line.strip())
+            all_lines.append(clean_ocr_line(line))
 
     # State
     current_acct_type = ""
@@ -359,20 +445,18 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
     txn_desc_lines: list[str] = []
     txn_ref = ""
     txn_amounts: list[str] = []
-    # After flushing, orphaned amounts go to the last emitted transaction
     post_flush_amounts: list[str] = []
 
     def flush_txn():
         nonlocal txn_date, txn_desc_lines, txn_ref, txn_amounts, post_flush_amounts
-        # First, apply any post-flush amounts to the previously emitted txn
         _apply_post_flush_amounts()
         if txn_date and current_acct_num and txn_desc_lines:
             desc = " ".join(txn_desc_lines).strip()
-            amount, balance = assign_amounts(txn_amounts)
+            amount, balance = assign_amounts(txn_amounts, current_currency)
             transactions.append(Transaction(
                 statement_date=statement_date,
                 account_number=current_acct_num,
-                account_type=current_acct_type,
+                account_type=ACCT_TYPE_CANONICAL.get(current_acct_type, current_acct_type),
                 currency=current_currency,
                 date=txn_date,
                 description=desc,
@@ -392,7 +476,7 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
         if post_flush_amounts and transactions:
             last = transactions[-1]
             if not last.deposit and not last.balance:
-                amount, balance = assign_amounts(post_flush_amounts)
+                amount, balance = assign_amounts(post_flush_amounts, last.currency)
                 last.deposit = clean_amount(amount)
                 last.balance = clean_amount(balance)
         post_flush_amounts = []
@@ -416,8 +500,8 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             i += 1
             continue
 
-        # Check for FIXED DEPOSITS section (no account number in header)
-        if stripped.startswith("FIXED DEPOSITS"):
+        # Check for FIXED DEPOSITS section
+        if stripped.startswith("FIXED DEPOSITS") or stripped == "FIXED DEPOSITS":
             flush_txn()
             current_acct_type = "FIXED DEPOSITS"
             current_acct_num = ""
@@ -456,7 +540,6 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             i += 1
             continue
 
-        # Skip standalone column header words
         if stripped in ("Deposits", "Withdrawals", "Balance", "Deposit"):
             i += 1
             continue
@@ -464,8 +547,7 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
         if is_balance_line(stripped):
             if txn_desc_lines:
                 flush_txn()
-            # Transaction Turnover/Count marks end of orphaned amounts
-            if stripped.startswith("Transaction"):
+            if "Transaction" in stripped:
                 _apply_post_flush_amounts()
             i += 1
             continue
@@ -476,7 +558,6 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             if fd_txn:
                 transactions.append(fd_txn)
             else:
-                # Try multi-line: date on this line, data on following lines
                 fd_txn = parse_fixed_deposit_multiline(
                     stripped, all_lines, i, statement_date
                 )
@@ -489,10 +570,9 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             i += 1
             continue
 
-        # Amount-only line when no active transaction - these are
-        # orphaned amounts belonging to the last emitted transaction
+        # Amount-only orphan line
         if not txn_date and is_amount_only_line(stripped):
-            post_flush_amounts.extend(extract_amounts(stripped))
+            post_flush_amounts.extend(extract_amounts_from_line(stripped))
             i += 1
             continue
 
@@ -502,14 +582,12 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             parsed_date = parse_date_ddmmmyyyy(dm.group(1))
             rest = dm.group(2).strip()
 
-            # Date + balance phrase -> skip
             if rest and any(rest.startswith(bp) for bp in BALANCE_PHRASES):
                 if txn_desc_lines:
                     flush_txn()
                 i += 1
                 continue
 
-            # If we have a date but no description yet, update the date
             if txn_date and not txn_desc_lines:
                 txn_date = parsed_date
             else:
@@ -520,13 +598,27 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
                 if is_date_token(rest):
                     pass
                 else:
-                    txn_desc_lines.append(rest)
+                    # Check if rest contains amounts at the end
+                    # e.g., "CREDIT INTEREST 1.25 31200.64"
+                    parts = rest.rsplit(None, 2)
+                    trailing_amounts = []
+                    desc_part = rest
+                    for p in reversed(parts):
+                        cleaned = clean_amount(p)
+                        if cleaned and is_plausible_amount(cleaned, current_currency):
+                            trailing_amounts.insert(0, p)
+                            desc_part = desc_part[:desc_part.rfind(p)].strip()
+                        else:
+                            break
+                    if desc_part:
+                        txn_desc_lines.append(desc_part)
+                    txn_amounts.extend(trailing_amounts)
 
             i += 1
             continue
 
         # REF line
-        ref_match = re.match(r"^REE?F\s+(\S+)(.*)", stripped)
+        ref_match = re.match(r"^[\[(\\'|I]*REE?F\s+(\S+)(.*)", stripped)
         if ref_match:
             if not txn_date:
                 i += 1
@@ -534,23 +626,33 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
             txn_ref = ref_match.group(1)
             rest_after = ref_match.group(2).strip()
             if rest_after:
-                txn_amounts.extend(extract_amounts(rest_after))
+                txn_amounts.extend(extract_amounts_from_line(rest_after))
             i += 1
             continue
 
         # Amount-only line
         if txn_date and is_amount_only_line(stripped):
-            txn_amounts.extend(extract_amounts(stripped))
+            txn_amounts.extend(extract_amounts_from_line(stripped))
             i += 1
             continue
 
-        # Description continuation
+        # Description continuation - but filter out lines that are just
+        # numbers masquerading as description (account numbers, sort codes)
         if txn_date:
+            # Skip lines that are just a bare long number (reference/account number)
+            if re.match(r"^\d{7,}$", stripped):
+                i += 1
+                continue
+            # If we already have a REF and amounts, a new description line
+            # means a new transaction with the same date (no date prefix)
+            if txn_ref and txn_amounts:
+                prev_date = txn_date
+                flush_txn()
+                txn_date = prev_date
             txn_desc_lines.append(stripped)
             i += 1
             continue
 
-        # Orphan date token
         if is_date_token(stripped):
             i += 1
             continue
@@ -565,13 +667,7 @@ def parse_composite(pages: list[str], pdf_name: str) -> list[Transaction]:
 def detect_account_header(
     line: str, all_lines: list[str], idx: int
 ) -> tuple[str, str] | None:
-    """Detect account section header, handling split across lines.
-
-    OCR often wraps headers in parentheses/brackets:
-      ( BANK ACCOUNT 023-085996-705 +)
-      ('SAVER ACCOUNT 023-085996-540 )
-    """
-    # Strip OCR artifacts: leading/trailing parens, brackets, pipes, etc.
+    """Detect account section header."""
     cleaned = re.sub(r"^[\s({\[|']+", "", line)
     cleaned = re.sub(r"[\s)}\]|+]+$", "", cleaned)
 
@@ -580,19 +676,20 @@ def detect_account_header(
             rest = cleaned.split(atype, 1)[-1].strip()
             acct_match = ACCT_RE.search(rest)
             if acct_match:
-                return (atype, acct_match.group(0))
-            # Also search the original line
+                canon = ACCT_TYPE_CANONICAL.get(atype, atype)
+                return (canon, acct_match.group(0))
             acct_match = ACCT_RE.search(line)
             if acct_match:
-                return (atype, acct_match.group(0))
-            # Check next few non-empty lines
+                canon = ACCT_TYPE_CANONICAL.get(atype, atype)
+                return (canon, acct_match.group(0))
             for j in range(idx + 1, min(idx + 5, len(all_lines))):
                 next_line = all_lines[j].strip()
                 if not next_line:
                     continue
                 acct_match = ACCT_RE.search(next_line)
                 if acct_match:
-                    return (atype, acct_match.group(0))
+                    canon = ACCT_TYPE_CANONICAL.get(atype, atype)
+                    return (canon, acct_match.group(0))
                 break
     return None
 
@@ -600,7 +697,6 @@ def detect_account_header(
 def parse_fixed_deposit_line(
     line: str, statement_date: str
 ) -> Transaction | None:
-    """Parse a single-line fixed deposit entry."""
     fd_match = re.match(
         r"([O0]?\d{1,2}[A-Za-z]{3}\d{4})\s+"
         r"([O0]?\d{1,2}[A-Za-z]{3}\d{4})\s+"
@@ -643,12 +739,6 @@ def parse_fixed_deposit_line(
 def parse_fixed_deposit_multiline(
     line: str, all_lines: list[str], idx: int, statement_date: str
 ) -> Transaction | None:
-    """Parse fixed deposit data split across multiple OCR lines.
-
-    Collects dates from one line and account+amounts from nearby lines.
-    """
-    # Check if this line has an account number + currency + amounts
-    # Pattern: ACCT_NUM CCY AMOUNT RATE% AMOUNT
     fd_data_match = re.match(
         r"(\d{3}-\d{5,6}-\d{3})\s+"
         r"(USD|EUR|GBP|CHF|JPY|AUD)\s+"
@@ -666,7 +756,6 @@ def parse_fixed_deposit_multiline(
     rate = fd_data_match.group(4)
     balance = clean_amount(fd_data_match.group(5))
 
-    # Look backwards for dates
     start_date = ""
     maturity = ""
     for j in range(idx - 1, max(idx - 8, -1), -1):
@@ -707,23 +796,19 @@ def parse_fixed_deposit_multiline(
 # ---------------------------------------------------------------------------
 
 def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
-    """Parse an individual Account Statement (single account)."""
-    statement_date = extract_statement_date(pages)
+    statement_date = extract_statement_date(pages, pdf_name)
     if not statement_date:
         print(f"  WARNING: No statement date in {pdf_name}", file=sys.stderr)
         return []
 
-    # Scan first 2 pages for metadata (OCR may split across pages/lines)
     header_text = "\n".join(pages[:2])
     header_lines = header_text.split("\n")
 
     acct_num = ""
-    # Use [^\S\n] to match spaces but not newlines
     m = re.search(r"ACCOUNT[^\S\n]+NUMBER[^\S\n]+(\S+)", header_text)
     if m:
         acct_num = normalize_account(m.group(1))
     else:
-        # ACCOUNT NUMBER on separate line from value
         for idx, line in enumerate(header_lines):
             if "ACCOUNT NUMBER" in line:
                 for j in range(idx + 1, min(idx + 25, len(header_lines))):
@@ -732,17 +817,24 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
                         acct_num = am.group(0)
                         break
                 break
+    # Fallback: if account number is bare digits, look up from known accounts
+    if acct_num and not ACCT_RE.search(acct_num):
+        for known_acct in KNOWN_CURRENCIES:
+            if known_acct.endswith(acct_num):
+                acct_num = known_acct
+                break
 
     currency = ""
     m = re.search(r"^CURRENCY[^\S\n]+(\w+)", header_text, re.MULTILINE)
     if m:
-        currency = m.group(1)
-    else:
-        # CURRENCY on separate line from value
+        cval = m.group(1).upper()
+        if cval in CURRENCY_CODES:
+            currency = cval
+    if not currency:
         for idx, line in enumerate(header_lines):
             if line.strip() == "CURRENCY":
                 for j in range(idx + 1, min(idx + 25, len(header_lines))):
-                    cl = header_lines[j].strip()
+                    cl = header_lines[j].strip().upper()
                     if cl in CURRENCY_CODES:
                         currency = cl
                         break
@@ -760,7 +852,7 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
                     if pt and pt in (
                         "ONLINE BONUS SAVER", "BANK ACCOUNT",
                         "CURRENCY SAVINGS A/C", "SAVER ACCOUNT",
-                        "MULTIPLE SETTLEMENT",
+                        "MULTIPLE SETTLEMENT", "FIXED DEPOSIT A/C",
                     ):
                         acct_type = pt
                         break
@@ -780,14 +872,13 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
         if is_boilerplate_page(page_text):
             continue
         for line in page_text.split("\n"):
-            all_lines.append(line.strip())
+            all_lines.append(clean_ocr_line(line))
 
     txn_date = ""
     txn_desc_lines: list[str] = []
     txn_ref = ""
     txn_amounts: list[str] = []
     post_flush_amounts: list[str] = []
-    # Don't parse transactions until past the column headers
     past_header = False
 
     def flush_txn():
@@ -795,7 +886,7 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
         _apply_post_flush_amounts()
         if txn_date and acct_num and txn_desc_lines:
             desc = " ".join(txn_desc_lines).strip()
-            amount, balance = assign_amounts(txn_amounts)
+            amount, balance = assign_amounts(txn_amounts, currency)
             transactions.append(Transaction(
                 statement_date=statement_date,
                 account_number=acct_num,
@@ -819,25 +910,23 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
         if post_flush_amounts and transactions:
             last = transactions[-1]
             if not last.deposit and not last.balance:
-                amount, balance = assign_amounts(post_flush_amounts)
+                amount, balance = assign_amounts(post_flush_amounts, currency)
                 last.deposit = clean_amount(amount)
                 last.balance = clean_amount(balance)
         post_flush_amounts = []
 
-    for stripped in (l.strip() for l in all_lines):
+    for stripped in (clean_ocr_line(l) for l in all_lines):
         if not stripped:
             continue
 
-        # Detect column headers - marks start of transaction area
         if not past_header:
-            if "(DR=Debit)" in stripped or stripped.startswith("Balance"):
+            if "DR=Debit" in stripped or stripped.startswith("Balance"):
                 past_header = True
             continue
 
         if is_skip_line(stripped):
             continue
 
-        # Skip address lines
         if re.match(r"^(MRS|MR|MS)\s", stripped):
             continue
         if stripped in ("LONDON", "JERSEY", "BENEI ZION", "Date", "Details"):
@@ -848,8 +937,6 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
             continue
 
         if is_balance_line(stripped):
-            # Only flush if we have actual description content
-            # (OCR may interleave balance lines between date and description)
             if txn_desc_lines:
                 flush_txn()
             continue
@@ -857,7 +944,6 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
         if re.match(r"^CURRENCY\s+\w+", stripped):
             continue
 
-        # Date line
         dm = is_date_start(stripped)
         if dm:
             parsed_date = parse_date_ddmmmyyyy(dm.group(1))
@@ -868,8 +954,6 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
                     flush_txn()
                 continue
 
-            # If we already have a date but no description, just update
-            # the date (handles OCR interleaving BBF date with txn date)
             if txn_date and not txn_desc_lines:
                 txn_date = parsed_date
             else:
@@ -880,28 +964,32 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
                 txn_desc_lines.append(rest)
             continue
 
-        # REF line - can appear even without txn_date due to OCR ordering
-        ref_match = re.match(r"^REE?F\s+(\S+)(.*)", stripped)
+        ref_match = re.match(r"^[\[(\\'|I]*REE?F\s+(\S+)(.*)", stripped)
         if ref_match:
             if not txn_date:
-                # REF without a date - likely orphaned from garbled OCR
                 continue
             txn_ref = ref_match.group(1)
             rest_after = ref_match.group(2).strip()
             if rest_after:
-                txn_amounts.extend(extract_amounts(rest_after))
+                txn_amounts.extend(extract_amounts_from_line(rest_after))
             continue
 
-        # Amount-only line - when no active txn, orphaned amounts
         if is_amount_only_line(stripped):
             if txn_date:
-                txn_amounts.extend(extract_amounts(stripped))
+                txn_amounts.extend(extract_amounts_from_line(stripped))
             else:
-                post_flush_amounts.extend(extract_amounts(stripped))
+                post_flush_amounts.extend(extract_amounts_from_line(stripped))
             continue
 
-        # Description continuation
         if txn_date:
+            if re.match(r"^\d{7,}$", stripped):
+                continue
+            # If we already have a REF and amounts, a new description line
+            # means a new transaction with the same date (no date prefix)
+            if txn_ref and txn_amounts:
+                prev_date = txn_date
+                flush_txn()
+                txn_date = prev_date
             txn_desc_lines.append(stripped)
             continue
 
@@ -914,6 +1002,93 @@ def parse_individual(pages: list[str], pdf_name: str) -> list[Transaction]:
 
 
 # ---------------------------------------------------------------------------
+# Post-processing: balance-delta inference for deposit vs withdrawal
+# ---------------------------------------------------------------------------
+
+def infer_direction(transactions: list[Transaction]) -> list[Transaction]:
+    """Use successive balances to determine if amount was deposit or withdrawal.
+
+    For each account, compare balance before and after each transaction.
+    If balance increased, the amount is a deposit; if decreased, a withdrawal.
+    """
+    # Group by account
+    by_account: dict[str, list[Transaction]] = defaultdict(list)
+    for t in transactions:
+        by_account[t.account_number].append(t)
+
+    for acct, txns in by_account.items():
+        txns.sort(key=lambda t: (t.statement_date, t.date))
+
+        prev_balance = None
+        for t in txns:
+            cur_balance = None
+            if t.balance:
+                try:
+                    cur_balance = float(t.balance)
+                except ValueError:
+                    pass
+
+            amount_str = t.deposit  # currently all amounts are in deposit
+            amount_val = None
+            if amount_str:
+                try:
+                    amount_val = float(amount_str)
+                except ValueError:
+                    pass
+
+            if prev_balance is not None and cur_balance is not None and amount_val:
+                delta = cur_balance - prev_balance
+                # If delta is negative or close to -amount, it's a withdrawal
+                if abs(delta + amount_val) < 0.02:
+                    # Withdrawal
+                    t.withdrawal = t.deposit
+                    t.deposit = ""
+                elif abs(delta - amount_val) < 0.02:
+                    # Deposit - already correct
+                    pass
+                else:
+                    # Delta doesn't match amount - could be missing transactions
+                    # or garbled amount. Try to determine from sign of delta
+                    if delta < 0:
+                        t.withdrawal = t.deposit
+                        t.deposit = ""
+                    # If delta > 0, leave as deposit (default)
+
+            if cur_balance is not None:
+                prev_balance = cur_balance
+
+    return transactions
+
+
+def fix_currencies(transactions: list[Transaction]) -> list[Transaction]:
+    """Fix OCR currency errors using KNOWN_CURRENCIES."""
+    for t in transactions:
+        expected = KNOWN_CURRENCIES.get(t.account_number)
+        if expected and t.currency not in CURRENCY_CODES:
+            t.currency = expected
+        elif expected and t.currency != expected:
+            # Only override if current value looks wrong (not a real currency)
+            if t.currency not in CURRENCY_CODES:
+                t.currency = expected
+    return transactions
+
+
+def validate_amounts(transactions: list[Transaction]) -> list[Transaction]:
+    """Remove transactions with clearly garbled amounts."""
+    clean = []
+    for t in transactions:
+        # Check deposit
+        if t.deposit and not is_plausible_amount(t.deposit, t.currency):
+            t.deposit = ""
+        if t.withdrawal and not is_plausible_amount(t.withdrawal, t.currency):
+            t.withdrawal = ""
+        if t.balance and not is_plausible_amount(t.balance, t.currency):
+            t.balance = ""
+        clean.append(t)
+    return clean
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -923,7 +1098,7 @@ def main():
     )
     parser.add_argument(
         "input_dir",
-        help="Directory containing PDF statement files (searched recursively).",
+        help="Directory containing PDF statement files.",
     )
     parser.add_argument(
         "--output", "-o",
@@ -933,8 +1108,8 @@ def main():
     parser.add_argument(
         "--dpi",
         type=int,
-        default=300,
-        help="OCR DPI (default: 300).",
+        default=150,
+        help="OCR DPI (default: 150).",
     )
     args = parser.parse_args()
 
@@ -988,19 +1163,28 @@ def main():
     print(f"  Composite: {composite_count}, Individual: {individual_count}")
     print(f"  Errors: {error_count}, Nil: {nil_count}")
 
+    # Post-processing
+    all_txns = fix_currencies(all_txns)
+    all_txns = validate_amounts(all_txns)
+
     # Sort by date, then account
     all_txns.sort(key=lambda t: (t.date, t.account_number))
 
-    # Dedup: same account + date + reference + amount + balance
+    # Dedup BEFORE direction inference - use absolute amount so overlapping
+    # folder copies don't create duplicates
     seen: set[tuple] = set()
     unique_txns: list[Transaction] = []
     for t in all_txns:
-        key = (t.account_number, t.date, t.deposit, t.withdrawal, t.balance, t.reference)
+        amount = t.deposit or t.withdrawal or ""
+        key = (t.account_number, t.date, amount, t.balance, t.reference)
         if key not in seen:
             seen.add(key)
             unique_txns.append(t)
 
     print(f"  {len(unique_txns)} unique after dedup")
+
+    # Infer deposit vs withdrawal direction from balance deltas
+    unique_txns = infer_direction(unique_txns)
 
     # Write CSV
     out_path = Path(args.output)
@@ -1023,6 +1207,42 @@ def main():
     print("\n=== Transactions by account ===")
     for acct, count in acct_counts.most_common():
         print(f"  {acct}: {count}")
+
+    # Balance continuity check
+    print("\n=== Balance continuity check ===")
+    by_acct: dict[str, list[Transaction]] = defaultdict(list)
+    for t in unique_txns:
+        by_acct[f"{t.account_number} {t.currency}"].append(t)
+
+    for acct_key in sorted(by_acct.keys()):
+        txns = sorted(by_acct[acct_key], key=lambda t: (t.statement_date, t.date))
+        issues = 0
+        prev_bal = None
+        for t in txns:
+            if not t.balance:
+                continue
+            try:
+                cur_bal = float(t.balance)
+            except ValueError:
+                continue
+            amt = 0.0
+            if t.deposit:
+                try:
+                    amt = float(t.deposit)
+                except ValueError:
+                    pass
+            elif t.withdrawal:
+                try:
+                    amt = -float(t.withdrawal)
+                except ValueError:
+                    pass
+            if prev_bal is not None:
+                expected = prev_bal + amt
+                if abs(expected - cur_bal) > 0.02:
+                    issues += 1
+            prev_bal = cur_bal
+        total = len(txns)
+        print(f"  {acct_key}: {total} txns, {issues} balance gaps")
 
 
 if __name__ == "__main__":
