@@ -95,13 +95,33 @@ if (isset($_GET['api']) && $_GET['api'] === 'fxrates') {
     exit;
 }
 
+// Shared: build date filter for calendar year or UK tax year
+function yearDateFilter(int $year, bool $ukTax): string {
+    if ($ukTax) {
+        // UK tax year: 6 Apr $year to 5 Apr $year+1
+        $start = $year . '-04-06';
+        $end = ($year + 1) . '-04-05';
+        return "date >= {$start} AND date <= {$end}";
+    }
+    return "year = {$year}";
+}
+function yearCumulativeFilter(int $year, bool $ukTax): string {
+    if ($ukTax) {
+        $end = ($year + 1) . '-04-05';
+        return "date <= {$end}";
+    }
+    return "year <= {$year}";
+}
+
 // API: P&L for a given year
 if (isset($_GET['api']) && $_GET['api'] === 'pnl' && isset($_GET['year'])) {
     $year = intval($_GET['year']);
     if ($year < 2018 || $year > 2030) { http_response_code(400); exit(json_encode(['error' => 'Invalid year'])); }
+    $ukTax = isset($_GET['taxyr']) && $_GET['taxyr'] === 'uk';
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
-    $query = "SELECT account, currency, sum(number) WHERE (account ~ '^Income' OR account ~ '^Expenses') AND year = {$year} GROUP BY account, currency ORDER BY account, currency";
+    $dateFilter = yearDateFilter($year, $ukTax);
+    $query = "SELECT account, currency, sum(number) WHERE (account ~ '^Income' OR account ~ '^Expenses') AND {$dateFilter} GROUP BY account, currency ORDER BY account, currency";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     header('Content-Type: application/json');
     echo json_encode(parseBeanCsv($csv));
@@ -122,7 +142,8 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
     if (isset($_GET['year'])) {
         $year = intval($_GET['year']);
         if ($year >= 2000 && $year <= 2100) {
-            $yearFilter = " AND year = {$year}";
+            $ukTax = isset($_GET['taxyr']) && $_GET['taxyr'] === 'uk';
+            $yearFilter = ' AND ' . yearDateFilter($year, $ukTax);
         }
     }
     // Main journal query with running balance and tags
@@ -196,9 +217,11 @@ if (isset($_GET['api']) && $_GET['api'] === 'trialbal') {
 if (isset($_GET['api']) && $_GET['api'] === 'balsheet' && isset($_GET['year'])) {
     $year = intval($_GET['year']);
     if ($year < 2018 || $year > 2030) { http_response_code(400); exit(json_encode(['error' => 'Invalid year'])); }
+    $ukTax = isset($_GET['taxyr']) && $_GET['taxyr'] === 'uk';
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
-    $query = "SELECT account, currency, sum(number) WHERE (account ~ '^Assets' OR account ~ '^Liabilities' OR account ~ '^Equity') AND year <= {$year} GROUP BY account, currency ORDER BY account, currency";
+    $cumFilter = yearCumulativeFilter($year, $ukTax);
+    $query = "SELECT account, currency, sum(number) WHERE (account ~ '^Assets' OR account ~ '^Liabilities' OR account ~ '^Equity') AND {$cumFilter} GROUP BY account, currency ORDER BY account, currency";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     header('Content-Type: application/json');
     echo json_encode(parseBeanCsv($csv));
@@ -336,6 +359,14 @@ tailwind.config = {
       <button x-show="search" @click="search = ''" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 text-xs">&times;</button>
     </div>
     <span x-show="page === 'ledger'" class="text-gray-600 text-xs">j/k nav</span>
+    <!-- Tax year toggle -->
+    <div x-show="page === 'pnl' || page === 'balsheet'" class="flex items-center gap-2">
+      <span class="text-xs" :class="!ukTaxYear ? 'text-gray-200' : 'text-gray-500'">Calendar</span>
+      <button @click="toggleTaxYear()" class="relative w-9 h-5 rounded-full transition-colors" :class="ukTaxYear ? 'bg-blue-600' : 'bg-gray-600'">
+        <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform" :class="ukTaxYear ? 'translate-x-4' : ''"></span>
+      </button>
+      <span class="text-xs" :class="ukTaxYear ? 'text-gray-200' : 'text-gray-500'">UK Tax</span>
+    </div>
   </header>
 
   <!-- Account detail modal -->
@@ -348,7 +379,7 @@ tailwind.config = {
           <h2 class="text-sm font-semibold text-purple-400" x-text="acctName"></h2>
           <div class="text-[11px] text-gray-500 mt-0.5">
             <span x-text="acctJournal.length + ' postings'"></span>
-            <span x-show="acctYear" class="ml-1 text-blue-400" x-text="acctYear ? '(' + acctYear + ')' : ''"></span>
+            <span x-show="acctYear" class="ml-1 text-blue-400" x-text="acctYear ? '(' + (ukTaxYear ? 'UK ' + acctYear + '/' + String(acctYear+1).slice(2) : acctYear) + ')' : ''"></span>
           </div>
         </div>
         <button @click="closeAcctModal()" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
@@ -409,7 +440,7 @@ tailwind.config = {
             @click="selectReportYear(y)"
             :class="reportYear === y ? 'bg-gray-700 text-gray-200' : 'text-gray-500 hover:text-gray-300'"
             class="px-2.5 py-1 rounded text-xs transition-colors"
-            x-text="y"
+            x-text="ukTaxYear ? y + '/' + String(y+1).slice(2) : y"
           ></button>
         </template>
       </div>
@@ -747,6 +778,7 @@ function ledgerApp() {
     reportCache: {},
     openReportGroups: {},
     fxRates: {},  // {year: {currency: rate_to_usd}}
+    ukTaxYear: false,
     // Account detail modal
     acctModal: false,
     acctName: '',
@@ -974,8 +1006,15 @@ function ledgerApp() {
       history.replaceState(null, '', '#' + this.page + '/' + y);
       this.fetchReport();
     },
+    toggleTaxYear() {
+      this.ukTaxYear = !this.ukTaxYear;
+      this.reportCache = {};
+      this.acctCache = {};
+      this.fetchReport();
+    },
     async fetchReport() {
-      const key = this.page + '-' + this.reportYear;
+      const taxSuffix = this.ukTaxYear ? '-uk' : '';
+      const key = this.page + '-' + this.reportYear + taxSuffix;
       if (this.reportCache[key]) {
         this.reportData = this.reportCache[key];
         return;
@@ -983,7 +1022,9 @@ function ledgerApp() {
       this.reportLoading = true;
       this.reportData = [];
       try {
-        const res = await fetch('?api=' + this.page + '&year=' + this.reportYear);
+        let url = '?api=' + this.page + '&year=' + this.reportYear;
+        if (this.ukTaxYear) url += '&taxyr=uk';
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Failed');
         const data = await res.json();
         this.reportCache[key] = data;
@@ -1007,7 +1048,8 @@ function ledgerApp() {
       this.acctModal = true;
       // Update URL hash to include account (and year if applicable)
       this.pushAcctHash();
-      const cacheKey = name + (year ? '|' + year : '');
+      const taxSuffix = (year && this.ukTaxYear) ? '-uk' : '';
+      const cacheKey = name + (year ? '|' + year + taxSuffix : '');
       if (this.acctCache[cacheKey]) {
         this.acctJournal = this.acctCache[cacheKey];
         return;
@@ -1017,6 +1059,7 @@ function ledgerApp() {
       try {
         let url = '?api=account&name=' + encodeURIComponent(name);
         if (year) url += '&year=' + year;
+        if (year && this.ukTaxYear) url += '&taxyr=uk';
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed');
         const data = await res.json();
