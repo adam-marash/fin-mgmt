@@ -435,8 +435,8 @@ tailwind.config = {
                               x-text="fmtAmount(group.totals[cur], cur)"></div>
                         </template>
                         <div class="text-right py-1.5 px-2 text-xs"
-                            :class="sumUsd(group.totals) < 0 ? 'text-red-400' : 'text-yellow-600/70'"
-                            x-text="fmtAmount(sumUsd(group.totals), 'USD')"></div>
+                            :class="sumUsdLatest(group.totals) < 0 ? 'text-red-400' : 'text-yellow-600/70'"
+                            x-text="fmtAmount(sumUsdLatest(group.totals), 'USD')">
                       </div>
                       <!-- Leaves -->
                       <template x-if="openReportGroups[section.name + ':' + group.name]">
@@ -452,8 +452,8 @@ tailwind.config = {
                                     x-text="fmtAmount(leaf.amounts[cur], cur)"></div>
                               </template>
                               <div class="text-right py-1 px-2 text-xs"
-                                  :class="sumUsd(leaf.amounts) < 0 ? 'text-red-400' : 'text-yellow-600/50'"
-                                  x-text="fmtAmount(sumUsd(leaf.amounts), 'USD')"></div>
+                                  :class="sumUsdLatest(leaf.amounts) < 0 ? 'text-red-400' : 'text-yellow-600/50'"
+                                  x-text="fmtAmount(sumUsdLatest(leaf.amounts), 'USD')">
                             </div>
                           </template>
                         </div>
@@ -469,8 +469,8 @@ tailwind.config = {
                           x-text="fmtAmount(section.totals[cur], cur)"></div>
                     </template>
                     <div class="text-right py-2 px-2 text-xs font-semibold"
-                        :class="sumUsd(section.totals) < 0 ? 'text-red-400' : 'text-yellow-600'"
-                        x-text="fmtAmount(sumUsd(section.totals), 'USD')"></div>
+                        :class="sumUsdLatest(section.totals) < 0 ? 'text-red-400' : 'text-yellow-600'"
+                        x-text="fmtAmount(sumUsdLatest(section.totals), 'USD')">
                   </div>
                 </div>
               </template>
@@ -483,8 +483,8 @@ tailwind.config = {
                       x-text="fmtAmount(reportGrandTotal[cur], cur)"></div>
                 </template>
                 <div class="text-right py-2 px-2 text-sm font-semibold"
-                    :class="sumUsd(reportGrandTotal) < 0 ? 'text-red-400' : 'text-yellow-500'"
-                    x-text="fmtAmount(sumUsd(reportGrandTotal), 'USD')"></div>
+                    :class="sumUsdLatest(reportGrandTotal) < 0 ? 'text-red-400' : 'text-yellow-500'"
+                    x-text="fmtAmount(sumUsdLatest(reportGrandTotal), 'USD')">
               </div>
             </div>
           </div>
@@ -1118,16 +1118,7 @@ function ledgerApp() {
       });
       return totals;
     },
-    sumUsd(amounts) {
-      const rates = this.fxRates[this.reportYear] || {};
-      let total = 0;
-      for (const [cur, val] of Object.entries(amounts || {})) {
-        if (Math.abs(val) < 0.005) continue;
-        const rate = cur === 'USD' ? 1 : (rates[cur] || 0);
-        total += val * rate;
-      }
-      return total;
-    },
+    sumUsd(amounts) { return this.sumUsdLatest(amounts); },
     fmtAmount(val, currency) {
       if (val === undefined || val === null || Math.abs(val) < 0.005) return '';
       const decimals = currency === 'JPY' ? 0 : 2;
