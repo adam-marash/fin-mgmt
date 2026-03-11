@@ -436,7 +436,7 @@ tailwind.config = {
                         </template>
                         <div class="text-right py-1.5 px-2 text-xs"
                             :class="sumUsdLatest(group.totals) < 0 ? 'text-red-400' : 'text-yellow-600/70'"
-                            x-text="fmtAmount(sumUsdLatest(group.totals), 'USD')">
+                            x-text="fmtAmount(sumUsdLatest(group.totals), 'USD')"></div>
                       </div>
                       <!-- Leaves -->
                       <template x-if="openReportGroups[section.name + ':' + group.name]">
@@ -453,7 +453,7 @@ tailwind.config = {
                               </template>
                               <div class="text-right py-1 px-2 text-xs"
                                   :class="sumUsdLatest(leaf.amounts) < 0 ? 'text-red-400' : 'text-yellow-600/50'"
-                                  x-text="fmtAmount(sumUsdLatest(leaf.amounts), 'USD')">
+                                  x-text="fmtAmount(sumUsdLatest(leaf.amounts), 'USD')"></div>
                             </div>
                           </template>
                         </div>
@@ -470,7 +470,7 @@ tailwind.config = {
                     </template>
                     <div class="text-right py-2 px-2 text-xs font-semibold"
                         :class="sumUsdLatest(section.totals) < 0 ? 'text-red-400' : 'text-yellow-600'"
-                        x-text="fmtAmount(sumUsdLatest(section.totals), 'USD')">
+                        x-text="fmtAmount(sumUsdLatest(section.totals), 'USD')"></div>
                   </div>
                 </div>
               </template>
@@ -484,7 +484,7 @@ tailwind.config = {
                 </template>
                 <div class="text-right py-2 px-2 text-sm font-semibold"
                     :class="sumUsdLatest(reportGrandTotal) < 0 ? 'text-red-400' : 'text-yellow-500'"
-                    x-text="fmtAmount(sumUsdLatest(reportGrandTotal), 'USD')">
+                    x-text="fmtAmount(sumUsdLatest(reportGrandTotal), 'USD')"></div>
               </div>
             </div>
           </div>
