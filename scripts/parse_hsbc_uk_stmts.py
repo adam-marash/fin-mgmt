@@ -30,6 +30,12 @@ PAY_TYPES = {"DD", "BP", "CR", "VIS", "TFR", "DR", "ATM", "SO", ")))"}
 DATE_RE = re.compile(r"^(\d{2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{2})$", re.IGNORECASE)
 AMOUNT_RE = re.compile(r"[\d,]+\.\d{2}")
 
+# FX continuation patterns - foreign currency amount and Visa Rate GBP amount
+FX_CURRENCY_RE = re.compile(r"^(ILS|USD|EUR|CHF|PLN|AUD|JPY)\s+([\d,]+\.\d{2})")
+FX_VISA_RATE_RE = re.compile(r"Visa\s+Rate\s+([\d,]+\.\d{2})", re.IGNORECASE)
+# Overdrawn balance marker: "301.84 D" at end of line
+OVERDRAWN_RE = re.compile(r"([\d,]+\.\d{2})\s+D\s*$")
+
 
 @dataclass
 class Transaction:
@@ -192,6 +198,57 @@ def extract_transactions_from_text(text: str) -> list[Transaction]:
         elif current_txn:
             # Continuation line - may have description text and/or amounts
             rest_text = " ".join(rest_parts)
+
+            # Check for FX foreign currency line (e.g., "ILS 193.00")
+            fx_cur_match = FX_CURRENCY_RE.match(rest_text)
+            if fx_cur_match:
+                # This is a foreign currency amount - store but don't use as GBP amount
+                current_txn.description += " " + rest_text
+                # Clear any previously assigned amount from foreign currency
+                # (the GBP amount will come on the next "Visa Rate" line)
+                current_txn._fx_foreign = True
+                continue
+
+            # Check for "Visa Rate XX.XX" line (GBP equivalent of FX transaction)
+            fx_rate_match = FX_VISA_RATE_RE.search(rest_text)
+            if fx_rate_match:
+                gbp_amount = parse_amount(fx_rate_match.group(1))
+                # This is the actual GBP amount for the FX transaction
+                if current_txn.pay_type == "CR":
+                    current_txn.paid_in = gbp_amount
+                    current_txn.paid_out = None
+                else:
+                    current_txn.paid_out = gbp_amount
+                    current_txn.paid_in = None
+                current_txn.description += " " + rest_text
+                # Check if there's also a balance on this line after the Visa Rate amount
+                # Pattern: "@4.6338 Visa Rate 41.65" (no balance) vs rare cases with balance
+                remaining = rest_text[fx_rate_match.end():].strip()
+                if remaining:
+                    bal_amounts = AMOUNT_RE.findall(remaining)
+                    if bal_amounts:
+                        current_txn.balance = parse_amount(bal_amounts[-1])
+                continue
+
+            # Check for overdrawn balance marker (e.g., "301.84 D")
+            od_match = OVERDRAWN_RE.search(rest_text)
+            if od_match:
+                # Negative (overdrawn) balance
+                current_txn.balance = -parse_amount(od_match.group(1))
+                # Remove the "D" and balance from description
+                desc_part = rest_text[:od_match.start()].strip()
+                # Check if there's an amount before the balance
+                amounts = AMOUNT_RE.findall(desc_part)
+                for amt in amounts:
+                    desc_part = desc_part.replace(amt, "").strip()
+                desc_part = re.sub(r"\s+", " ", desc_part).strip()
+                if desc_part:
+                    current_txn.description += " " + desc_part
+                if amounts:
+                    # The amount before the "D" balance is the transaction amount
+                    _assign_amounts_no_balance(current_txn, amounts)
+                continue
+
             amounts = AMOUNT_RE.findall(rest_text)
 
             desc_part = rest_text
@@ -210,6 +267,18 @@ def extract_transactions_from_text(text: str) -> list[Transaction]:
         transactions.append(current_txn)
 
     return transactions
+
+
+def _assign_amounts_no_balance(txn: Transaction, amounts: list[str]):
+    """Assign amounts without treating any as a balance."""
+    parsed = [parse_amount(a) for a in amounts]
+    is_credit = txn.pay_type == "CR"
+    if parsed:
+        if txn.paid_out is None and txn.paid_in is None:
+            if is_credit:
+                txn.paid_in = parsed[0]
+            else:
+                txn.paid_out = parsed[0]
 
 
 def _assign_amounts(txn: Transaction, amounts: list[str]):
@@ -255,6 +324,85 @@ def _assign_amounts(txn: Transaction, amounts: list[str]):
             txn.paid_out = parsed[0]
 
 
+def _verify_and_fix_balances(txns: list[Transaction], opening_balance: float | None):
+    """Post-parse verification: use balance trail to fix sign errors.
+
+    Walk from opening balance. At each transaction with a known balance,
+    verify the running total matches. If not, and the segment has exactly
+    one transaction, fix its amount. For sign flips (amount negated matches),
+    flip the sign.
+    """
+    if opening_balance is None or not txns:
+        return
+
+    running = opening_balance
+    last_known_bal = opening_balance
+    last_known_idx = -1
+
+    for i, txn in enumerate(txns):
+        amount = -txn.paid_out if txn.paid_out else txn.paid_in if txn.paid_in else 0
+        running += amount
+
+        if txn.balance is not None:
+            if abs(running - txn.balance) > 0.02:
+                # Mismatch - try to fix
+                segment = txns[last_known_idx + 1:i + 1]
+                correct_sum = txn.balance - last_known_bal
+
+                if len(segment) == 1:
+                    # Single transaction - compute correct amount
+                    _fix_txn_amount(txn, correct_sum)
+                    running = txn.balance
+                else:
+                    # Multiple transactions - try to find which one(s) are wrong
+                    segment_amounts = []
+                    for s in segment:
+                        a = -s.paid_out if s.paid_out else s.paid_in if s.paid_in else 0
+                        segment_amounts.append(a)
+
+                    error = sum(segment_amounts) - correct_sum
+                    fixed = False
+
+                    # Try single sign flip first
+                    for j in range(len(segment)):
+                        if abs(2 * segment_amounts[j] - error) < 0.02 and abs(segment_amounts[j]) > 0.01:
+                            _fix_txn_amount(segment[j], -segment_amounts[j])
+                            fixed = True
+                            break
+
+                    # Try flipping multiple transactions (subsets up to size 4)
+                    if not fixed:
+                        from itertools import combinations
+                        for size in range(2, min(len(segment) + 1, 5)):
+                            for combo in combinations(range(len(segment)), size):
+                                flip_sum = sum(segment_amounts[j] for j in combo)
+                                if abs(2 * flip_sum - error) < 0.02:
+                                    for j in combo:
+                                        _fix_txn_amount(segment[j], -segment_amounts[j])
+                                    fixed = True
+                                    break
+                            if fixed:
+                                break
+
+                    running = txn.balance
+
+            last_known_bal = txn.balance
+            last_known_idx = i
+
+
+def _fix_txn_amount(txn: Transaction, correct_amount: float):
+    """Set a transaction's amount to the correct value."""
+    if correct_amount > 0:
+        txn.paid_in = correct_amount
+        txn.paid_out = None
+    elif correct_amount < 0:
+        txn.paid_out = -correct_amount
+        txn.paid_in = None
+    else:
+        txn.paid_out = None
+        txn.paid_in = None
+
+
 def parse_statement(pdf_path: Path) -> tuple[list[Transaction], dict]:
     """Parse a single HSBC UK statement PDF."""
     metadata = {}
@@ -287,6 +435,9 @@ def parse_statement(pdf_path: Path) -> tuple[list[Transaction], dict]:
     # Parse all pages as one continuous text to handle cross-page transactions
     combined_text = "\n".join(all_text_parts)
     all_txns = extract_transactions_from_text(combined_text)
+
+    # Post-parse: verify and fix amounts using balance trail
+    _verify_and_fix_balances(all_txns, metadata.get("opening_balance"))
 
     return all_txns, metadata
 
