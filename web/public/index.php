@@ -125,14 +125,14 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
             $yearFilter = " AND year = {$year}";
         }
     }
-    // Main journal query with running balance
-    $query = "SELECT date, narration, number, currency, balance WHERE account = '{$account}'{$yearFilter} ORDER BY date";
+    // Main journal query with running balance and tags
+    $query = "SELECT date, narration, number, currency, balance, tags WHERE account = '{$account}'{$yearFilter} ORDER BY date";
     $csv = shell_exec(escapeshellarg($beanQuery) . ' ' . escapeshellarg($mainFile) . ' ' . escapeshellarg($query) . ' --format csv 2>&1');
     $lines = explode("\n", trim($csv));
     $rows = [];
     for ($i = 1; $i < count($lines); $i++) {
         $parts = str_getcsv($lines[$i]);
-        if (count($parts) < 5) continue;
+        if (count($parts) < 6) continue;
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($parts[0]))) continue;
         // balance field is like "  6403.00 USD" or "  100.00 EUR, 200.00 USD"
         $balStr = trim($parts[4]);
@@ -142,12 +142,15 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
                 $balParts[] = ['amount' => floatval(str_replace(',', '', $bm[1])), 'currency' => $bm[2]];
             }
         }
+        // tags field is comma-separated, e.g. "uk-reportable,reconciled"
+        $tags = array_filter(array_map('trim', explode(',', trim($parts[5]))));
         $rows[] = [
             'date' => trim($parts[0]),
             'narration' => trim($parts[1]),
             'amount' => floatval(trim($parts[2])),
             'currency' => trim($parts[3]),
             'balance' => $balParts,
+            'reconciled' => in_array('reconciled', $tags),
             'contra' => [],
         ];
     }
@@ -370,7 +373,10 @@ tailwind.config = {
           <tbody>
             <template x-for="(row, i) in acctJournal" :key="i">
               <tr class="border-b border-border/50 hover:bg-gray-800/30">
-                <td class="py-1.5 px-3 text-green-400 whitespace-nowrap" x-text="row.date"></td>
+                <td class="py-1.5 px-3 whitespace-nowrap">
+                  <span class="text-green-400" x-text="row.date"></span>
+                  <span x-show="row.reconciled" class="text-green-500 ml-1 font-semibold text-[10px]">R</span>
+                </td>
                 <td class="py-1.5 px-3 text-gray-300 truncate max-w-md" :title="row.narration" x-text="row.narration"></td>
                 <td class="py-1.5 px-3 text-right whitespace-nowrap"
                     :class="row.amount > 0 ? 'text-gray-300' : 'text-transparent'"
