@@ -137,12 +137,17 @@ if (isset($_GET['api']) && $_GET['api'] === 'account' && isset($_GET['name'])) {
     }
     $beanQuery = realpath(__DIR__ . '/../../.venv/bin/bean-query');
     $mainFile = realpath(__DIR__ . '/../../ledger/main.beancount');
-    // Optional year filter (for P&L / Balance Sheet drill-down)
+    // Optional year filter: 'year' = single period (P&L), 'through' = cumulative (Balance Sheet)
     $yearFilter = '';
-    if (isset($_GET['year'])) {
+    $ukTax = isset($_GET['taxyr']) && $_GET['taxyr'] === 'uk';
+    if (isset($_GET['through'])) {
+        $year = intval($_GET['through']);
+        if ($year >= 2000 && $year <= 2100) {
+            $yearFilter = ' AND ' . yearCumulativeFilter($year, $ukTax);
+        }
+    } elseif (isset($_GET['year'])) {
         $year = intval($_GET['year']);
         if ($year >= 2000 && $year <= 2100) {
-            $ukTax = isset($_GET['taxyr']) && $_GET['taxyr'] === 'uk';
             $yearFilter = ' AND ' . yearDateFilter($year, $ukTax);
         }
     }
@@ -379,7 +384,7 @@ tailwind.config = {
           <h2 class="text-sm font-semibold text-purple-400" x-text="acctName"></h2>
           <div class="text-[11px] text-gray-500 mt-0.5">
             <span x-text="acctJournal.length + ' postings'"></span>
-            <span x-show="acctYear" class="ml-1 text-blue-400" x-text="acctYear ? '(' + (ukTaxYear ? 'UK ' + acctYear + '/' + String(acctYear+1).slice(2) : acctYear) + ')' : ''"></span>
+            <span x-show="acctYear" class="ml-1 text-blue-400" x-text="acctYear ? (acctThrough ? 'through ' : '') + (ukTaxYear ? 'UK ' + acctYear + '/' + String(acctYear+1).slice(2) : acctYear) : ''"></span>
           </div>
         </div>
         <button @click="closeAcctModal()" class="text-gray-500 hover:text-gray-300 text-lg px-2">&times;</button>
@@ -419,7 +424,7 @@ tailwind.config = {
                     x-text="row.balance.filter(b => b.currency === row.currency).map(b => fmtAmount(b.amount, b.currency) + ' ' + b.currency).join(', ')"></td>
                 <td class="py-1.5 px-3 text-gray-500 text-xs truncate max-w-xs" :title="(row.contra||[]).join(', ')">
                   <template x-for="(c, ci) in (row.contra||[])" :key="ci">
-                    <span class="cursor-pointer hover:text-purple-400" @click.stop="openAccount(c, acctYear)" x-text="c.split(':').slice(-2).join(':')"></span>
+                    <span class="cursor-pointer hover:text-purple-400" @click.stop="openAccount(c, acctYear, acctThrough)" x-text="c.split(':').slice(-2).join(':')"></span>
                   </template>
                 </td>
               </tr>
@@ -492,7 +497,7 @@ tailwind.config = {
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
                               <div class="py-1 px-2 pl-10 text-xs">
-                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear)"></span>
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear, page === 'balsheet')"></span>
                               </div>
                               <template x-for="cur in reportCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
@@ -585,7 +590,7 @@ tailwind.config = {
                           <template x-for="leaf in group.leaves" :key="leaf.name">
                             <div class="report-row hover:bg-gray-800/20">
                               <div class="py-1 px-2 pl-10 text-xs">
-                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear)"></span>
+                                <span class="text-gray-500 hover:text-purple-400 cursor-pointer hover:underline" x-text="leaf.name" @click.stop="openAccount(acctFullName(section.name, group.name, leaf.name), page === 'trialbal' ? null : reportYear, page === 'balsheet')"></span>
                               </div>
                               <template x-for="cur in trialBalCurrencies" :key="cur">
                                 <div class="text-right py-1 px-2 text-xs"
@@ -783,6 +788,7 @@ function ledgerApp() {
     acctModal: false,
     acctName: '',
     acctYear: null, // year filter for P&L/BS drill-down, null = all time
+    acctThrough: false, // true = cumulative through year (balance sheet)
     acctJournal: [],
     acctLoading: false,
     acctCache: {},
@@ -1049,14 +1055,16 @@ function ledgerApp() {
       if (leaf === group) return section + ':' + group;
       return section + ':' + group + ':' + leaf;
     },
-    async openAccount(name, year = null) {
+    async openAccount(name, year = null, through = false) {
       this.acctName = name;
       this.acctYear = year;
+      this.acctThrough = through;
       this.acctModal = true;
       // Update URL hash to include account (and year if applicable)
       this.pushAcctHash();
       const taxSuffix = (year && this.ukTaxYear) ? '-uk' : '';
-      const cacheKey = name + (year ? '|' + year + taxSuffix : '');
+      const modeSuffix = through ? '-through' : '';
+      const cacheKey = name + (year ? '|' + year + taxSuffix + modeSuffix : '');
       if (this.acctCache[cacheKey]) {
         this.acctJournal = this.acctCache[cacheKey];
         return;
@@ -1065,7 +1073,8 @@ function ledgerApp() {
       this.acctJournal = [];
       try {
         let url = '?api=account&name=' + encodeURIComponent(name);
-        if (year) url += '&year=' + year;
+        if (year && through) url += '&through=' + year;
+        else if (year) url += '&year=' + year;
         if (year && this.ukTaxYear) url += '&taxyr=uk';
         const res = await fetch(url);
         if (!res.ok) throw new Error('Failed');
