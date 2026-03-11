@@ -28,7 +28,7 @@ PAY_TYPES = {"DD", "BP", "CR", "VIS", "TFR", "DR", "ATM", "SO", ")))"}
 
 # Date patterns - with or without spaces (older statements concatenate)
 DATE_RE = re.compile(r"^(\d{2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{2})$", re.IGNORECASE)
-AMOUNT_RE = re.compile(r"[\d,]+\.\d{2}")
+AMOUNT_RE = re.compile(r"(?<!\d)(?<!\.)[\d,]+\.\d{2}(?![\d.])")
 
 # FX continuation patterns - foreign currency amount and Visa Rate GBP amount
 FX_CURRENCY_RE = re.compile(r"^(ILS|USD|EUR|CHF|PLN|AUD|JPY)\s+([\d,]+\.\d{2})")
@@ -198,6 +198,25 @@ def extract_transactions_from_text(text: str) -> list[Transaction]:
         elif current_txn:
             # Continuation line - may have description text and/or amounts
             rest_text = " ".join(rest_parts)
+
+            # ATM NOTEMAC pattern: continuation lines show fee breakdown
+            # and total withdrawal, NOT balances.
+            # Line 1: "NOTEMAC CHG 0.99" (fee)
+            # Line 2: "BEKEM FOOD S@12:21 100.99" (total paid_out)
+            if current_txn.pay_type == "ATM" and "NOTEMAC" in current_txn.description:
+                amounts = AMOUNT_RE.findall(rest_text)
+                desc_part = rest_text
+                for amt in amounts:
+                    desc_part = desc_part.replace(amt, "").strip()
+                desc_part = re.sub(r"\s+", " ", desc_part).strip()
+                if desc_part:
+                    current_txn.description += " " + desc_part
+                if amounts:
+                    # Last amount on last continuation line is total paid_out
+                    current_txn.paid_out = parse_amount(amounts[-1])
+                    current_txn.paid_in = None
+                    current_txn.balance = None  # no balance shown for ATM
+                continue
 
             # Check for FX foreign currency line (e.g., "ILS 193.00")
             fx_cur_match = FX_CURRENCY_RE.match(rest_text)
@@ -422,9 +441,9 @@ def parse_statement(pdf_path: Path) -> tuple[list[Transaction], dict]:
                 metadata["period_start"] = period_match.group(1)
                 metadata["period_end"] = period_match.group(2)
 
-            # Extract summary (handle concatenated text too)
-            ob_match = re.search(r"Opening\s*Balance\s+([\d,]+\.\d{2})", text)
-            cb_match = re.search(r"Closing\s*Balance\s+([\d,]+\.\d{2})", text)
+            # Extract summary (handle concatenated text and optional £ prefix)
+            ob_match = re.search(r"Opening\s*Balance\s+£?([\d,]+\.\d{2})", text)
+            cb_match = re.search(r"Closing\s*Balance\s+£?([\d,]+\.\d{2})", text)
             if ob_match:
                 metadata["opening_balance"] = parse_amount(ob_match.group(1))
             if cb_match:
@@ -435,6 +454,24 @@ def parse_statement(pdf_path: Path) -> tuple[list[Transaction], dict]:
     # Parse all pages as one continuous text to handle cross-page transactions
     combined_text = "\n".join(all_text_parts)
     all_txns = extract_transactions_from_text(combined_text)
+
+    # Fallback: extract opening balance from first BALANCEBROUGHTFORWARD line
+    if "opening_balance" not in metadata:
+        bbf_match = re.search(
+            r"BALANCE\s*BROUGHT\s*FORWARD[.\s]*£?([\d,]+\.\d{2})",
+            combined_text, re.IGNORECASE,
+        )
+        if bbf_match:
+            metadata["opening_balance"] = parse_amount(bbf_match.group(1))
+
+    # Fallback: extract closing balance from last BALANCECARRIEDFORWARD line
+    if "closing_balance" not in metadata:
+        bcf_matches = re.findall(
+            r"BALANCE\s*CARRIED\s*FORWARD[.\s]*£?([\d,]+\.\d{2})",
+            combined_text, re.IGNORECASE,
+        )
+        if bcf_matches:
+            metadata["closing_balance"] = parse_amount(bcf_matches[-1])
 
     # Post-parse: verify and fix amounts using balance trail
     _verify_and_fix_balances(all_txns, metadata.get("opening_balance"))
